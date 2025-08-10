@@ -28,14 +28,17 @@ public class User {
     @CreatedDate
     private OffsetDateTime createdAt;
 
-    @Column
     @LastModifiedDate
     private OffsetDateTime updatedAt;
 
-    @OneToMany(mappedBy = "userTask", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Task> tasks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "userCategory")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<Category> categories = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Goal> goal = new ArrayList<>();
 
     public void addTask(Task task) {
         tasks.add(task);
@@ -46,4 +49,5 @@ public class User {
         tasks.remove(task);
         task.setUser(null);
     }
+
 }

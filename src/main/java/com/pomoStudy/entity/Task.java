@@ -7,6 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Set;
 
 
 @Entity
@@ -43,12 +44,15 @@ public class Task {
     private OffsetDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "categoriaId")
+    @JoinColumn(name = "category_id")
     private Category category;
+
+    @OneToMany(mappedBy = "task")
+    private Set<Pomodoro_session> sessions;
 
     public User getUser() {
         return user;
