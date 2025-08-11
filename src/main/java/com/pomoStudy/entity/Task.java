@@ -45,7 +45,7 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private User user_task;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
@@ -55,11 +55,11 @@ public class Task {
     private Set<Pomodoro_session> sessions;
 
     public User getUser() {
-        return user;
+        return user_task;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setUser(User user_task) {
+        this.user_task = user_task;
     }
 
 }

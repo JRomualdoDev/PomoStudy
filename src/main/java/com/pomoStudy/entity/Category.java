@@ -18,5 +18,5 @@ public class Category {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private User user_category;
 }

@@ -41,7 +41,7 @@ public class Goal {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private User user_goal;
 
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Goal_history> goalHistory = new ArrayList<>();
