@@ -1,6 +1,5 @@
 package com.pomoStudy.service;
 
-import com.pomoStudy.dto.UserDTO;
 import com.pomoStudy.entity.User;
 import com.pomoStudy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

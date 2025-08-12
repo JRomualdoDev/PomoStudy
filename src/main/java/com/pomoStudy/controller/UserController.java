@@ -1,6 +1,6 @@
 package com.pomoStudy.controller;
 
-import com.pomoStudy.dto.UserDTO;
+import com.pomoStudy.dto.UserRequestDTO;
 import com.pomoStudy.entity.User;
 import com.pomoStudy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +21,14 @@ public class UserController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<String> create(@RequestBody UserDTO userDto) {
+    public ResponseEntity<String> create(@RequestBody UserRequestDTO userDto) {
 
         User user = new User();
         user.setName(userDto.getName());
-        user.setEmail(userDto.email());
-        user.setPassword(userDto.password());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(userDto.getPassword());
 
-        user.setCreatedAt(OffsetDateTime.now());
+        userDto.setCreatedAt(OffsetDateTime.now());
 
         userService.save(user);
 
