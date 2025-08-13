@@ -8,23 +8,18 @@ import java.time.OffsetDateTime;
 
 public class UserRequestDTO {
 
-    @JsonProperty(required = true)
+//    @JsonProperty(required = true)
     private String name;
-    @JsonProperty(required = true)
+//    @JsonProperty(required = true)
     private String email;
-    @JsonProperty(required = true)
+//    @JsonProperty(required = true)
     private String password;
-    private OffsetDateTime createdAt;
 
     public UserRequestDTO(User user) {
         BeanUtils.copyProperties(user, this);
     }
 
     public UserRequestDTO() {
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
     }
 
     public String getPassword() {

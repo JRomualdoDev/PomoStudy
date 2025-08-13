@@ -8,21 +8,12 @@ import java.time.OffsetDateTime;
 
 public class UserResponseDTO {
 
-    @JsonProperty(required = true)
     private String name;
-    @JsonProperty(required = true)
     private String email;
-    private OffsetDateTime createdAt;
 
     public UserResponseDTO(User user) {
-        BeanUtils.copyProperties(user, this);
-    }
-
-    public UserResponseDTO() {
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
+        this.name = user.getName();
+        this.email = user.getEmail();
     }
 
     public String getEmail() {
@@ -33,6 +24,4 @@ public class UserResponseDTO {
         return name;
     }
 
-    public void setCreatedAt(OffsetDateTime now) {
-    }
 }
