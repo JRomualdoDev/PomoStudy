@@ -1,14 +1,13 @@
 package com.pomoStudy.controller;
 
 import com.pomoStudy.dto.UserRequestDTO;
+import com.pomoStudy.dto.UserResponseDTO;
 import com.pomoStudy.entity.User;
 import com.pomoStudy.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.OffsetDateTime;
 
@@ -21,18 +20,18 @@ public class UserController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<String> create(@RequestBody UserRequestDTO userDto) {
+    public ResponseEntity<String> createUser(@RequestBody UserRequestDTO userDto) {
 
-        User user = new User();
-        user.setName(userDto.getName());
-        user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
+        userService.save(userDto);
 
-        userDto.setCreatedAt(OffsetDateTime.now());
-
-        userService.save(user);
-
-        return ResponseEntity.ok(user.getName());
+        return ResponseEntity.ok("User created with success.");
     }
 
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<String> editUser(@RequestBody UserRequestDTO userRequestDTO, @PathVariable("id") Long id) {
+
+        userService.edit(userRequestDTO, id);
+        return ResponseEntity.ok("User Edited with success.");
+
+    }
 }
