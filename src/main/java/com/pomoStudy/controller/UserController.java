@@ -1,7 +1,7 @@
 package com.pomoStudy.controller;
 
-import com.pomoStudy.dto.UserRequestDTO;
-import com.pomoStudy.dto.UserResponseDTO;
+import com.pomoStudy.dto.user.UserRequestDTO;
+import com.pomoStudy.dto.user.UserResponseDTO;
 import com.pomoStudy.entity.User;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.service.UserService;
@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,12 +21,12 @@ public class UserController {
     private UserService userService;
 
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<String> createUser(@RequestBody UserRequestDTO userDto) {
 
         userService.save(userDto);
 
-        return ResponseEntity.ok("User created with success.");
+        return ResponseEntity.status(201).body("User created with success.");
     }
 
     @PutMapping("/edit/{id}")

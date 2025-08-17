@@ -1,6 +1,6 @@
 package com.pomoStudy.service;
 
-import com.pomoStudy.dto.UserRequestDTO;
+import com.pomoStudy.dto.user.UserRequestDTO;
 import com.pomoStudy.entity.User;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.repository.UserRepository;
@@ -23,11 +23,12 @@ public class UserService {
             user.setName(userRequestDTO.getName());
             user.setEmail(userRequestDTO.getEmail());
             user.setPassword(userRequestDTO.getPassword());
+            user.setCreatedAt(OffsetDateTime.now());
 
-            userRequestDTO.setCreatedAt(OffsetDateTime.now());
             userRepository.save(user);
         } catch (RuntimeException ex) {
-            throw new RuntimeException("Erro ao salvar o usuário.");
+            System.out.println(ex.getMessage());
+            throw new RuntimeException("Error create user.");
         }
     }
 

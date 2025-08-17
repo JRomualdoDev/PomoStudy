@@ -1,6 +1,5 @@
-package com.pomoStudy.dto;
+package com.pomoStudy.dto.user;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pomoStudy.entity.User;
 import org.springframework.beans.BeanUtils;
 
@@ -14,6 +13,8 @@ public class UserRequestDTO {
     private String email;
 //    @JsonProperty(required = true)
     private String password;
+    private OffsetDateTime createdAt;
+
 
     public UserRequestDTO(User user) {
         BeanUtils.copyProperties(user, this);
@@ -36,5 +37,6 @@ public class UserRequestDTO {
     }
 
     public void setCreatedAt(OffsetDateTime now) {
+        this.createdAt = now;
     }
 }

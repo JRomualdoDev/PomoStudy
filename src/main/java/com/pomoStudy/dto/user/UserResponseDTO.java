@@ -1,10 +1,6 @@
-package com.pomoStudy.dto;
+package com.pomoStudy.dto.user;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.pomoStudy.entity.User;
-import org.springframework.beans.BeanUtils;
-
-import java.time.OffsetDateTime;
 
 public class UserResponseDTO {
 
