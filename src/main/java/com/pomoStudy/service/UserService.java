@@ -35,16 +35,12 @@ public class UserService {
         User userUpdate = userRepository.findById(id)
                 .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
 
-        if (userRequestDTO.getName() == null) {
             userUpdate.setName(userRequestDTO.getName());
             userUpdate.setEmail(userRequestDTO.getEmail());
             userUpdate.setPassword(userRequestDTO.getPassword());
             userUpdate.setUpdatedAt(OffsetDateTime.now());
 
             userRepository.save(userUpdate);
-        } else {
-            throw new RuntimeException("Usuário não encontrado.");
-        }
     }
 
     public List<User> findAll() {
@@ -52,7 +48,10 @@ public class UserService {
     }
 
     public Optional<User> findById(Long id) {
-        Optional<User> user = userRepository.findById(id);
-        return user;
+        return userRepository.findById(id);
+    }
+
+    public void delete(Long id) {
+        userRepository.deleteById(id);
     }
 }

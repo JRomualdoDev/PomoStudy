@@ -56,4 +56,12 @@ public class UserController {
 
         return ResponseEntity.ok(userResponseDTO);
     }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+        userService.findById(id)
+                .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }
