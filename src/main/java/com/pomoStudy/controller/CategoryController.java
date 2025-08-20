@@ -1,13 +1,11 @@
 package com.pomoStudy.controller;
 
 import com.pomoStudy.dto.category.CategoryRequestDTO;
+import com.pomoStudy.dto.category.CategoryUpdateRequestDTO;
 import com.pomoStudy.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api/category")
@@ -22,5 +20,12 @@ public class CategoryController {
         categoryService.save(categoryRequestDTO);
 
         return ResponseEntity.status(201).body("Category created with success.");
+    }
+
+    @PutMapping("{id}")
+    public ResponseEntity<String> editCategory(@RequestBody CategoryUpdateRequestDTO categoryUpdateRequestDTO, @PathVariable("id") Long id) {
+
+        categoryService.edit(categoryUpdateRequestDTO, id);
+        return ResponseEntity.ok("Category edited with success");
     }
 }
