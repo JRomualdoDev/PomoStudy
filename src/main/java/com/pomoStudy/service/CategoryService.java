@@ -5,17 +5,18 @@ import com.pomoStudy.dto.category.CategoryUpdateRequestDTO;
 import com.pomoStudy.entity.Category;
 import com.pomoStudy.entity.User;
 import com.pomoStudy.exception.ResourceExceptionFactory;
-import com.pomoStudy.repository.CategoryRepositoty;
+import com.pomoStudy.repository.CategoryRepository;
 import com.pomoStudy.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CategoryService {
     @Autowired
-    private CategoryRepositoty categoryRepositoty;
+    private CategoryRepository categoryRepository;
     @Autowired
     private UserRepository userRepository;
 
@@ -34,7 +35,7 @@ public class CategoryService {
             category.setIcon(categoryRequestDTO.icon());
             category.setUser_category(user.get());
 
-            categoryRepositoty.save(category);
+            categoryRepository.save(category);
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -46,7 +47,7 @@ public class CategoryService {
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) throw ResourceExceptionFactory.notFound("User", id);
 
-        Category categoryUpdate = categoryRepositoty.findById(id)
+        Category categoryUpdate = categoryRepository.findById(id)
                 .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
 
         try {
@@ -55,12 +56,24 @@ public class CategoryService {
             categoryUpdate.setIcon(categoryUpdateRequestDTO.icon());
             categoryUpdate.setUser_category(user.get());
 
-            categoryRepositoty.save(categoryUpdate);
+            categoryRepository.save(categoryUpdate);
 
         }catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Error updated category.");
         }
+    }
+
+    public List<Category> findAll() {
+        return categoryRepository.findAll();
+    }
+
+    public Optional<Category> findById(Long id) {
+        return categoryRepository.findById(id);
+    }
+
+    public void delete(Long id) {
+        categoryRepository.deleteById(id);
     }
 
 }

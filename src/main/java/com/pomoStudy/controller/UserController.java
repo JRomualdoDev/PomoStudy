@@ -49,9 +49,9 @@ public class UserController {
 
     @GetMapping("{id}")
     public ResponseEntity<Object> findById(@PathVariable("id") Long id) {
-        Optional<User> user = userService.findById(id);
-        Optional<Object> userResponseDTO = Optional.of(user.map(UserResponseDTO::new)
-                .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id)));
+        UserResponseDTO userResponseDTO = userService.findById(id)
+                .map(UserResponseDTO::new)
+                .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
 
         return ResponseEntity.ok(userResponseDTO);
     }
