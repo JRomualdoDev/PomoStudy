@@ -29,7 +29,7 @@ public class UserController {
         return ResponseEntity.status(201).body("User created with success.");
     }
 
-    @PutMapping("/edit/{id}")
+    @PutMapping("{id}")
     public ResponseEntity<String> editUser(@RequestBody UserRequestDTO userRequestDTO, @PathVariable("id") Long id) {
 
         userService.edit(userRequestDTO, id);

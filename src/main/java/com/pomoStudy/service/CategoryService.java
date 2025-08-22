@@ -44,17 +44,17 @@ public class CategoryService {
     }
 
     public void edit(CategoryUpdateRequestDTO categoryUpdateRequestDTO, Long id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isEmpty()) throw ResourceExceptionFactory.notFound("User", id);
+        Optional<User> user = userRepository.findById(categoryUpdateRequestDTO.userId());
+        if (user.isEmpty()) throw ResourceExceptionFactory.notFound("User", categoryUpdateRequestDTO.userId());
 
         Category categoryUpdate = categoryRepository.findById(id)
+                .filter((category ) -> category.getId().equals(categoryUpdateRequestDTO.userId()))
                 .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
 
         try {
             categoryUpdate.setName(categoryUpdateRequestDTO.name());
             categoryUpdate.setColor(categoryUpdateRequestDTO.color());
             categoryUpdate.setIcon(categoryUpdateRequestDTO.icon());
-            categoryUpdate.setUser_category(user.get());
 
             categoryRepository.save(categoryUpdate);
 

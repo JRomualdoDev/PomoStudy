@@ -20,6 +20,10 @@ public class Category {
     @JoinColumn(name = "user_id", nullable = false)
     private User user_category;
 
+    public Long getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
