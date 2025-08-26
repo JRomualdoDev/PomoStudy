@@ -64,6 +64,11 @@ public class User {
     }
 
     /* Setters e Getters */
+
+    public Long getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }

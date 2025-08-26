@@ -48,7 +48,7 @@ public class CategoryService {
         if (user.isEmpty()) throw ResourceExceptionFactory.notFound("User", categoryUpdateRequestDTO.userId());
 
         Category categoryUpdate = categoryRepository.findById(id)
-                .filter((category ) -> category.getId().equals(categoryUpdateRequestDTO.userId()))
+                .filter((category ) -> category.getUser_category().getId().equals(categoryUpdateRequestDTO.userId()))
                 .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
 
         try {

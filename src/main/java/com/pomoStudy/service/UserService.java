@@ -36,12 +36,17 @@ public class UserService {
         User userUpdate = userRepository.findById(id)
                 .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
 
+        try {
             userUpdate.setName(userRequestDTO.getName());
             userUpdate.setEmail(userRequestDTO.getEmail());
             userUpdate.setPassword(userRequestDTO.getPassword());
             userUpdate.setUpdatedAt(OffsetDateTime.now());
 
             userRepository.save(userUpdate);
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException("Error updated User");
+        }
     }
 
     public List<User> findAll() {

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -54,13 +55,35 @@ public class GoalService {
             throw ResourceExceptionFactory.notFound("User", goalRequestDTO.user_goal());
 
         Goal goalUpdate = goalRepository.findById(id)
+                .filter((goal) -> goal.getId().equals(goalRequestDTO.user_goal()))
                 .orElseThrow(() -> ResourceExceptionFactory.notFound("Goal", id));
 
         try {
+            goalUpdate.setTitle(goalRequestDTO.title());
+            goalUpdate.setDescription(goalUpdate.getDescription());
+            goalUpdate.setType(goalRequestDTO.type());
+            goalUpdate.setGoalValue(goalRequestDTO.goalValue());
+            goalUpdate.setGoalActual(goalRequestDTO.goalActual());
+            goalUpdate.setEndDate(goalRequestDTO.endDate());
+            goalUpdate.setActive(goalRequestDTO.active());
+
+            goalRepository.save(goalUpdate);
 
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Error updated goal.");
         }
+    }
+
+    public List<Goal> findAll() {
+        return goalRepository.findAll();
+    }
+
+    public Optional<Goal> findById(Long id) {
+        return goalRepository.findById(id);
+    }
+
+    public void delete(Long id) {
+        goalRepository.deleteById(id);
     }
 }
