@@ -16,10 +16,13 @@ import java.util.Optional;
 @Service
 public class GoalService {
 
-    @Autowired
-    GoalRepository goalRepository;
-    @Autowired
-    UserRepository userRepository;
+    final GoalRepository goalRepository;
+    final UserRepository userRepository;
+
+    public GoalService(GoalRepository goalRepository, UserRepository userRepository) {
+        this.goalRepository = goalRepository;
+        this.userRepository = userRepository;
+    }
 
     public void save(GoalRequestDTO goalRequestDTO) {
 

@@ -62,4 +62,83 @@ public class Task {
         this.user_task = user_task;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public OffsetDateTime getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(OffsetDateTime startDate) {
+        this.startDate = startDate;
+    }
+
+    public OffsetDateTime getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(OffsetDateTime endDate) {
+        this.endDate = endDate;
+    }
+
+    public StatusUser getStatus() {
+        return status;
+    }
+
+    public void setStatus(StatusUser status) {
+        this.status = status;
+    }
+
+    public TaskPriority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(TaskPriority priority) {
+        this.priority = priority;
+    }
+
+    public Integer getTimeTotalLearning() {
+        return timeTotalLearning;
+    }
+
+    public void setTimeTotalLearning(Integer timeTotalLearning) {
+        this.timeTotalLearning = timeTotalLearning;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public User getUser_task() {
+        return user_task;
+    }
+
+    public void setUser_task(User user_task) {
+        this.user_task = user_task;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
 }

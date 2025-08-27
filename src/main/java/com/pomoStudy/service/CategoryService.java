@@ -15,18 +15,20 @@ import java.util.Optional;
 
 @Service
 public class CategoryService {
-    @Autowired
-    private CategoryRepository categoryRepository;
-    @Autowired
-    private UserRepository userRepository;
+    final private CategoryRepository categoryRepository;
+    final private UserRepository userRepository;
 
+    public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository) {
+        this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
+    }
 
     public void save(CategoryRequestDTO categoryRequestDTO) {
 
-            Optional<User> user = userRepository.findById(categoryRequestDTO.userId());
+        Optional<User> user = userRepository.findById(categoryRequestDTO.userId());
 
-            if (user.isEmpty())
-                throw ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId());
+        if (user.isEmpty())
+            throw ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId());
 
         try {
             Category category = new Category();
