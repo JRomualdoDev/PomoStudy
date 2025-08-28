@@ -1,6 +1,8 @@
 package com.pomoStudy.controller;
 
 import com.pomoStudy.dto.Task.TaskRequestDTO;
+import com.pomoStudy.dto.Task.TaskResponseDTO;
+import com.pomoStudy.entity.Task;
 import com.pomoStudy.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,14 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/task")
 public class TaskController {
 
-    @Autowired
-    TaskService taskService;
+    final TaskService taskService;
+
+    public TaskController(TaskService taskService) {
+        this.taskService = taskService;
+    }
 
     @PostMapping
-    public ResponseEntity<String> createTask(@RequestBody TaskRequestDTO taskRequestDTO) {
+    public ResponseEntity<TaskResponseDTO> createTask(@RequestBody TaskRequestDTO taskRequestDTO) {
 
-        taskService.save(taskRequestDTO);
+        TaskResponseDTO taskResponseDTO = taskService.save(taskRequestDTO);
 
-        return ResponseEntity.status(201).body("Task created with success.");
+        return ResponseEntity.status(201).body(taskResponseDTO);
     }
 }

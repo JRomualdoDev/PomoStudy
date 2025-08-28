@@ -1,7 +1,8 @@
 package com.pomoStudy.service;
 
+import com.pomoStudy.dto.Task.TaskMapper;
 import com.pomoStudy.dto.Task.TaskRequestDTO;
-import com.pomoStudy.dto.category.CategoryResponseDTO;
+import com.pomoStudy.dto.Task.TaskResponseDTO;
 import com.pomoStudy.entity.Category;
 import com.pomoStudy.entity.Task;
 import com.pomoStudy.entity.User;
@@ -9,7 +10,6 @@ import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.repository.CategoryRepository;
 import com.pomoStudy.repository.TaskRepository;
 import com.pomoStudy.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -21,14 +21,17 @@ public class TaskService {
     final TaskRepository taskRepository;
     final UserRepository userRepository;
     final CategoryRepository categoryRepository;
+    final TaskMapper taskMapper;
 
-    public TaskService(TaskRepository taskRepository, UserRepository userRepository, CategoryRepository categoryRepository) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository,
+                       CategoryRepository categoryRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
+        this.taskMapper = taskMapper;
     }
 
-    public void save(TaskRequestDTO taskRequestDTO) {
+    public TaskResponseDTO save(TaskRequestDTO taskRequestDTO) {
         Optional<User> user = userRepository.findById(taskRequestDTO.user_task());
         if (user.isEmpty())
             throw ResourceExceptionFactory.notFound("User", taskRequestDTO.user_task());
@@ -50,7 +53,10 @@ public class TaskService {
             task.setCategory(category.get());
             task.setCreatedAt(OffsetDateTime.now());
 
-            taskRepository.save(task);
+            Task taskSave = taskRepository.save(task);
+
+            return taskMapper.toResponseDTO(taskSave);
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Error created Task.");
