@@ -3,17 +3,16 @@ package com.pomoStudy.service;
 import com.pomoStudy.dto.Task.TaskMapper;
 import com.pomoStudy.dto.Task.TaskRequestDTO;
 import com.pomoStudy.dto.Task.TaskResponseDTO;
-import com.pomoStudy.entity.Category;
 import com.pomoStudy.entity.Task;
-import com.pomoStudy.entity.User;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.repository.CategoryRepository;
 import com.pomoStudy.repository.TaskRepository;
 import com.pomoStudy.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -32,28 +31,11 @@ public class TaskService {
     }
 
     public TaskResponseDTO save(TaskRequestDTO taskRequestDTO) {
-        Optional<User> user = userRepository.findById(taskRequestDTO.user_task());
-        if (user.isEmpty())
-            throw ResourceExceptionFactory.notFound("User", taskRequestDTO.user_task());
-
-        Optional<Category> category = categoryRepository.findById(taskRequestDTO.categoryId());
-        if (category.isEmpty())
-            throw ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId());
 
         try {
-            Task task =  new Task();
-            task.setName(taskRequestDTO.name());
-            task.setDescription(taskRequestDTO.description());
-            task.setStartDate(taskRequestDTO.startDate());
-            task.setEndDate(taskRequestDTO.endDate());
-            task.setStatus(taskRequestDTO.status());
-            task.setPriority(taskRequestDTO.priority());
-            task.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
-            task.setUser_task(user.get());
-            task.setCategory(category.get());
-            task.setCreatedAt(OffsetDateTime.now());
 
-            Task taskSave = taskRepository.save(task);
+            Task taskSave = taskRepository.save(taskMapper.toTask(taskRequestDTO,
+                    userRepository, categoryRepository));
 
             return taskMapper.toResponseDTO(taskSave);
 
@@ -61,5 +43,44 @@ public class TaskService {
             System.out.println(e.getMessage());
             throw new RuntimeException("Error created Task.");
         }
+    }
+
+    public TaskResponseDTO edit(TaskRequestDTO taskRequestDTO, Long id) {
+
+
+        Optional<Task> task = taskRepository.findById(id)
+                .filter((t) -> t.getUser_task().getId().equals(taskRequestDTO.user_task()));
+        if (task.isEmpty())
+            throw ResourceExceptionFactory.notFound("Task", id);
+
+        try {
+
+            Task taskUpdate = taskRepository.save(taskMapper.toTask(taskRequestDTO,
+                    userRepository, categoryRepository));
+
+            return taskMapper.toResponseDTO(taskUpdate);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw new RuntimeException("Error updated task.");
+        }
+    }
+
+    public List<TaskResponseDTO> findAll() {
+        return taskRepository.findAll().stream()
+                .map(taskMapper::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    public TaskResponseDTO findById(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
+        return taskMapper.toResponseDTO(task);
+    }
+
+    public void delete(Long id) {
+        taskRepository.findById(id)
+                .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
+        taskRepository.deleteById(id);
     }
 }
