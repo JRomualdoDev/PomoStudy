@@ -33,9 +33,7 @@ public class TaskService {
     public TaskResponseDTO save(TaskRequestDTO taskRequestDTO) {
 
         try {
-
-            Task taskSave = taskRepository.save(taskMapper.toTask(taskRequestDTO,
-                    userRepository, categoryRepository));
+            Task taskSave = taskRepository.save(taskMapper.toTask(taskRequestDTO));
 
             return taskMapper.toResponseDTO(taskSave);
 
@@ -55,8 +53,7 @@ public class TaskService {
 
         try {
 
-            Task taskUpdate = taskRepository.save(taskMapper.toTask(taskRequestDTO,
-                    userRepository, categoryRepository));
+            Task taskUpdate = taskRepository.save(taskMapper.toTask(taskRequestDTO));
 
             return taskMapper.toResponseDTO(taskUpdate);
 

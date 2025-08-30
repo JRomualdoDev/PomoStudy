@@ -2,7 +2,6 @@ package com.pomoStudy.controller;
 
 import com.pomoStudy.dto.category.CategoryRequestDTO;
 import com.pomoStudy.dto.category.CategoryResponseDTO;
-import com.pomoStudy.dto.category.CategoryUpdateRequestDTO;
 import com.pomoStudy.entity.Category;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.service.CategoryService;
@@ -21,18 +20,18 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<String> createCategory(@RequestBody CategoryRequestDTO categoryRequestDTO) {
+    public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO categoryRequestDTO) {
 
-        categoryService.save(categoryRequestDTO);
+        CategoryResponseDTO categoryResponseDTO = categoryService.save(categoryRequestDTO);
 
-        return ResponseEntity.status(201).body("Category created with success.");
+        return ResponseEntity.status(201).body(categoryResponseDTO);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<String> editCategory(@RequestBody CategoryUpdateRequestDTO categoryUpdateRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<CategoryResponseDTO> editCategory(@RequestBody CategoryRequestDTO categoryRequestDTO, @PathVariable("id") Long id) {
 
-        categoryService.edit(categoryUpdateRequestDTO, id);
-        return ResponseEntity.ok("Category edited with success");
+        CategoryResponseDTO categoryResponseDTO = categoryService.edit(categoryRequestDTO, id);
+        return ResponseEntity.ok(categoryResponseDTO);
     }
 
     @GetMapping

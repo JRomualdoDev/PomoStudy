@@ -1,13 +1,12 @@
 package com.pomoStudy.service;
 
+import com.pomoStudy.dto.category.CategoryMapper;
 import com.pomoStudy.dto.category.CategoryRequestDTO;
-import com.pomoStudy.dto.category.CategoryUpdateRequestDTO;
+import com.pomoStudy.dto.category.CategoryResponseDTO;
 import com.pomoStudy.entity.Category;
-import com.pomoStudy.entity.User;
-import com.pomoStudy.exception.ResourceExceptionFactory;
+import com.pomoStudy.exception.ResourceException;
 import com.pomoStudy.repository.CategoryRepository;
 import com.pomoStudy.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,49 +16,40 @@ import java.util.Optional;
 public class CategoryService {
     final private CategoryRepository categoryRepository;
     final private UserRepository userRepository;
+    final private CategoryMapper categoryMapper;
 
-    public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository) {
+    public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository
+            , CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
+        this.categoryMapper = categoryMapper;
     }
 
-    public void save(CategoryRequestDTO categoryRequestDTO) {
-
-        Optional<User> user = userRepository.findById(categoryRequestDTO.userId());
-
-        if (user.isEmpty())
-            throw ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId());
+    public CategoryResponseDTO save(CategoryRequestDTO categoryRequestDTO) {
 
         try {
-            Category category = new Category();
-            category.setName(categoryRequestDTO.name());
-            category.setColor(categoryRequestDTO.color());
-            category.setIcon(categoryRequestDTO.icon());
-            category.setUser_category(user.get());
+            Category categorySave = categoryRepository.save(categoryMapper.toCategory(categoryRequestDTO, null));
 
-            categoryRepository.save(category);
+            return categoryMapper.toResponseDTO(categorySave);
 
+        } catch(ResourceException e) {
+            System.out.println(e.getMessage());
+            throw e;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Error create category.");
         }
     }
 
-    public void edit(CategoryUpdateRequestDTO categoryUpdateRequestDTO, Long id) {
-        Optional<User> user = userRepository.findById(categoryUpdateRequestDTO.userId());
-        if (user.isEmpty()) throw ResourceExceptionFactory.notFound("User", categoryUpdateRequestDTO.userId());
-
-        Category categoryUpdate = categoryRepository.findById(id)
-                .filter((category ) -> category.getUser_category().getId().equals(categoryUpdateRequestDTO.userId()))
-                .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
+    public CategoryResponseDTO edit(CategoryRequestDTO categoryRequestDTO, Long id) {
 
         try {
-            categoryUpdate.setName(categoryUpdateRequestDTO.name());
-            categoryUpdate.setColor(categoryUpdateRequestDTO.color());
-            categoryUpdate.setIcon(categoryUpdateRequestDTO.icon());
+            Category categoryUpdade = categoryRepository.save(categoryMapper.toCategory(categoryRequestDTO, id));
 
-            categoryRepository.save(categoryUpdate);
-
+            return categoryMapper.toResponseDTO(categoryUpdade);
+        } catch (ResourceException e) {
+            System.out.println(e.getMessage());
+            throw e;
         }catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Error updated category.");

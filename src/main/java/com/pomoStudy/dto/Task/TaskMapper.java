@@ -14,6 +14,14 @@ import java.util.Optional;
 @Component
 public class TaskMapper {
 
+    UserRepository userRepository;
+    CategoryRepository categoryRepository;
+
+    public TaskMapper(UserRepository userRepository, CategoryRepository categoryRepository) {
+        this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
+    }
+
     public TaskResponseDTO toResponseDTO(Task task) {
        return new TaskResponseDTO(
                 task.getName(),
@@ -28,7 +36,7 @@ public class TaskMapper {
         );
     }
 
-    public Task toTask(TaskRequestDTO taskRequestDTO, UserRepository userRepository, CategoryRepository categoryRepository) {
+    public Task toTask(TaskRequestDTO taskRequestDTO) {
 
         Optional<User> user = userRepository.findById(taskRequestDTO.user_task());
         if (user.isEmpty())
