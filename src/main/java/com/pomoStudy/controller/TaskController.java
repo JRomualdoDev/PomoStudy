@@ -4,6 +4,7 @@ import com.pomoStudy.dto.Task.TaskRequestDTO;
 import com.pomoStudy.dto.Task.TaskResponseDTO;
 import com.pomoStudy.entity.Task;
 import com.pomoStudy.service.TaskService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<TaskResponseDTO> createTask(@RequestBody TaskRequestDTO taskRequestDTO) {
+    public ResponseEntity<TaskResponseDTO> createTask(@Valid @RequestBody TaskRequestDTO taskRequestDTO) {
 
         TaskResponseDTO taskResponseDTO = taskService.save(taskRequestDTO);
 
@@ -29,7 +30,7 @@ public class TaskController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<TaskResponseDTO> editTask(@RequestBody TaskRequestDTO taskRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<TaskResponseDTO> editTask(@Valid @RequestBody TaskRequestDTO taskRequestDTO, @PathVariable("id") Long id) {
 
         TaskResponseDTO taskResponseDTO = taskService.edit(taskRequestDTO, id);
 

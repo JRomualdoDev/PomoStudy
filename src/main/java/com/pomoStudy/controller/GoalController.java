@@ -15,27 +15,30 @@ import java.util.List;
 @RequestMapping("api/goal")
 public class GoalController {
 
-    @Autowired
-    GoalService goalService;
+    final GoalService goalService;
+
+    public GoalController(GoalService goalService) {
+        this.goalService = goalService;
+    }
 
     @PostMapping
-    public ResponseEntity<String> createGoal(@RequestBody GoalRequestDTO goalRequestDTO) {
+    public ResponseEntity<GoalResponseDTO> createGoal(@RequestBody GoalRequestDTO goalRequestDTO) {
 
-        goalService.save(goalRequestDTO);
+        GoalResponseDTO goalResponseDTO = goalService.save(goalRequestDTO);
 
-        return ResponseEntity.status(201).body("Goal created with success");
+        return ResponseEntity.status(201).body(goalResponseDTO);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<String> editGoal(@RequestBody GoalRequestDTO goalRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<GoalResponseDTO> editGoal(@RequestBody GoalRequestDTO goalRequestDTO, @PathVariable("id") Long id) {
 
-        goalService.edit(goalRequestDTO, id);
+        GoalResponseDTO goalResponseDTO = goalService.edit(goalRequestDTO, id);
 
-        return ResponseEntity.ok("Goal edited with success");
+        return ResponseEntity.ok(goalResponseDTO);
     }
 
     @GetMapping
-    public ResponseEntity<List<GoalResponseDTO>> findAll() {
+    public ResponseEntity<List<GoalResponseDTO>> findAllGoals() {
         List<Goal> goals = goalService.findAll();
         List<GoalResponseDTO> responseDTO = goals.stream()
                 .map(GoalResponseDTO::new)
@@ -44,7 +47,7 @@ public class GoalController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<GoalResponseDTO> findByID(@PathVariable("id") Long id) {
+    public ResponseEntity<GoalResponseDTO> findGoalById(@PathVariable("id") Long id) {
         GoalResponseDTO goalResponseDTO = goalService.findById(id)
                 .map(GoalResponseDTO::new)
                 .orElseThrow(() -> ResourceExceptionFactory.notFound("Goal", id));
@@ -52,7 +55,7 @@ public class GoalController {
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteGoal(@PathVariable("id") Long id) {
         goalService.findById(id)
                 .orElseThrow(() -> ResourceExceptionFactory.notFound("Goal", id));
         goalService.delete(id);

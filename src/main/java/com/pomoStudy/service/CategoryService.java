@@ -15,13 +15,11 @@ import java.util.Optional;
 @Service
 public class CategoryService {
     final private CategoryRepository categoryRepository;
-    final private UserRepository userRepository;
     final private CategoryMapper categoryMapper;
 
     public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository
             , CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
-        this.userRepository = userRepository;
         this.categoryMapper = categoryMapper;
     }
 

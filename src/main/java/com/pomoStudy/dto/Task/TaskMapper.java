@@ -5,6 +5,7 @@ import com.pomoStudy.entity.Task;
 import com.pomoStudy.entity.User;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.repository.CategoryRepository;
+import com.pomoStudy.repository.TaskRepository;
 import com.pomoStudy.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
@@ -16,10 +17,13 @@ public class TaskMapper {
 
     UserRepository userRepository;
     CategoryRepository categoryRepository;
+    TaskRepository taskRepository;
 
-    public TaskMapper(UserRepository userRepository, CategoryRepository categoryRepository) {
+    public TaskMapper(UserRepository userRepository, CategoryRepository categoryRepository,
+            TaskRepository taskRepository) {
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
+        this.taskRepository = taskRepository;
     }
 
     public TaskResponseDTO toResponseDTO(Task task) {
@@ -36,7 +40,17 @@ public class TaskMapper {
         );
     }
 
-    public Task toTask(TaskRequestDTO taskRequestDTO) {
+    public Task toTask(TaskRequestDTO taskRequestDTO, Long id) {
+
+        Task task;
+
+        if ( id != null) {
+            task = taskRepository.findById(id)
+                    .filter((t) -> t.getUser_task().getId().equals(taskRequestDTO.user_task()))
+                    .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
+        } else {
+            task = new Task();
+        }
 
         Optional<User> user = userRepository.findById(taskRequestDTO.user_task());
         if (user.isEmpty())
@@ -46,7 +60,6 @@ public class TaskMapper {
         if (category.isEmpty())
             throw ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId());
 
-        Task task =  new Task();
         task.setName(taskRequestDTO.name());
         task.setDescription(taskRequestDTO.description());
         task.setStartDate(taskRequestDTO.startDate());
