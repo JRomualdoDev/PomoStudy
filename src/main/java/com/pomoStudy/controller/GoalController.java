@@ -19,19 +19,19 @@ public class GoalController {
     GoalService goalService;
 
     @PostMapping
-    public ResponseEntity<String> createGoal(@RequestBody GoalRequestDTO goalRequestDTO) {
+    public ResponseEntity<GoalResponseDTO> createGoal(@RequestBody GoalRequestDTO goalRequestDTO) {
 
-        goalService.save(goalRequestDTO);
+        GoalResponseDTO goalResponseDTO = goalService.save(goalRequestDTO);
 
-        return ResponseEntity.status(201).body("Goal created with success");
+        return ResponseEntity.status(201).body(goalResponseDTO);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<String> editGoal(@RequestBody GoalRequestDTO goalRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<GoalResponseDTO> editGoal(@RequestBody GoalRequestDTO goalRequestDTO, @PathVariable("id") Long id) {
 
-        goalService.edit(goalRequestDTO, id);
+        GoalResponseDTO goalResponseDTO = goalService.edit(goalRequestDTO, id);
 
-        return ResponseEntity.ok("Goal edited with success");
+        return ResponseEntity.ok(goalResponseDTO);
     }
 
     @GetMapping

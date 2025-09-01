@@ -31,26 +31,26 @@ public class CategoryMapper {
 
     public Category toCategory(CategoryRequestDTO categoryRequestDTO, Long id) {
 
-        Category categoryUpdate;
+        Category categoryUpdateOrCreate;
 
         if (id != null) {
-            categoryUpdate = categoryRepository.findById(id)
+            categoryUpdateOrCreate = categoryRepository.findById(id)
                     .filter((category ) -> category.getUser_category().getId().equals(categoryRequestDTO.userId()))
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
         } else {
-            categoryUpdate = new Category();
+            categoryUpdateOrCreate = new Category();
         }
 
         Optional<User> user = userRepository.findById(categoryRequestDTO.userId());
         if (user.isEmpty())
             throw ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId());
 
-        categoryUpdate.setName(categoryRequestDTO.name());
-        categoryUpdate.setColor(categoryRequestDTO.color());
-        categoryUpdate.setIcon(categoryRequestDTO.icon());
-        categoryUpdate.setUser_category(user.get());
+        categoryUpdateOrCreate.setName(categoryRequestDTO.name());
+        categoryUpdateOrCreate.setColor(categoryRequestDTO.color());
+        categoryUpdateOrCreate.setIcon(categoryRequestDTO.icon());
+        categoryUpdateOrCreate.setUser_category(user.get());
 
-        return categoryUpdate;
+        return categoryUpdateOrCreate;
 
     }
 }

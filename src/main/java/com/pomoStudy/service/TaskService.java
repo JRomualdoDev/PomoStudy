@@ -33,7 +33,7 @@ public class TaskService {
     public TaskResponseDTO save(TaskRequestDTO taskRequestDTO) {
 
         try {
-            Task taskSave = taskRepository.save(taskMapper.toTask(taskRequestDTO));
+            Task taskSave = taskRepository.save(taskMapper.toTask(taskRequestDTO, null));
 
             return taskMapper.toResponseDTO(taskSave);
 
@@ -45,15 +45,9 @@ public class TaskService {
 
     public TaskResponseDTO edit(TaskRequestDTO taskRequestDTO, Long id) {
 
-
-        Optional<Task> task = taskRepository.findById(id)
-                .filter((t) -> t.getUser_task().getId().equals(taskRequestDTO.user_task()));
-        if (task.isEmpty())
-            throw ResourceExceptionFactory.notFound("Task", id);
-
         try {
 
-            Task taskUpdate = taskRepository.save(taskMapper.toTask(taskRequestDTO));
+            Task taskUpdate = taskRepository.save(taskMapper.toTask(taskRequestDTO, id));
 
             return taskMapper.toResponseDTO(taskUpdate);
 
