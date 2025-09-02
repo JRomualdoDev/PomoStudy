@@ -1,27 +1,30 @@
 package com.pomoStudy.dto.user;
 
 import com.pomoStudy.entity.User;
+import jakarta.validation.constraints.*;
 import org.springframework.beans.BeanUtils;
 
 import java.time.OffsetDateTime;
 
-public class UserRequestDTO {
+public record UserRequestDTO(
 
-//    @JsonProperty(required = true)
-    private String name;
-//    @JsonProperty(required = true)
-    private String email;
-//    @JsonProperty(required = true)
-    private String password;
-    private OffsetDateTime createdAt;
+        @NotBlank(message = "Name is required")
+        @Size(min = 3, max = 100, message = "Name must be between 3 and 100 characters")
+        String name,
 
+        @NotBlank(message = "Email is required")
+        @Email(message = "Invalid email format")
+        String email,
 
-    public UserRequestDTO(User user) {
-        BeanUtils.copyProperties(user, this);
-    }
+        @NotNull(message = "Password is required")
+        @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$",
+                message = "A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial")
+        String password,
 
-    public UserRequestDTO() {
-    }
+        @NotNull(message = "CreatedAt is required")
+        @Future(message = "CreatedAt must be in the future")
+        OffsetDateTime createdAt ) {
+
 
     public String getPassword() {
         return password;
@@ -35,8 +38,8 @@ public class UserRequestDTO {
     public String getName() {
         return name;
     }
-
-    public void setCreatedAt(OffsetDateTime now) {
-        this.createdAt = now;
-    }
+//
+//    public void setCreatedAt(OffsetDateTime now) {
+//        createdAt = now;
+//    }
 }

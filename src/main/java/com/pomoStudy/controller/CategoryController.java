@@ -5,6 +5,7 @@ import com.pomoStudy.dto.category.CategoryResponseDTO;
 import com.pomoStudy.entity.Category;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.service.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO categoryRequestDTO) {
+    public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO) {
 
         CategoryResponseDTO categoryResponseDTO = categoryService.save(categoryRequestDTO);
 
@@ -28,7 +29,7 @@ public class CategoryController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<CategoryResponseDTO> editCategory(@RequestBody CategoryRequestDTO categoryRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<CategoryResponseDTO> editCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO, @PathVariable("id") Long id) {
 
         CategoryResponseDTO categoryResponseDTO = categoryService.edit(categoryRequestDTO, id);
         return ResponseEntity.ok(categoryResponseDTO);

@@ -5,6 +5,7 @@ import com.pomoStudy.dto.Goal.GoalResponseDTO;
 import com.pomoStudy.entity.Goal;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.service.GoalService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +23,7 @@ public class GoalController {
     }
 
     @PostMapping
-    public ResponseEntity<GoalResponseDTO> createGoal(@RequestBody GoalRequestDTO goalRequestDTO) {
+    public ResponseEntity<GoalResponseDTO> createGoal(@Valid @RequestBody GoalRequestDTO goalRequestDTO) {
 
         GoalResponseDTO goalResponseDTO = goalService.save(goalRequestDTO);
 
@@ -30,7 +31,7 @@ public class GoalController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<GoalResponseDTO> editGoal(@RequestBody GoalRequestDTO goalRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<GoalResponseDTO> editGoal(@Valid @RequestBody GoalRequestDTO goalRequestDTO, @PathVariable("id") Long id) {
 
         GoalResponseDTO goalResponseDTO = goalService.edit(goalRequestDTO, id);
 

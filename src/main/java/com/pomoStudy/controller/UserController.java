@@ -5,24 +5,25 @@ import com.pomoStudy.dto.user.UserResponseDTO;
 import com.pomoStudy.entity.User;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/user")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    final private UserService userService;
 
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody UserRequestDTO userDto) {
+    public ResponseEntity<String> createUser(@Value @RequestBody UserRequestDTO userDto) {
 
         userService.save(userDto);
 
@@ -30,7 +31,7 @@ public class UserController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<String> editUser(@RequestBody UserRequestDTO userRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<String> editUser(@Value @RequestBody UserRequestDTO userRequestDTO, @PathVariable("id") Long id) {
 
         userService.edit(userRequestDTO, id);
         return ResponseEntity.ok("User Edited with success.");
