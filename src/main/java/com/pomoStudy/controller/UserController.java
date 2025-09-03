@@ -1,12 +1,14 @@
 package com.pomoStudy.controller;
 
+import com.pomoStudy.dto.user.TaggingInterface.OnCreate;
 import com.pomoStudy.dto.user.UserRequestDTO;
 import com.pomoStudy.dto.user.UserResponseDTO;
 import com.pomoStudy.entity.User;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.service.UserService;
-import org.springframework.beans.factory.annotation.Value;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,18 +25,18 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createUser(@Value @RequestBody UserRequestDTO userDto) {
+    public ResponseEntity<UserResponseDTO> createUser(@Validated(OnCreate.class) @RequestBody UserRequestDTO userDto) {
 
-        userService.save(userDto);
+        UserResponseDTO userResponseDTO = userService.save(userDto);
 
-        return ResponseEntity.status(201).body("User created with success.");
+        return ResponseEntity.status(201).body(userResponseDTO);
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<String> editUser(@Value @RequestBody UserRequestDTO userRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<UserResponseDTO> editUser(@Valid @RequestBody UserRequestDTO userRequestDTO, @PathVariable("id") Long id) {
 
-        userService.edit(userRequestDTO, id);
-        return ResponseEntity.ok("User Edited with success.");
+        UserResponseDTO userResponseDTO = userService.edit(userRequestDTO, id);
+        return ResponseEntity.ok(userResponseDTO);
     }
 
     @GetMapping

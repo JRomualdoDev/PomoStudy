@@ -4,6 +4,7 @@ import com.pomoStudy.dto.Task.TaskMapper;
 import com.pomoStudy.dto.Task.TaskRequestDTO;
 import com.pomoStudy.dto.Task.TaskResponseDTO;
 import com.pomoStudy.entity.Task;
+import com.pomoStudy.exception.ResourceException;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.repository.CategoryRepository;
 import com.pomoStudy.repository.TaskRepository;
@@ -36,7 +37,9 @@ public class TaskService {
             Task taskSave = taskRepository.save(taskMapper.toTask(taskRequestDTO, null));
 
             return taskMapper.toResponseDTO(taskSave);
-
+        } catch(ResourceException e) {
+            System.out.println(e.getMessage());
+            throw e;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Error created Task.");
@@ -51,6 +54,9 @@ public class TaskService {
 
             return taskMapper.toResponseDTO(taskUpdate);
 
+        } catch(ResourceException e) {
+            System.out.println(e.getMessage());
+            throw e;
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Error updated task.");

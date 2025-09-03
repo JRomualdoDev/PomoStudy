@@ -2,22 +2,9 @@ package com.pomoStudy.dto.user;
 
 import com.pomoStudy.entity.User;
 
-public class UserResponseDTO {
-
-    private String name;
-    private String email;
+public record UserResponseDTO(String name, String email) {
 
     public UserResponseDTO(User user) {
-        this.name = user.getName();
-        this.email = user.getEmail();
+        this(user.getName(), user.getEmail());
     }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getName() {
-        return name;
-    }
-
 }

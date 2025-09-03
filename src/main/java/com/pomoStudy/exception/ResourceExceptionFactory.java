@@ -13,4 +13,5 @@ public class ResourceExceptionFactory {
         String message = resource + " data is invalid: " + reason;
         return new ResourceException(resource, "invalid_data", code, message);
     }
+
 }

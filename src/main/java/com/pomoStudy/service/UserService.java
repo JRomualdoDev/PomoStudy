@@ -1,9 +1,15 @@
 package com.pomoStudy.service;
 
+import com.pomoStudy.dto.user.UserMapper;
 import com.pomoStudy.dto.user.UserRequestDTO;
+import com.pomoStudy.dto.user.UserResponseDTO;
 import com.pomoStudy.entity.User;
+import com.pomoStudy.exception.ResourceException;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
@@ -13,38 +19,40 @@ import java.util.Optional;
 @Service
 public class UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     final private UserRepository userRepository;
+    final private UserMapper userMapper;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
-    public void save(UserRequestDTO userRequestDTO) {
-        try {
-            User user = new User();
-            user.setName(userRequestDTO.getName());
-            user.setEmail(userRequestDTO.getEmail());
-            user.setPassword(userRequestDTO.getPassword());
-            user.setCreatedAt(OffsetDateTime.now());
+    public UserResponseDTO save(UserRequestDTO userRequestDTO) {
 
-            userRepository.save(user);
-        } catch (RuntimeException ex) {
+        try {
+            User user = userMapper.toUser(userRequestDTO, null);
+
+            return userMapper.userResponseDTO(userRepository.save(user));
+        } catch (DataIntegrityViolationException ex) {
+            System.out.println(ex.getMessage());
+            throw ex;
+        }
+        catch (RuntimeException ex) {
             System.out.println(ex.getMessage());
             throw new RuntimeException("Error create user.");
         }
     }
 
-    public void edit(UserRequestDTO userRequestDTO, Long id) {
-        User userUpdate = userRepository.findById(id)
-                .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
+    public UserResponseDTO edit(UserRequestDTO userRequestDTO, Long id) {
 
         try {
-            userUpdate.setName(userRequestDTO.getName());
-            userUpdate.setEmail(userRequestDTO.getEmail());
-            userUpdate.setPassword(userRequestDTO.getPassword());
-            userUpdate.setUpdatedAt(OffsetDateTime.now());
+            User userUpdate = userMapper.toUser(userRequestDTO, id);
 
-            userRepository.save(userUpdate);
+            return userMapper.userResponseDTO(userRepository.save(userUpdate));
+        } catch (ResourceException e) {
+            System.out.println(e.getMessage());
+            throw e;
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());
             throw new RuntimeException("Error updated User");

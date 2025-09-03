@@ -42,14 +42,14 @@ public class TaskMapper {
 
     public Task toTask(TaskRequestDTO taskRequestDTO, Long id) {
 
-        Task task;
+        Task taskUpdateOrCreate;
 
         if ( id != null) {
-            task = taskRepository.findById(id)
+            taskUpdateOrCreate = taskRepository.findById(id)
                     .filter((t) -> t.getUser_task().getId().equals(taskRequestDTO.user_task()))
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
         } else {
-            task = new Task();
+            taskUpdateOrCreate = new Task();
         }
 
         Optional<User> user = userRepository.findById(taskRequestDTO.user_task());
@@ -60,17 +60,17 @@ public class TaskMapper {
         if (category.isEmpty())
             throw ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId());
 
-        task.setName(taskRequestDTO.name());
-        task.setDescription(taskRequestDTO.description());
-        task.setStartDate(taskRequestDTO.startDate());
-        task.setEndDate(taskRequestDTO.endDate());
-        task.setStatus(taskRequestDTO.status());
-        task.setPriority(taskRequestDTO.priority());
-        task.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
-        task.setUser_task(user.get());
-        task.setCategory(category.get());
-        task.setCreatedAt(OffsetDateTime.now());
+        taskUpdateOrCreate.setName(taskRequestDTO.name());
+        taskUpdateOrCreate.setDescription(taskRequestDTO.description());
+        taskUpdateOrCreate.setStartDate(taskRequestDTO.startDate());
+        taskUpdateOrCreate.setEndDate(taskRequestDTO.endDate());
+        taskUpdateOrCreate.setStatus(taskRequestDTO.status());
+        taskUpdateOrCreate.setPriority(taskRequestDTO.priority());
+        taskUpdateOrCreate.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
+        taskUpdateOrCreate.setUser_task(user.get());
+        taskUpdateOrCreate.setCategory(category.get());
+        taskUpdateOrCreate.setCreatedAt(OffsetDateTime.now());
 
-        return task;
+        return taskUpdateOrCreate;
     }
 }

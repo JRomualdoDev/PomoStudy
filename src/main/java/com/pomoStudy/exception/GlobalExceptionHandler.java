@@ -2,6 +2,7 @@ package com.pomoStudy.exception;
 
 
 import com.pomoStudy.dto.ErrorResponseDTO;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
@@ -58,6 +59,17 @@ public class GlobalExceptionHandler {
                 errors.toString(),
                 HttpStatus.BAD_REQUEST
             );
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErrorResponseDTO> handleEmailDuplicated(DataIntegrityViolationException ex) {
+
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
+               "Error Email",
+                "Email already in use",
+                HttpStatus.BAD_REQUEST
+        );
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
     }
 }
