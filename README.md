@@ -64,9 +64,10 @@ Este projeto foi uma oportunidade de aprofundar meus conhecimentos em desenvolvi
 2.  **Configure o banco de dados:**
     *   Crie um banco de dados PostgreSQL.
     *   Atualize as configurações do banco de dados no arquivo `src/main/resources/application.properties`.
-    *   Caso queira usar o docker - Na pasta onde se encontra o arquivo docker-composer.yaml
+    *   Caso queira usar o docker, na pasta onde se encontra o arquivo docker-composer.yaml
+        executar no terminal. 
     ```bash    
-      executar no terminal docker-composer up -d
+      docker-composer up -d
     ```
 
 ### **Executando a Aplicação**
