@@ -1,0 +1,33 @@
+# Nome do workflow visível no GitHub Actions
+name: Build e Teste da Aplicação Spring Boot
+
+# Quando o workflow será executado
+on:
+  push:
+    branches: [ "main" ] # Dispara em pushes para os branches main e develop
+  pull_request:
+    branches: [ "main" ] # Dispara em pull requests para o branch main
+
+# Definição dos jobs
+jobs:
+  build_and_test:
+    # O ambiente em que o job será executado. "ubuntu-latest".
+    runs-on: ubuntu-latest
+
+    # Os passos (steps) do job
+    steps:
+      - name: Checkout do código
+        # Usando a versão mais recente da ação de checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Java 21 e Maven
+        # Usando a versão mais recente da ação de setup-java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Rodar testes com Maven
+        # Comando para executar a fase de teste do Maven
+        run: mvn -B test --file pom.xml

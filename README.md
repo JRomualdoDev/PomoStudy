@@ -52,8 +52,7 @@ Este projeto foi uma oportunidade de aprofundar meus conhecimentos em desenvolvi
 
 *   **Enums:** Utilizei enums para representar conjuntos de valores fixos, como prioridade de tarefas e tipos de metas.
 *   **Tagging Interfaces:** Utilizei tagging interfaces para agrupar validações em diferentes cenários (criação e atualização).
-*   **Testes:** Criei testes de unidade para a camada de repositório, garantindo a qualidade e a estabilidade do código.
-
+*   **Testes:** Em construção.
 ## Como Executar o Projeto
 
 ### **Pré-requisitos**
