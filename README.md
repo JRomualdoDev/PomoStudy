@@ -2,6 +2,10 @@
 
 API para gerenciar usuários, tarefas, metas e categorias para o aplicativo PomoStudy.
 
+## Status do Projeto
+
+O projeto está em desenvolvimento e aberto a contribuições.
+
 ## Tecnologias Utilizadas
 
 *   Java 21
@@ -12,13 +16,75 @@ API para gerenciar usuários, tarefas, metas e categorias para o aplicativo Pomo
 *   Maven
 *   SpringDoc OpenAPI (Swagger)
 
+## O que foi aprendido neste projeto
+
+Este projeto foi uma oportunidade de aprofundar meus conhecimentos em desenvolvimento de APIs REST com Spring Boot, aplicando as melhores práticas do mercado. Abaixo, destaco os principais conceitos e tecnologias que utilizei:
+
+### **Arquitetura e Design de API**
+
+*   **Arquitetura em Camadas:** O projeto foi estruturado em camadas (Controller, Service, Repository) para garantir a separação de responsabilidades e a manutenibilidade do código.
+*   **DTOs (Data Transfer Objects):** Utilizei DTOs para desacoplar a representação dos dados da API das entidades do banco de dados, garantindo uma API mais flexível e segura.
+*   **Mapeamento de Objetos:** Implementei mappers para converter DTOs em entidades e vice-versa, automatizando o processo e evitando código repetitivo.
+*   **Validação de Dados:** Utilizei o Spring Boot Starter Validation e criei validadores customizados para garantir a integridade dos dados de entrada da API.
+*   **Tratamento de Exceções:** Implementei um `GlobalExceptionHandler` para centralizar o tratamento de exceções e retornar mensagens de erro consistentes para o cliente.
+*   **Documentação de API:** Utilizei o SpringDoc OpenAPI (Swagger) para gerar a documentação da API de forma automática, facilitando o consumo da API por outros desenvolvedores.
+
+### **Spring Boot e Ecossistema**
+
+*   **Spring Web:** Utilizei o Spring Web para criar os endpoints da API REST.
+*   **Spring Data JPA:** Utilizei o Spring Data JPA para facilitar a persistência de dados com o PostgreSQL.
+*   **Injeção de Dependências:** Utilizei a injeção de dependências do Spring para gerenciar os componentes da aplicação.
+*   **Spring Boot DevTools:** Utilizei o Spring Boot DevTools para agilizar o desenvolvimento com recursos como o live reload.
+
+### **Banco de Dados**
+
+*   **PostgreSQL:** Utilizei o PostgreSQL como banco de dados relacional para persistir os dados da aplicação.
+*   **H2 Database:** Utilizei o H2 como banco de dados em memória para os testes automatizados.
+
+### **Boas Práticas**
+
+*   **Enums:** Utilizei enums para representar conjuntos de valores fixos, como prioridade de tarefas e tipos de metas.
+*   **Tagging Interfaces:** Utilizei tagging interfaces para agrupar validações em diferentes cenários (criação e atualização).
+*   **Testes:** Criei testes de unidade para a camada de repositório, garantindo a qualidade e a estabilidade do código.
+
+## Como Executar o Projeto
+
+### **Pré-requisitos**
+
+*   Java 21
+*   Maven
+*   PostgreSQL
+
+### **Configuração**
+
+1.  **Clone o repositório:**
+    ```bash
+    git clone https://github.com/JRomualdoDev/PomoStudy.git
+    ```
+2.  **Configure o banco de dados:**
+    *   Crie um banco de dados PostgreSQL.
+    *   Atualize as configurações do banco de dados no arquivo `src/main/resources/application.properties`.
+    *   Caso queira usar o docker - Na pasta onde se encontra o arquivo docker-composer.yaml, executar no terminal docker-composer up -d
+
+### **Executando a Aplicação**
+
+```bash
+mvn spring-boot:run
+```
+
+### **Executando os Testes**
+
+```bash
+mvn test
+```
+
+### **Acessando a Documentação da API (Swagger)**
+
+Abra o seu navegador e acesse `http://localhost:8080/swagger-ui.html`.
+
 ## Endpoints da API
 
 A URL base para todos os endpoints é `/api`.
-
-### Autenticação
-
-Adicionar futuramente.
 
 ### Usuários
 
@@ -322,18 +388,12 @@ Adicionar futuramente.
     *   `DELETE /category/{id}`
     *   **Resposta de Sucesso (204):** Sem conteúdo.
 
-## Como Executar o Projeto
+## Autor
 
-1.  **Clone o repositório:**
-    ```bash
-    git clone https://github.com/seu-usuario/PomoStudy.git
-    ```
-2.  **Configure o banco de dados:**
-    *   Crie um banco de dados PostgreSQL.
-    *   Atualize as configurações do banco de dados no arquivo `src/main/resources/application.properties`.
-3.  **Execute a aplicação:**
-    ```bash
-    mvn spring-boot:run
-    ```
-4.  **Acesse a documentação da API (Swagger):**
-    *   Abra o seu navegador e acesse `http://localhost:8080/swagger-ui.html`.
+*   **José Romualdo**
+*   **LinkedIn:** [www.linkedin.com/in/j-romualdo](www.linkedin.com/in/j-romualdo)
+*   **GitHub:** [https://github.com/JRomualdoDev](https://github.com/JRomualdoDev)
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT.
