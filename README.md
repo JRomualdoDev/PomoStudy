@@ -39,7 +39,7 @@ Este projeto foi uma oportunidade de aprofundar meus conhecimentos em desenvolvi
 ### **Banco de Dados**
 
 *   **PostgreSQL:** Utilizei o PostgreSQL como banco de dados relacional para persistir os dados da aplicação.
-*   **H2 Database:** Utilizei o H2 como banco de dados em memória para os testes automatizados.
+*   **H2 Database:** Utilizei o H2 como banco de dados em memória para os testes automatizados. (Em contrução)
 
 ### **Boas Práticas**
 
@@ -64,7 +64,10 @@ Este projeto foi uma oportunidade de aprofundar meus conhecimentos em desenvolvi
 2.  **Configure o banco de dados:**
     *   Crie um banco de dados PostgreSQL.
     *   Atualize as configurações do banco de dados no arquivo `src/main/resources/application.properties`.
-    *   Caso queira usar o docker - Na pasta onde se encontra o arquivo docker-composer.yaml, executar no terminal docker-composer up -d
+    *   Caso queira usar o docker - Na pasta onde se encontra o arquivo docker-composer.yaml
+    ```bash    
+      executar no terminal docker-composer up -d
+    ```
 
 ### **Executando a Aplicação**
 
