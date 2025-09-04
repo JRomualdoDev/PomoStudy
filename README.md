@@ -7,21 +7,10 @@ API para gerenciar usuários, tarefas, metas e categorias para o aplicativo Pomo
 O projeto está em desenvolvimento e aberto a contribuições.
 
 ---
+
 ## 🚀 Teste a API
 ### [**👉 Clique aqui para testar a API no Swagger UI**](https://pomostudy.onrender.com/swagger-ui/index.html) 👈
 
-
-### 💻 Tecnologias Utilizadas
-
-    Backend: Spring Boot
-    
-    Banco de Dados: PostgreSQL
-    
-    Documentação: OpenAPI 3.0 (Swagger UI)
-    
-    Deploy: Render
-
----
 
 ## Tecnologias Utilizadas
 
