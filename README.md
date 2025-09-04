@@ -11,6 +11,7 @@ O projeto está em desenvolvimento e aberto a contribuições.
 ## 🚀 Teste a API
 ### [**👉 Clique aqui para testar a API no Swagger UI**](https://pomostudy.onrender.com/swagger-ui/index.html) 👈
 
+---
 
 ## Tecnologias Utilizadas
 
