@@ -3,6 +3,8 @@ package com.pomoStudy.dto.user;
 import com.pomoStudy.dto.user.TaggingInterface.OnCreate;
 import jakarta.validation.constraints.*;
 
+import java.time.OffsetDateTime;
+
 public record UserRequestDTO(
 
         @NotBlank(message = "Name is required")
@@ -17,7 +19,7 @@ public record UserRequestDTO(
         @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$",
                 message = "A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial")
         String password
-//
+
 //        @NotNull(message = "CreatedAt is required")
 //        @Future(message = "CreatedAt must be in the future")
 //        OffsetDateTime createdAt

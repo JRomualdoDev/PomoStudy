@@ -1,5 +1,6 @@
 package com.pomoStudy.entity;
 
+import com.pomoStudy.dto.user.UserRequestDTO;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -38,7 +39,7 @@ public class User {
     @OneToMany(mappedBy = "user_category", fetch = FetchType.LAZY)
     private List<Category> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user_goal", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "user_goal", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Goal> goal = new ArrayList<>();
 
     public void addTask(Task task) {
@@ -61,6 +62,17 @@ public class User {
 
     public void setPomodoroConfiguration(Pomodoro_user_config pomodoroConfiguration) {
         this.pomodoroUserConfig = pomodoroConfiguration;
+    }
+
+    public User() {
+
+    }
+
+    public User(UserRequestDTO userRequestDTO) {
+        this.name = userRequestDTO.getName();
+        this.email = userRequestDTO.getEmail();
+        this.password = userRequestDTO.getPassword();
+        this.createdAt = OffsetDateTime.now();
     }
 
     /* Setters e Getters */

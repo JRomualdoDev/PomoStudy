@@ -31,15 +31,12 @@ public class UserMapper {
             userUpdateOrCreate = userRepository.findById(id)
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
             userUpdateOrCreate.setUpdatedAt(OffsetDateTime.now());
+            userUpdateOrCreate.setName(userRequestDTO.getName());
+            userUpdateOrCreate.setEmail(userUpdateOrCreate.getEmail());
+            userUpdateOrCreate.setPassword(userUpdateOrCreate.getPassword());
         } else {
-            userUpdateOrCreate = new User();
-            userUpdateOrCreate.setCreatedAt(OffsetDateTime.now());
-            userUpdateOrCreate.setEmail(userRequestDTO.getEmail());
+            userUpdateOrCreate = new User(userRequestDTO);
         }
-
-        userUpdateOrCreate.setName(userRequestDTO.getName());
-        userUpdateOrCreate.setPassword(userRequestDTO.getPassword());
-
 
         return userUpdateOrCreate;
     }
