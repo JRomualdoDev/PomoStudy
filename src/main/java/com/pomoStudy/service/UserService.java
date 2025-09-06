@@ -5,14 +5,12 @@ import com.pomoStudy.dto.user.UserRequestDTO;
 import com.pomoStudy.dto.user.UserResponseDTO;
 import com.pomoStudy.entity.User;
 import com.pomoStudy.exception.ResourceException;
-import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 

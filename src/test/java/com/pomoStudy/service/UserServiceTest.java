@@ -8,6 +8,7 @@ import com.pomoStudy.exception.ResourceException;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -48,6 +49,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should save user with success in the db")
     void shouldSaveUserSuccessfully() {
 
         when(userMapper.toUser(any(UserRequestDTO.class), eq(null))).thenReturn(user);
@@ -66,6 +68,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw exception when save email is already in the db")
     void shouldThrowExceptionWhenSavingWithDuplicateData() {
 
         when(userMapper.toUser(any(UserRequestDTO.class), eq(null))).thenReturn(user);
@@ -78,6 +81,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should edit user successfully in the db")
     void shouldEditUserSuccessfully() {
         Long userId = 1L;
         when(userMapper.toUser(userRequestDTO, userId)).thenReturn(user);
@@ -96,6 +100,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should throw exception when edit user that not exist in the db")
     void shouldThrowResourceExceptionWhenEditingNonExistentUser() {
         Long userId = 99L;
         when(userMapper.toUser(userRequestDTO, userId)).thenThrow(ResourceExceptionFactory.notFound("User", userId));
@@ -110,6 +115,7 @@ class UserServiceTest {
 
 
     @Test
+    @DisplayName("Should find all users from the db")
     void shouldFindAllUsers() {
 
         List<User> userList = Collections.singletonList(user);
@@ -125,6 +131,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should find the user from id when user exists in the db")
     void shouldFindUserByIdWhenExists() {
         Long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -138,6 +145,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should return empty optional when user does not exist int the db")
     void shouldReturnEmptyOptionalWhenUserDoesNotExist() {
         Long userId = 99L;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -150,6 +158,7 @@ class UserServiceTest {
     }
 
     @Test
+    @DisplayName("Should delete user successfully from db")
     void shouldDeleteUserSuccessfully() {
 
         Long userId = 1L;
