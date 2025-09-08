@@ -26,17 +26,19 @@ class UserRepositoryTest {
 
 
     @Test
-    @DisplayName("Should get User sucessfully from db")
+    @DisplayName("Should get User sucessfully from db for the email")
     void findUserByEmailCaseSuccess() {
          // 1 - Arrange
         String email = "jromualdo3@hotmail.com";
 
         // Persist memory db
-        UserRequestDTO data =  new UserRequestDTO("jromualdo3@hotmail.com", email, "A2314@fdaf");
+        UserRequestDTO data =  new UserRequestDTO("junior", email, "A2314@fdaf");
         this.createUser(data);
 
         // 2 - Act
         Optional<User> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));
+
+
 
         // 3 - Assert
         assertNotNull(result);
