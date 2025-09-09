@@ -63,13 +63,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorResponseDTO> handleEmailDuplicated(DataIntegrityViolationException ex) {
+    public ResponseEntity<ErrorResponseDTO> handleDataIntegrity(DataIntegrityViolationException ex) {
+        String errorCode = "GENERIC_DATA_INTEGRITY";
+        String errorMessage = "Erro de integridade de dados.";
+
+        String originalMessage = ex.getMessage();
+
+        // Tenta encontrar palavras-chave na mensagem original para personalizar a resposta
+        if (originalMessage.contains("duplicate key")) {
+            errorCode = "DUPLICATE_KEY";
+            errorMessage = "O registro que você tentou criar já existe.";
+        } else {
+            // Mensagem genérica se as palavras-chave não forem encontradas
+            errorMessage = "Erro interno: " + originalMessage;
+        }
 
         ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
-               "Error Email",
-                "Email already in use",
+                errorCode,
+                errorMessage,
                 HttpStatus.BAD_REQUEST
         );
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
     }
+
 }
