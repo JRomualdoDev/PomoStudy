@@ -1,11 +1,13 @@
 package com.pomoStudy.dto.user;
 
 import com.pomoStudy.entity.User;
+import com.pomoStudy.exception.ResourceException;
 import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
+import java.util.Optional;
 
 @Component
 public class UserMapper {
@@ -31,15 +33,18 @@ public class UserMapper {
             userUpdateOrCreate = userRepository.findById(id)
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
             userUpdateOrCreate.setUpdatedAt(OffsetDateTime.now());
+            userUpdateOrCreate.setName(userRequestDTO.getName());
+            userUpdateOrCreate.setEmail(userUpdateOrCreate.getEmail());
+            userUpdateOrCreate.setPassword(userUpdateOrCreate.getPassword());
         } else {
-            userUpdateOrCreate = new User();
-            userUpdateOrCreate.setCreatedAt(OffsetDateTime.now());
-            userUpdateOrCreate.setEmail(userRequestDTO.getEmail());
+
+            // find email in db
+            Optional<User> user = Optional.ofNullable(userRepository.findUserByEmail(userRequestDTO.getEmail()));
+
+            if (user.isPresent()) throw new ResourceException("", "", "EMAIL DUPLICATED", "Email Already in use" );
+
+            userUpdateOrCreate = new User(userRequestDTO);
         }
-
-        userUpdateOrCreate.setName(userRequestDTO.getName());
-        userUpdateOrCreate.setPassword(userRequestDTO.getPassword());
-
 
         return userUpdateOrCreate;
     }
