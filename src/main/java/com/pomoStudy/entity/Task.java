@@ -7,6 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -53,6 +54,19 @@ public class Task {
 
     @OneToMany(mappedBy = "task")
     private Set<Pomodoro_session> sessions;
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return Objects.equals(id, task.id) && Objects.equals(name, task.name) && Objects.equals(description, task.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description);
+    }
 
     public User getUser() {
         return user_task;

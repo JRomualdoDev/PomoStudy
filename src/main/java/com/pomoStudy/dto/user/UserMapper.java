@@ -18,7 +18,7 @@ public class UserMapper {
         this.userRepository = userRepository;
     }
 
-    public UserResponseDTO userResponseDTO(User user) {
+    public UserResponseDTO toUserResponseDTO(User user) {
         return new UserResponseDTO (
               user.getName(),
               user.getEmail()
