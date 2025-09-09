@@ -54,7 +54,7 @@ class UserServiceTest {
 
         when(userMapper.toUser(any(UserRequestDTO.class), eq(null))).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(userMapper.userResponseDTO(any(User.class))).thenReturn(userResponseDTO);
+        when(userMapper.toUserResponseDTO(any(User.class))).thenReturn(userResponseDTO);
 
         UserResponseDTO result = userService.save(userRequestDTO);
 
@@ -64,7 +64,7 @@ class UserServiceTest {
 
         verify(userMapper, times(1)).toUser(any(UserRequestDTO.class), eq(null));
         verify(userRepository, times(1)).save(any(User.class));
-        verify(userMapper, times(1)).userResponseDTO(any(User.class));
+        verify(userMapper, times(1)).toUserResponseDTO(any(User.class));
     }
 
     @Test
@@ -77,7 +77,7 @@ class UserServiceTest {
         assertThrows(DataIntegrityViolationException.class, () -> userService.save(userRequestDTO));
 
         verify(userRepository, times(1)).save(any(User.class));
-        verify(userMapper, never()).userResponseDTO(any(User.class));
+        verify(userMapper, never()).toUserResponseDTO(any(User.class));
     }
 
     @Test
@@ -86,7 +86,7 @@ class UserServiceTest {
         Long userId = 1L;
         when(userMapper.toUser(userRequestDTO, userId)).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
-        when(userMapper.userResponseDTO(any(User.class))).thenReturn(userResponseDTO);
+        when(userMapper.toUserResponseDTO(any(User.class))).thenReturn(userResponseDTO);
 
         UserResponseDTO result = userService.edit(userRequestDTO, userId);
 
@@ -96,7 +96,7 @@ class UserServiceTest {
 
         verify(userMapper, times(1)).toUser(userRequestDTO, userId);
         verify(userRepository, times(1)).save(user);
-        verify(userMapper, times(1)).userResponseDTO(user);
+        verify(userMapper, times(1)).toUserResponseDTO(user);
     }
 
     @Test

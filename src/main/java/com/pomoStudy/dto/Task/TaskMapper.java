@@ -26,7 +26,7 @@ public class TaskMapper {
         this.taskRepository = taskRepository;
     }
 
-    public TaskResponseDTO toResponseDTO(Task task) {
+    public TaskResponseDTO toTaskResponseDTO(Task task) {
        return new TaskResponseDTO(
                 task.getName(),
                 task.getDescription(),

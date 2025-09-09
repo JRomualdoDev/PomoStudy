@@ -30,7 +30,7 @@ public class UserService {
 
         User user = userMapper.toUser(userRequestDTO, null);
 
-        return userMapper.userResponseDTO(userRepository.save(user));
+        return userMapper.toUserResponseDTO(userRepository.save(user));
 
     }
 
@@ -38,7 +38,7 @@ public class UserService {
 
         User userUpdate = userMapper.toUser(userRequestDTO, id);
 
-        return userMapper.userResponseDTO(userRepository.save(userUpdate));
+        return userMapper.toUserResponseDTO(userRepository.save(userUpdate));
 
     }
 

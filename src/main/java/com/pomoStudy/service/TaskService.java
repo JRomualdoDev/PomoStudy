@@ -33,17 +33,17 @@ public class TaskService {
 
     public TaskResponseDTO save(TaskRequestDTO taskRequestDTO) {
 
-        try {
+//        try {
             Task taskSave = taskRepository.save(taskMapper.toTask(taskRequestDTO, null));
 
-            return taskMapper.toResponseDTO(taskSave);
-        } catch(ResourceException e) {
-            System.out.println(e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException("Error created Task.");
-        }
+            return taskMapper.toTaskResponseDTO(taskSave);
+//        } catch(ResourceException e) {
+//            System.out.println(e.getMessage());
+//            throw e;
+//        } catch (Exception e) {
+//            System.out.println(e.getMessage());
+//            throw new RuntimeException("Error created Task.");
+//        }
     }
 
     public TaskResponseDTO edit(TaskRequestDTO taskRequestDTO, Long id) {
@@ -52,7 +52,7 @@ public class TaskService {
 
             Task taskUpdate = taskRepository.save(taskMapper.toTask(taskRequestDTO, id));
 
-            return taskMapper.toResponseDTO(taskUpdate);
+            return taskMapper.toTaskResponseDTO(taskUpdate);
 
         } catch(ResourceException e) {
             System.out.println(e.getMessage());
@@ -65,14 +65,14 @@ public class TaskService {
 
     public List<TaskResponseDTO> findAll() {
         return taskRepository.findAll().stream()
-                .map(taskMapper::toResponseDTO)
+                .map(taskMapper::toTaskResponseDTO)
                 .collect(Collectors.toList());
     }
 
     public TaskResponseDTO findById(Long id) {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
-        return taskMapper.toResponseDTO(task);
+        return taskMapper.toTaskResponseDTO(task);
     }
 
     public void delete(Long id) {
