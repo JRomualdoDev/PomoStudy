@@ -169,7 +169,7 @@ A URL base para todos os endpoints é `/api`.
 ## Autor
 
 - **José Romualdo**
-- **LinkedIn:** [www.linkedin.com/in/j-romualdo](www.linkedin.com/in/j-romualdo)
+- **LinkedIn:** [www.linkedin.com/in/j-romualdo](https://www.linkedin.com/in/j-romualdo)
 - **GitHub:** [https://github.com/JRomualdoDev](https://github.com/JRomualdoDev)
 
 ## Licença
