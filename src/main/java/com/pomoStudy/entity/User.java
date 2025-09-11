@@ -53,14 +53,14 @@ public class User {
     }
 
     @OneToOne(mappedBy = "user_pomo_config", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Pomodoro_user_config pomodoroUserConfig;
+    private PomodoroUserConfig pomodoroUserConfig;
 
     // Getter e Setter
-    public Pomodoro_user_config getPomodoroConfiguration() {
+    public PomodoroUserConfig getPomodoroConfiguration() {
         return pomodoroUserConfig;
     }
 
-    public void setPomodoroConfiguration(Pomodoro_user_config pomodoroConfiguration) {
+    public void setPomodoroConfiguration(PomodoroUserConfig pomodoroConfiguration) {
         this.pomodoroUserConfig = pomodoroConfiguration;
     }
 

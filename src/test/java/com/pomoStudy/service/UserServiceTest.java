@@ -105,9 +105,9 @@ class UserServiceTest {
         Long userId = 99L;
         when(userMapper.toUser(userRequestDTO, userId)).thenThrow(ResourceExceptionFactory.notFound("User", userId));
 
-        ResourceException thrown = assertThrows(ResourceException.class, () -> userService.edit(userRequestDTO, userId));
+        ResourceException error = assertThrows(ResourceException.class, () -> userService.edit(userRequestDTO, userId));
 
-        assertEquals("User with id 99 not found.", thrown.getMessage());
+        assertEquals("User with id 99 not found.", error.getMessage());
 
         verify(userMapper, times(1)).toUser(userRequestDTO, userId);
         verify(userRepository, never()).save(any(User.class));

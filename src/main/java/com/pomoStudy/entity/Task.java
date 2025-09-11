@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -53,7 +52,7 @@ public class Task {
     private Category category;
 
     @OneToMany(mappedBy = "task")
-    private Set<Pomodoro_session> sessions;
+    private Set<PomodoroSession> sessions;
 
 
     @Override

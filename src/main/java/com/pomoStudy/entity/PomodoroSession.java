@@ -7,7 +7,7 @@ import org.springframework.data.annotation.CreatedDate;
 import java.time.OffsetDateTime;
 
 @Entity
-public class Pomodoro_session {
+public class PomodoroSession {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

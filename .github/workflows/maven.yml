@@ -4,9 +4,9 @@ name: Build e Teste da Aplicação Spring Boot
 # Quando o workflow será executado
 on:
   push:
-    branches: [ "main", "test" ] # Dispara em pushes para os branches main e develop
+    branches: [ "master", "test" ] # Dispara em pushes para os branches main e develop
   pull_request:
-    branches: [ "main" ] # Dispara em pull requests para o branch main
+    branches: [ "master" ] # Dispara em pull requests para o branch main
 
 # Definição dos jobs
 jobs:

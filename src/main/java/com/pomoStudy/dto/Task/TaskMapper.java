@@ -50,11 +50,14 @@ public class TaskMapper {
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
         } else {
             taskUpdateOrCreate = new Task();
+
+            Optional<User> user = userRepository.findById(taskRequestDTO.user_task());
+            if (user.isEmpty())
+                throw ResourceExceptionFactory.notFound("User", taskRequestDTO.user_task());
+
+            taskUpdateOrCreate.setUser_task(user.get());
         }
 
-        Optional<User> user = userRepository.findById(taskRequestDTO.user_task());
-        if (user.isEmpty())
-            throw ResourceExceptionFactory.notFound("User", taskRequestDTO.user_task());
 
         Optional<Category> category = categoryRepository.findById(taskRequestDTO.categoryId());
         if (category.isEmpty())
@@ -67,7 +70,6 @@ public class TaskMapper {
         taskUpdateOrCreate.setStatus(taskRequestDTO.status());
         taskUpdateOrCreate.setPriority(taskRequestDTO.priority());
         taskUpdateOrCreate.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
-        taskUpdateOrCreate.setUser_task(user.get());
         taskUpdateOrCreate.setCategory(category.get());
         taskUpdateOrCreate.setCreatedAt(OffsetDateTime.now());
 

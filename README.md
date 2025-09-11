@@ -7,6 +7,7 @@ API desenvolvida para gerenciar usuários, tarefas, metas e categorias do aplica
 ## 🚧 Próximos Passos
 
 - [ ] Criar testes
+- [ ] Paginação
 - [ ] Criar autenticação e autorização
 - [ ] Criar interface
 - [ ] Adicionar mais validações
