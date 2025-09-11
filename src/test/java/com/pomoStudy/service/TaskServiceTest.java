@@ -92,7 +92,7 @@ class TaskServiceTest {
                 30,
                 1L,
                 1L);
-        taskResponseDTO = new TaskResponseDTO("testTask", "loremipsumloremipsumloremipsum", startDate, endDate, StatusUser.IN_PROGRESS, TaskPriority.MEDIUM, 30, 1L, 1L);
+        taskResponseDTO = new TaskResponseDTO(1L, "testTask", "loremipsumloremipsumloremipsum", startDate, endDate, StatusUser.IN_PROGRESS, TaskPriority.MEDIUM, 30, 1L, 1L);
     }
 
     @Test
@@ -224,9 +224,28 @@ class TaskServiceTest {
         verify(taskRepository, times(1)).findById(taskId);
     }
 
-//    @Test
-//    @DisplayName("Should get Exception when do not find task from id")
-//    void shouldGetExceptionWhenNotFindTaskFromId() {
-//
-//    }
+    @Test
+    @DisplayName("Should get Exception when do not find task from id")
+    void shouldGetExceptionWhenNotFindTaskFromId() {
+        Long taskId = 99L;
+        when(taskRepository.findById(taskId)).thenThrow(ResourceExceptionFactory.notFound("Task", taskId));
+
+        ResourceException error = assertThrows(ResourceException.class, () -> taskService.findById(taskId));
+
+        assertEquals("Task with id 99 not found.", error.getMessage());
+
+        verify(taskRepository, times(1)).findById(taskId);
+    }
+
+    @Test
+    @DisplayName("Should delete task succefully from db")
+    void shouldDeleteTaskSuccessfullyDB() {
+        Long taskId = 1L;
+        when(taskRepository.findById(taskId)).thenReturn(Optional.ofNullable(task));
+        doNothing().when(taskRepository).deleteById(taskId);
+
+        taskService.delete(taskId);
+
+        verify(taskRepository, times(1)).deleteById(taskId);
+    }
 }

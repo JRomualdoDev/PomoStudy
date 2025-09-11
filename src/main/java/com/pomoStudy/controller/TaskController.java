@@ -8,7 +8,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -22,11 +24,16 @@ public class TaskController {
     }
 
     @PostMapping
-    public ResponseEntity<TaskResponseDTO> createTask(@Valid @RequestBody TaskRequestDTO taskRequestDTO) {
+    public ResponseEntity<TaskResponseDTO> createTask(@Valid @RequestBody TaskRequestDTO taskRequestDTO, UriComponentsBuilder ucb) {
 
         TaskResponseDTO taskResponseDTO = taskService.save(taskRequestDTO);
 
-        return ResponseEntity.status(201).body(taskResponseDTO);
+        URI locationOfNewtask = ucb
+                .path("api/task/{id}")
+                .buildAndExpand(taskResponseDTO.id())
+                .toUri();
+
+        return ResponseEntity.created(locationOfNewtask).body(taskResponseDTO);
     }
 
     @PutMapping("{id}")

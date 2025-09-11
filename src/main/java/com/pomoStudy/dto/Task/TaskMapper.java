@@ -28,6 +28,7 @@ public class TaskMapper {
 
     public TaskResponseDTO toTaskResponseDTO(Task task) {
        return new TaskResponseDTO(
+                task.getId(),
                 task.getName(),
                 task.getDescription(),
                 task.getStartDate(),
