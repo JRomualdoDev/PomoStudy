@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -53,7 +52,7 @@ public class Task {
     private Category category;
 
     @OneToMany(mappedBy = "task")
-    private Set<Pomodoro_session> sessions;
+    private Set<PomodoroSession> sessions;
 
 
     @Override
@@ -66,6 +65,14 @@ public class Task {
     @Override
     public int hashCode() {
         return Objects.hash(id, name, description);
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public User getUser() {
@@ -154,5 +161,23 @@ public class Task {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", startDate=" + startDate +
+                ", endDate=" + endDate +
+                ", status=" + status +
+                ", priority=" + priority +
+                ", timeTotalLearning=" + timeTotalLearning +
+                ", createdAt=" + createdAt +
+                ", user_task=" + user_task +
+                ", category=" + category +
+                ", sessions=" + sessions +
+                '}';
     }
 }

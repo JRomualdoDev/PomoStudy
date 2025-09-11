@@ -33,34 +33,16 @@ public class TaskService {
 
     public TaskResponseDTO save(TaskRequestDTO taskRequestDTO) {
 
-//        try {
-            Task taskSave = taskRepository.save(taskMapper.toTask(taskRequestDTO, null));
+        Task taskSave = taskRepository.save(taskMapper.toTask(taskRequestDTO, null));
 
-            return taskMapper.toTaskResponseDTO(taskSave);
-//        } catch(ResourceException e) {
-//            System.out.println(e.getMessage());
-//            throw e;
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//            throw new RuntimeException("Error created Task.");
-//        }
+        return taskMapper.toTaskResponseDTO(taskSave);
     }
 
     public TaskResponseDTO edit(TaskRequestDTO taskRequestDTO, Long id) {
 
-        try {
-
             Task taskUpdate = taskRepository.save(taskMapper.toTask(taskRequestDTO, id));
 
             return taskMapper.toTaskResponseDTO(taskUpdate);
-
-        } catch(ResourceException e) {
-            System.out.println(e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException("Error updated task.");
-        }
     }
 
     public List<TaskResponseDTO> findAll() {
