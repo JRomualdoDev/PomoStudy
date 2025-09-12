@@ -6,12 +6,12 @@ API desenvolvida para gerenciar usuários, tarefas, metas e categorias do aplica
 
 ## 🚧 Próximos Passos
 
-- [ ] Criar testes
+- [X] Criar testes
 - [ ] Paginação
 - [ ] Criar autenticação e autorização
 - [ ] Criar interface
 - [ ] Adicionar mais validações
-- [ ] Implementar CI/CD
+- [X] Implementar CI/CD
 - [ ] Adicionar novos recursos
 
 ---
