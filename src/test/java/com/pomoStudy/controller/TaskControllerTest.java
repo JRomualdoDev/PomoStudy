@@ -18,18 +18,18 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.time.OffsetDateTime;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.hamcrest.CoreMatchers.is;
 
 
@@ -117,6 +117,43 @@ class TaskControllerTest {
                 .andExpect(header().string("Location", containsString("api/task/1")))
                 .andExpect(jsonPath("$.id", is(1)))
                 .andExpect(jsonPath("$.name", is("testTask")));
+    }
+
+    @Test
+    @DisplayName("Should be return 400 Bad request when create a new task with invalid data")
+    void shouldBeReturn400BadRequestWhenCreateNewTaskWithInvalidData() throws Exception {
+
+        TaskRequestDTO invalidTaskRequestDTO = new TaskRequestDTO(
+                null,
+                "loremipsumloremipsumloremipsum",
+                startDate,
+                endDate,
+                StatusUser.IN_PROGRESS,
+                TaskPriority.MEDIUM,
+                30,
+                1L,
+                1L);
+
+        mockMvc.perform(post("/api/task")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidTaskRequestDTO)))
+                .andExpect(status().isBadRequest());
+
+    }
+
+    @Test
+    @DisplayName("Should be edit task and return status 200 ok")
+    void shouldEditTaskAndReturnStatus200OK() throws Exception {
+
+        when(taskService.edit(any(TaskRequestDTO.class), anyLong())).thenReturn(taskResponseDTO);
+
+        mockMvc.perform(put("/api/task/{id}", taskID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(taskRequestDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value("testTask"));
+
     }
 
 }

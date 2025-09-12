@@ -11,11 +11,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
@@ -74,15 +72,15 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("Should be return 400 Bad Request for trying create a new user with invalid data")
+    @DisplayName("Should be return 400 Bad Request for when create a new user with invalid data")
     void shouldReturn400_whenCreateUserWithInvalidData() throws Exception {
 
         UserRequestDTO invalidUserDto = new UserRequestDTO(null, "invalid-email", "pass");
 
         mockMvc.perform(post("/api/user")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(invalidUserDto)))
-                .andExpect(status().isBadRequest());
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(invalidUserDto)))
+                    .andExpect(status().isBadRequest());
     }
 
 
@@ -94,8 +92,8 @@ public class UserControllerTest {
 
 
         mockMvc.perform(put("/api/user/{id}", userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequestDTO)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userRequestDTO)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("testuser"))
                 .andExpect(jsonPath("$.email").value("test@example.com"));
