@@ -107,8 +107,8 @@ public class UserControllerTest {
                 .thenThrow(ResourceExceptionFactory.notFound("User", userId));
 
         mockMvc.perform(put("/api/user/{id}", userId)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequestDTO)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userRequestDTO)))
                 .andExpect(status().isNotFound());
     }
 

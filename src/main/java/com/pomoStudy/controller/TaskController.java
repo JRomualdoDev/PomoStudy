@@ -45,7 +45,7 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskResponseDTO>> findAllTasks() {
+    public ResponseEntity<Iterable<TaskResponseDTO>> findAllTasks() {
 
         List<TaskResponseDTO> listTasks = taskService.findAll();
 

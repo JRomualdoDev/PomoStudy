@@ -1,5 +1,6 @@
 package com.pomoStudy.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pomoStudy.dto.Task.TaskRequestDTO;
 import com.pomoStudy.dto.Task.TaskResponseDTO;
@@ -8,6 +9,7 @@ import com.pomoStudy.entity.Task;
 import com.pomoStudy.entity.User;
 import com.pomoStudy.enums.StatusUser;
 import com.pomoStudy.enums.TaskPriority;
+import com.pomoStudy.exception.ResourceExceptionFactory;
 import com.pomoStudy.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -20,6 +22,8 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.OffsetDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.hamcrest.CoreMatchers.is;
 
 
@@ -156,4 +160,51 @@ class TaskControllerTest {
 
     }
 
+    @Test
+    @DisplayName("Should be return 404 Not Found for try edit non-existent task")
+    void shouldReturn404TryEditNonExistentTask() throws Exception {
+
+        when(taskService.edit(any(TaskRequestDTO.class), anyLong()))
+                .thenThrow(ResourceExceptionFactory.notFound("Task", taskID));
+
+        mockMvc.perform(put("/api/task/{id}", taskID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(taskRequestDTO)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Should be return all Tasks with status 200 OK")
+    void shouldReturnAllTasksWithStatus200() throws Exception {
+
+        List<TaskResponseDTO> tasks = Arrays.asList(taskResponseDTO,
+                new TaskResponseDTO(
+                        2L,
+                        "testTask2",
+                        "loremipsumloremipsumloremipsum",
+                        startDate,
+                        endDate,
+                        StatusUser.IN_PROGRESS,
+                        TaskPriority.MEDIUM,
+                        30,
+                        1L,
+                        1L));
+        when(taskService.findAll()).thenReturn(tasks);
+
+        mockMvc.perform(get("/api/task"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.[0].name").value("testTask"));
+    }
+
+    @Test
+    @DisplayName("Should be found one task for the id and return 200 OK")
+    void shouldFoundTaskForTheIdReturn200() throws Exception {
+
+        when(taskService.findById(anyLong())).thenReturn(taskResponseDTO);
+
+        mockMvc.perform(get("/api/task/{id}", taskID))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("testTask"))
+                .andExpect(jsonPath("$.description").value("loremipsumloremipsumloremipsum"));
+    }
 }
