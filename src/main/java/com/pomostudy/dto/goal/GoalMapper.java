@@ -1,4 +1,4 @@
-package com.pomostudy.dto.Goal;
+package com.pomostudy.dto.goal;
 
 import com.pomostudy.entity.Goal;
 import com.pomostudy.entity.User;
@@ -39,7 +39,7 @@ public class GoalMapper {
 
         if (id != null) {
             goalUpdateOrCreate = goalRepository.findById(id)
-                    .filter((goal) -> goal.getUserGoal().getId().equals(goalRequestDTO.user_goal()))
+                    .filter(goal -> goal.getUserGoal().getId().equals(goalRequestDTO.user_goal()))
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Goal", id));
         } else {
             goalUpdateOrCreate = new Goal();

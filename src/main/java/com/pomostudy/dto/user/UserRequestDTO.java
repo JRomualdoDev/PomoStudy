@@ -1,6 +1,6 @@
 package com.pomostudy.dto.user;
 
-import com.pomostudy.dto.user.TaggingInterface.OnCreate;
+import com.pomostudy.dto.user.tagging_interface.OnCreate;
 import jakarta.validation.constraints.*;
 import jakarta.validation.groups.Default;
 
@@ -15,7 +15,7 @@ public record UserRequestDTO(
         String email,
 
         @NotNull(message = "Password is required", groups = {Default.class, OnCreate.class})
-        @Pattern(regexp = "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$",
+        @Pattern(regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$",
                 message = "The password should be contains at least one uppercase, one lowercase, one number and one special character")
         String password
 ) {

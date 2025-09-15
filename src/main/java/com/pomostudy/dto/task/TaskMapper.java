@@ -47,7 +47,7 @@ public class TaskMapper {
 
         if ( id != null) {
             taskUpdateOrCreate = taskRepository.findById(id)
-                    .filter((t) -> t.getUserTask().getId().equals(taskRequestDTO.user_task()))
+                    .filter(t -> t.getUserTask().getId().equals(taskRequestDTO.user_task()))
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
         } else {
             taskUpdateOrCreate = new Task();

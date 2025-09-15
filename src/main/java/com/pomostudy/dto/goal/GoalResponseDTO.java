@@ -1,4 +1,4 @@
-package com.pomostudy.dto.Goal;
+package com.pomostudy.dto.goal;
 
 import com.pomostudy.entity.Goal;
 import com.pomostudy.enums.GoalType;

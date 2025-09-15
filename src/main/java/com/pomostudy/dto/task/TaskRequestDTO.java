@@ -1,7 +1,7 @@
 package com.pomostudy.dto.task;
 
 import com.pomostudy.dto.task.validators.priority.ValidPriority;
-import com.pomostudy.dto.task.validators.StatusUser.ValidStatusUser;
+import com.pomostudy.dto.task.validators.status_user.ValidStatusUser;
 import com.pomostudy.enums.StatusUser;
 import com.pomostudy.enums.TaskPriority;
 import jakarta.validation.constraints.*;

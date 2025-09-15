@@ -8,11 +8,9 @@ import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.CategoryRepository;
 import com.pomostudy.repository.TaskRepository;
 import com.pomostudy.repository.UserRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -44,10 +42,11 @@ public class TaskService {
             return taskMapper.toTaskResponseDTO(taskUpdate);
     }
 
-    public List<TaskResponseDTO> findAll(Pageable pageable) {
-        return taskRepository.findAll(pageable).stream()
-                .map(taskMapper::toTaskResponseDTO)
-                .collect(Collectors.toList());
+    public Page<TaskResponseDTO> findAll(Pageable pageable) {
+
+        Page<Task> taskPage = taskRepository.findAll(pageable);
+
+        return taskPage.map(taskMapper::toTaskResponseDTO);
     }
 
     public TaskResponseDTO findById(Long id) {

@@ -1,4 +1,4 @@
-package com.pomostudy.dto.Goal.Validators;
+package com.pomostudy.dto.goal.validators;
 
 import com.pomostudy.enums.GoalType;
 import jakarta.validation.ConstraintValidator;

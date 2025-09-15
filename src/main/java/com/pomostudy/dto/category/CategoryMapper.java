@@ -34,7 +34,7 @@ public class CategoryMapper {
 
         if (id != null) {
             categoryUpdateOrCreate = categoryRepository.findById(id)
-                    .filter((category ) -> category.getUserCategory().getId().equals(categoryRequestDTO.userId()))
+                    .filter(category -> category.getUserCategory().getId().equals(categoryRequestDTO.userId()))
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
         } else {
             categoryUpdateOrCreate = new Category();

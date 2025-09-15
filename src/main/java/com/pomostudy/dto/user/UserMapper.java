@@ -12,7 +12,7 @@ import java.util.Optional;
 @Component
 public class UserMapper {
 
-    final private UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserMapper(UserRepository userRepository) {
         this.userRepository = userRepository;

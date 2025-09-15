@@ -4,6 +4,7 @@ import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.service.TaskService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -46,12 +47,12 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<Iterable<TaskResponseDTO>> findAllTasks(
+    public ResponseEntity<Page<TaskResponseDTO>> findAllTasks(
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
             Pageable pageable
             ) {
 
-        List<TaskResponseDTO> listTasks = taskService.findAll(pageable);
+        Page<TaskResponseDTO> listTasks = taskService.findAll(pageable);
 
         return ResponseEntity.ok(listTasks);
     }

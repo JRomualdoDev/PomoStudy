@@ -1,6 +1,6 @@
-package com.pomostudy.dto.Goal;
+package com.pomostudy.dto.goal;
 
-import com.pomostudy.dto.Goal.Validators.ValidType;
+import com.pomostudy.dto.goal.validators.ValidType;
 import com.pomostudy.enums.GoalType;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;

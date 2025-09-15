@@ -1,4 +1,4 @@
-package com.pomostudy.dto.task.validators.StatusUser;
+package com.pomostudy.dto.task.validators.status_user;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

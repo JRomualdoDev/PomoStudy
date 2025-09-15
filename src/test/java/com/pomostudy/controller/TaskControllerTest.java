@@ -16,6 +16,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,6 +29,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -104,7 +108,7 @@ class TaskControllerTest {
         task.setStatus(StatusUser.IN_PROGRESS);
         task.setPriority(TaskPriority.MEDIUM);
         task.setTimeTotalLearning(30);
-        task.setUser_task(user);
+        task.setUserTask(user);
         task.setCategory(category);
     }
 
@@ -179,24 +183,17 @@ class TaskControllerTest {
 
     void shouldReturnAllTasksWithStatus200() throws Exception {
 
-        List<TaskResponseDTO> tasks = Arrays.asList(taskResponseDTO,
-            new TaskResponseDTO(
-                    2L,
-                    "testTask2",
-                    "loremipsumloremipsumloremipsum",
-                    startDate,
-                    endDate,
-                    StatusUser.IN_PROGRESS,
-                    TaskPriority.MEDIUM,
-                    30,
-                    1L,
-                    1L));
+        Pageable pageable = PageRequest.of(0,10);
+        Page<TaskResponseDTO> taskPage = new PageImpl<>(List.of(taskResponseDTO), pageable, 1);
 
-        when(taskService.findAll(any(Pageable.class))).thenReturn(tasks);
+        when(taskService.findAll(any(Pageable.class))).thenReturn(taskPage);
 
-        mockMvc.perform(get("/api/task?pageno=1&pagesize=5"))
+        mockMvc.perform(get("/api/task?page=0&size=10&sort=id,asc"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].name").value("testTask"));
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.content[0].name", is("testTask")))
+                .andExpect(jsonPath("$.totalPages", is(1)))
+                .andExpect(jsonPath("$.totalElements", is(1)));
 
     }
 

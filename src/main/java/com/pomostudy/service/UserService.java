@@ -16,8 +16,8 @@ import java.util.Optional;
 public class UserService {
 
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
-    final private UserRepository userRepository;
-    final private UserMapper userMapper;
+    private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public UserService(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;

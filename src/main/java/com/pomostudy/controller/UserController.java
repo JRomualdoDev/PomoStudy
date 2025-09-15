@@ -1,6 +1,6 @@
 package com.pomostudy.controller;
 
-import com.pomostudy.dto.user.TaggingInterface.OnCreate;
+import com.pomostudy.dto.user.tagging_interface.OnCreate;
 import com.pomostudy.dto.user.UserRequestDTO;
 import com.pomostudy.dto.user.UserResponseDTO;
 import com.pomostudy.entity.User;

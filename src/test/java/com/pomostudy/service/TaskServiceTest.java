@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -81,7 +82,7 @@ class TaskServiceTest {
         task.setStatus(StatusUser.IN_PROGRESS);
         task.setPriority(TaskPriority.MEDIUM);
         task.setTimeTotalLearning(30);
-        task.setUser_task(user);
+        task.setUserTask(user);
         task.setCategory(category);
 
         taskRequestDTO = new TaskRequestDTO(
@@ -193,20 +194,21 @@ class TaskServiceTest {
     }
 
     @Test
-    @DisplayName("Should find all tasks from db")
-    void shouldFindAllTasksDB() {
+    @DisplayName("Should be pass correct pagination parameters to service and return 200 OK")
+    void shouldFindAllTasksDBWithStatus200() {
 
         List<Task> taskResponse = Collections.singletonList(task);
+        Pageable pageable = PageRequest.of(0,10);
 
         when(taskRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(taskResponse));
         when(taskMapper.toTaskResponseDTO(task)).thenReturn(taskResponseDTO);
 
-        List<TaskResponseDTO> result = taskService.findAll(PageRequest.of(1,10));
+        Page<TaskResponseDTO> result = taskService.findAll(pageable);
 
         assertFalse(result.isEmpty());
-        assertEquals(1, result.size());
-        assertEquals(taskResponseDTO, result.getFirst());
-        assertEquals(taskRequestDTO.name(), result.getFirst().name());
+        assertEquals(1, result.getContent().size());
+        assertEquals(taskResponseDTO,result.getContent().getFirst());
+        assertEquals(taskRequestDTO.name(), result.getContent().getFirst().name());
 
         verify(taskRepository, times(1)).findAll(any(Pageable.class));
     }

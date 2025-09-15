@@ -1,7 +1,7 @@
 package com.pomostudy.controller;
 
-import com.pomostudy.dto.Goal.GoalRequestDTO;
-import com.pomostudy.dto.Goal.GoalResponseDTO;
+import com.pomostudy.dto.goal.GoalRequestDTO;
+import com.pomostudy.dto.goal.GoalResponseDTO;
 import com.pomostudy.entity.Goal;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.service.GoalService;

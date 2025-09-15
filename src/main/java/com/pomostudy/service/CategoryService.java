@@ -14,8 +14,8 @@ import java.util.Optional;
 
 @Service
 public class CategoryService {
-    final private CategoryRepository categoryRepository;
-    final private CategoryMapper categoryMapper;
+    private final CategoryRepository categoryRepository;
+    private final  CategoryMapper categoryMapper;
 
     public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository
             , CategoryMapper categoryMapper) {
