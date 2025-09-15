@@ -53,8 +53,6 @@ class TaskServiceTest {
     private TaskRequestDTO taskRequestDTO;
     private TaskResponseDTO taskResponseDTO;
     private Task task;
-    private User user;
-    private Category category;
 
     OffsetDateTime startDate = OffsetDateTime.now().plusDays(1L);
     OffsetDateTime endDate = OffsetDateTime.now().plusDays(4L);
@@ -62,12 +60,12 @@ class TaskServiceTest {
     @BeforeEach
     void setUp() {
 
-        user = new User();
+        User user = new User();
         user.setId(1L);
         user.setName("test");
         user.setEmail("test@example.com");
 
-        category = new Category();
+        Category category = new Category();
         category.setName("categoryTest");
         category.setColor("#FFF");
         category.setIcon("test.icon");
