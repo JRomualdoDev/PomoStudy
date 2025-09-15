@@ -33,26 +33,26 @@ public class User {
     @LastModifiedDate
     private OffsetDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user_task", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userTask", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Task> tasks = new ArrayList<>();
 
     @OneToMany(mappedBy = "userCategory", fetch = FetchType.LAZY)
     private List<Category> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user_goal", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userGoal", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Goal> goal = new ArrayList<>();
 
     public void addTask(Task task) {
         tasks.add(task);
-        task.setUser(this); // mantém o relacionamento bidirecional consistente
+        task.setUserTask(this); // mantém o relacionamento bidirecional consistente
     }
 
     public void removeTask(Task task) {
         tasks.remove(task);
-        task.setUser(null);
+        task.setUserTask(null);
     }
 
-    @OneToOne(mappedBy = "user_pomo_config", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "userPomoConfig", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private PomodoroUserConfig pomodoroUserConfig;
 
     // Getter e Setter

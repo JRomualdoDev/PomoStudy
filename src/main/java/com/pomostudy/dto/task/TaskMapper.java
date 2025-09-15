@@ -36,7 +36,7 @@ public class TaskMapper {
                 task.getStatus(),
                 task.getPriority(),
                 task.getTimeTotalLearning(),
-                task.getUser_task().getId(),
+                task.getUserTask().getId(),
                 task.getCategory().getId()
         );
     }
@@ -47,7 +47,7 @@ public class TaskMapper {
 
         if ( id != null) {
             taskUpdateOrCreate = taskRepository.findById(id)
-                    .filter((t) -> t.getUser_task().getId().equals(taskRequestDTO.user_task()))
+                    .filter((t) -> t.getUserTask().getId().equals(taskRequestDTO.user_task()))
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
         } else {
             taskUpdateOrCreate = new Task();
@@ -56,7 +56,7 @@ public class TaskMapper {
             if (user.isEmpty())
                 throw ResourceExceptionFactory.notFound("User", taskRequestDTO.user_task());
 
-            taskUpdateOrCreate.setUser_task(user.get());
+            taskUpdateOrCreate.setUserTask(user.get());
             // TODO: Campo pensar o que fazer
             taskUpdateOrCreate.setCreatedAt(OffsetDateTime.now());
         }

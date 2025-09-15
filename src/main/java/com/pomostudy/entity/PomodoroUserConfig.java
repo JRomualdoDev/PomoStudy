@@ -13,14 +13,14 @@ public class PomodoroUserConfig {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int focus_duration;
-    private int short_break_duration;
-    private int long_break_duration;
-    private int cycles_until_long_break;
-    private Boolean auto_start_breaks;
-    private Boolean auto_start_next_pomodoro;
-    private Boolean notification_sound_active;
-    private String sound_type;
+    private int focusDuration;
+    private int shortBreakDuration;
+    private int longBreakDuration;
+    private int cyclesUntilLongBreak;
+    private Boolean autoStartBreaks;
+    private Boolean autoStartNextPomodoro;
+    private Boolean notificationSoundActive;
+    private String soundType;
 
     private Integer notificationVolume = 50;
 
@@ -31,18 +31,18 @@ public class PomodoroUserConfig {
     @LastModifiedDate
     private OffsetDateTime updatedAt;
 
-    @Column(name = "user_id", nullable = false, unique = true)
+    @Column(name = "userId", nullable = false, unique = true)
     private Long userId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", insertable = false, updatable = false)
-    private User user_pomo_config;
+    @JoinColumn(name = "userId", referencedColumnName = "id", insertable = false, updatable = false)
+    private User userPomoConfig;
 
     public User getUserPomoConfig() {
-        return user_pomo_config;
+        return userPomoConfig;
     }
 
-    public void setUserPomoConfig(User user_pomo_config) {
-        this.user_pomo_config = user_pomo_config;
+    public void setUserPomoConfig(User userPomoConfig) {
+        this.userPomoConfig = userPomoConfig;
     }
 }

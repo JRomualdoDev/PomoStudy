@@ -44,11 +44,11 @@ public class Task {
     private OffsetDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user_task;
+    @JoinColumn(name = "userId", nullable = false)
+    private User userTask;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "categoryId")
     private Category category;
 
     @OneToMany(mappedBy = "task")
@@ -73,14 +73,6 @@ public class Task {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public User getUser() {
-        return user_task;
-    }
-
-    public void setUser(User user_task) {
-        this.user_task = user_task;
     }
 
     public String getName() {
@@ -147,12 +139,12 @@ public class Task {
         this.createdAt = createdAt;
     }
 
-    public User getUser_task() {
-        return user_task;
+    public User getUserTask() {
+        return userTask;
     }
 
-    public void setUser_task(User user_task) {
-        this.user_task = user_task;
+    public void setUserTask(User userTask) {
+        this.userTask = userTask;
     }
 
     public Category getCategory() {
@@ -175,7 +167,7 @@ public class Task {
                 ", priority=" + priority +
                 ", timeTotalLearning=" + timeTotalLearning +
                 ", createdAt=" + createdAt +
-                ", user_task=" + user_task +
+                ", userTask=" + userTask +
                 ", category=" + category +
                 ", sessions=" + sessions +
                 '}';

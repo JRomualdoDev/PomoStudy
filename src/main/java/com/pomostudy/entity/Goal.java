@@ -40,11 +40,11 @@ public class Goal {
     private Boolean active;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user_goal;
+    @JoinColumn(name = "userId")
+    private User userGoal;
 
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Goal_history> goalHistory = new ArrayList<>();
+    private List<GoalHistory> goalHistory = new ArrayList<>();
 
     public String getTitle() {
         return title;
@@ -114,19 +114,19 @@ public class Goal {
         this.active = active;
     }
 
-    public User getUser_goal() {
-        return user_goal;
+    public User getUserGoal() {
+        return userGoal;
     }
 
-    public void setUser_goal(User user_goal) {
-        this.user_goal = user_goal;
+    public void setUserGoal(User userGoal) {
+        this.userGoal = userGoal;
     }
 
-    public List<Goal_history> getGoalHistory() {
+    public List<GoalHistory> getGoalHistory() {
         return goalHistory;
     }
 
-    public void setGoalHistory(List<Goal_history> goalHistory) {
+    public void setGoalHistory(List<GoalHistory> goalHistory) {
         this.goalHistory = goalHistory;
     }
 }

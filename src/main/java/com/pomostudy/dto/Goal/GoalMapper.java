@@ -39,7 +39,7 @@ public class GoalMapper {
 
         if (id != null) {
             goalUpdateOrCreate = goalRepository.findById(id)
-                    .filter((goal) -> goal.getUser_goal().getId().equals(goalRequestDTO.user_goal()))
+                    .filter((goal) -> goal.getUserGoal().getId().equals(goalRequestDTO.user_goal()))
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Goal", id));
         } else {
             goalUpdateOrCreate = new Goal();
@@ -58,7 +58,7 @@ public class GoalMapper {
         goalUpdateOrCreate.setGoalActual(goalRequestDTO.goalActual());
         goalUpdateOrCreate.setEndDate(goalRequestDTO.endDate());
         goalUpdateOrCreate.setActive(goalRequestDTO.active());
-        goalUpdateOrCreate.setUser_goal(user.get());
+        goalUpdateOrCreate.setUserGoal(user.get());
 
         goalUpdateOrCreate.setCreatedAt(OffsetDateTime.now());
 

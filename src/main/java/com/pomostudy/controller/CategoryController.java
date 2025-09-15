@@ -6,19 +6,21 @@ import com.pomostudy.entity.Category;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.service.CategoryService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/category")
 public class CategoryController {
 
-    @Autowired
-    private CategoryService categoryService;
+
+    private final CategoryService categoryService;
+
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
 
     @PostMapping
     public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO) {
@@ -40,7 +42,7 @@ public class CategoryController {
         List<Category> categories = categoryService.findAll();
         List<CategoryResponseDTO> responseDTO = categories.stream()
                 .map(CategoryResponseDTO::new)
-                .collect(Collectors.toList());
+                .toList();
         return ResponseEntity.ok(responseDTO);
     }
 

@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
 @Entity
-public class Goal_history {
+public class GoalHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
