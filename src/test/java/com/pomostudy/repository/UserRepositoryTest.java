@@ -2,11 +2,13 @@ package com.pomostudy.repository;
 
 import com.pomostudy.dto.user.UserRequestDTO;
 import com.pomostudy.entity.User;
+import com.pomostudy.enums.UserRole;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Optional;
@@ -32,11 +34,11 @@ class UserRepositoryTest {
         String email = "jromualdo3@hotmail.com";
 
         // Persist memory db
-        UserRequestDTO data =  new UserRequestDTO("junior", email, "A2314@fdaf");
+        UserRequestDTO data =  new UserRequestDTO("junior", email, "A2314@fdaf", UserRole.ADMIN);
         this.createUser(data);
 
         // 2 - Act
-        Optional<User> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));
+        Optional<UserDetails> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));
 
 
 
@@ -51,7 +53,7 @@ class UserRepositoryTest {
 
         String email = "jromualdo3@hotmail.com";
 
-        Optional<User> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));
+        Optional<UserDetails> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));
 
         assertThat(result.isEmpty()).isTrue();
     }

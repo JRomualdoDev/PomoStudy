@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pomostudy.dto.user.UserRequestDTO;
 import com.pomostudy.dto.user.UserResponseDTO;
 import com.pomostudy.entity.User;
+import com.pomostudy.enums.UserRole;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,7 @@ public class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        userRequestDTO = new UserRequestDTO("testuser", "test@example.com", "Password@123");
+        userRequestDTO = new UserRequestDTO("testuser", "test@example.com", "Password@123", UserRole.ADMIN);
         userResponseDTO = new UserResponseDTO("testuser", "test@example.com");
 
         user = new User();
@@ -75,7 +76,7 @@ public class UserControllerTest {
     @DisplayName("Should be return 400 Bad Request for when create a new user with invalid data")
     void shouldReturn400_whenCreateUserWithInvalidData() throws Exception {
 
-        UserRequestDTO invalidUserDto = new UserRequestDTO(null, "invalid-email", "pass");
+        UserRequestDTO invalidUserDto = new UserRequestDTO(null, "invalid-email", "pass", UserRole.ADMIN);
 
         mockMvc.perform(post("/api/user")
                     .contentType(MediaType.APPLICATION_JSON)

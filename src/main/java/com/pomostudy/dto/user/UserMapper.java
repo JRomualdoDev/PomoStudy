@@ -4,6 +4,8 @@ import com.pomostudy.entity.User;
 import com.pomostudy.exception.ResourceException;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -20,8 +22,9 @@ public class UserMapper {
 
     public UserResponseDTO toUserResponseDTO(User user) {
         return new UserResponseDTO (
-              user.getName(),
-              user.getEmail()
+                user.getId(),
+                user.getName(),
+                user.getEmail()
         );
     }
 
@@ -38,12 +41,25 @@ public class UserMapper {
             userUpdateOrCreate.setPassword(userUpdateOrCreate.getPassword());
         } else {
 
-            // find email in db
-            Optional<User> user = Optional.ofNullable(userRepository.findUserByEmail(userRequestDTO.getEmail()));
+            UserDetails userFound = userRepository.findUserByEmail(userRequestDTO.getEmail());
+            Optional.ofNullable(userFound)
+                    .ifPresent(_ -> {
+                        throw new ResourceException(
+                                "",
+                                "",
+                                "EMAIL DUPLICATED",
+                                "Email Already in use"
+                        );
+                    });
 
-            if (user.isPresent()) throw new ResourceException("", "", "EMAIL DUPLICATED", "Email Already in use" );
+            String encryptedPassword = new BCryptPasswordEncoder().encode(userRequestDTO.password());
 
-            userUpdateOrCreate = new User(userRequestDTO);
+            userUpdateOrCreate = new User(
+                    userRequestDTO.name(),
+                    userRequestDTO.email(),
+                    encryptedPassword,
+                    userRequestDTO.role()
+            );
         }
 
         return userUpdateOrCreate;

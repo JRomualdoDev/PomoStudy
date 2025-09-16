@@ -23,13 +23,13 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
-    public ResponseEntity<UserResponseDTO> createUser(@Validated(OnCreate.class) @RequestBody UserRequestDTO userDto) {
-
-        UserResponseDTO userResponseDTO = userService.save(userDto);
-
-        return ResponseEntity.status(201).body(userResponseDTO);
-    }
+//    @PostMapping
+//    public ResponseEntity<UserResponseDTO> createUser(@Validated(OnCreate.class) @RequestBody UserRequestDTO userDto) {
+//
+//        UserResponseDTO userResponseDTO = userService.save(userDto);
+//
+//        return ResponseEntity.status(201).body(userResponseDTO);
+//    }
 
     @PutMapping("{id}")
     public ResponseEntity<UserResponseDTO> editUser(@Valid @RequestBody UserRequestDTO userRequestDTO, @PathVariable("id") Long id) {

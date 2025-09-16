@@ -2,10 +2,11 @@ package com.pomostudy.repository;
 
 import com.pomostudy.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    User findUserByEmail(String email);
+    UserDetails findUserByEmail(String email);
 }

@@ -1,6 +1,8 @@
 package com.pomostudy.dto.user;
 
 import com.pomostudy.dto.user.tagging_interface.OnCreate;
+import com.pomostudy.enums.UserRole;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
 import jakarta.validation.groups.Default;
 
@@ -17,14 +19,20 @@ public record UserRequestDTO(
         @NotNull(message = "Password is required", groups = {Default.class, OnCreate.class})
         @Pattern(regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,20}$",
                 message = "The password should be contains at least one uppercase, one lowercase, one number and one special character")
-        String password
+        String password,
+
+        @NotNull(message = "Role is required")
+        UserRole role
 ) {
 
+
+    public UserRole getRole() {
+        return role;
+    }
 
     public String getPassword() {
         return password;
     }
-
 
     public String getEmail() {
         return email;
