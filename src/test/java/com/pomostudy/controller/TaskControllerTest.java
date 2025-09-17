@@ -1,6 +1,7 @@
 package com.pomostudy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.entity.Category;
@@ -8,24 +9,28 @@ import com.pomostudy.entity.Task;
 import com.pomostudy.entity.User;
 import com.pomostudy.enums.StatusUser;
 import com.pomostudy.enums.TaskPriority;
+import com.pomostudy.enums.UserRole;
 import com.pomostudy.exception.ResourceExceptionFactory;
+import com.pomostudy.repository.UserRepository;
 import com.pomostudy.service.TaskService;
+import com.pomostudy.service.TokenService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.Matchers.containsString;
@@ -42,7 +47,9 @@ import static org.hamcrest.CoreMatchers.is;
 
 
 @WebMvcTest(TaskController.class)
+@Import(SecurityConfigurations.class)
 @ActiveProfiles("test")
+@WithMockUser(roles = "USER")
 class TaskControllerTest {
 
     @Autowired
@@ -53,6 +60,12 @@ class TaskControllerTest {
 
     @MockBean
     private TaskService taskService;
+
+    @MockBean
+    private UserRepository userRepository;
+
+    @MockBean
+    private TokenService tokenService;
 
     private TaskRequestDTO taskRequestDTO;
     private TaskResponseDTO taskResponseDTO;
@@ -92,6 +105,7 @@ class TaskControllerTest {
         user.setId(1L);
         user.setName("test");
         user.setEmail("test@example.com");
+        user.setRole(UserRole.ADMIN);
 
         category = new Category();
         category.setName("categoryTest");

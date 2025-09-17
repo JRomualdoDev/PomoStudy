@@ -43,7 +43,7 @@ public class UserMapper {
 
             UserDetails userFound = userRepository.findUserByEmail(userRequestDTO.getEmail());
             Optional.ofNullable(userFound)
-                    .ifPresent(_ -> {
+                    .ifPresent(userDetails -> {
                         throw new ResourceException(
                                 "",
                                 "",

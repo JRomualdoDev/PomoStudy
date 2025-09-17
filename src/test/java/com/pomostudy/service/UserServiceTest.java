@@ -43,7 +43,7 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         userRequestDTO = new UserRequestDTO("testuser", "test@example.com", "password123", UserRole.ADMIN);
-        userResponseDTO = new UserResponseDTO("testuser", "test@example.com");
+        userResponseDTO = new UserResponseDTO(1L,"testuser", "test@example.com");
         user = new User();
         user.setName("testuser");
         user.setEmail("test@example.com");

@@ -59,7 +59,12 @@ class UserRepositoryTest {
     }
 
     private User createUser(UserRequestDTO userRequestDTO) {
-        User newUser = new User(userRequestDTO);
+        User newUser = new User(
+                userRequestDTO.getName(),
+                userRequestDTO.getEmail(),
+                userRequestDTO.getPassword(),
+                userRequestDTO.getRole()
+        );
         this.entityManager.persist(newUser);
         return newUser;
     }
