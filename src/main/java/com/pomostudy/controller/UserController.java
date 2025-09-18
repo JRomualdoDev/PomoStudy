@@ -1,9 +1,9 @@
 package com.pomostudy.controller;
 
 import com.pomostudy.config.security.SecurityConfigurations;
-import com.pomostudy.dto.user.tagging_interface.OnCreate;
-import com.pomostudy.dto.user.UserRequestDTO;
+import com.pomostudy.dto.user.UserCreateRequestDTO;
 import com.pomostudy.dto.user.UserResponseDTO;
+import com.pomostudy.dto.user.UserUpdateRequestDTO;
 import com.pomostudy.entity.User;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.service.UserService;
@@ -30,7 +30,7 @@ public class UserController {
     }
 
 //    @PostMapping
-//    public ResponseEntity<UserResponseDTO> createUser(@Validated(OnCreate.class) @RequestBody UserRequestDTO userDto) {
+//    public ResponseEntity<UserResponseDTO> createUser(@Validated(OnCreate.class) @RequestBody UserCreateRequestDTO userDto) {
 //
 //        UserResponseDTO userResponseDTO = userService.save(userDto);
 //
@@ -42,9 +42,9 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "User editing with success")
     @ApiResponse(responseCode = "404", description = "User not found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
-    public ResponseEntity<UserResponseDTO> editUser(@Valid @RequestBody UserRequestDTO userRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<UserResponseDTO> editUser(@Valid @RequestBody UserUpdateRequestDTO userUpdateRequestDTO, @PathVariable("id") Long id) {
 
-        UserResponseDTO userResponseDTO = userService.edit(userRequestDTO, id);
+        UserResponseDTO userResponseDTO = userService.edit(userUpdateRequestDTO, id);
         return ResponseEntity.ok(userResponseDTO);
     }
 

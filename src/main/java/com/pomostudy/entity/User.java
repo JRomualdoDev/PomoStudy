@@ -1,6 +1,5 @@
 package com.pomostudy.entity;
 
-import com.pomostudy.dto.user.UserRequestDTO;
 import com.pomostudy.enums.UserRole;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;

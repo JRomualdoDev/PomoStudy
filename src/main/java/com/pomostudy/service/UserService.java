@@ -1,10 +1,12 @@
 package com.pomostudy.service;
 
+import com.pomostudy.dto.user.UserCreateRequestDTO;
 import com.pomostudy.dto.user.UserMapper;
-import com.pomostudy.dto.user.UserRequestDTO;
 import com.pomostudy.dto.user.UserResponseDTO;
+import com.pomostudy.dto.user.UserUpdateRequestDTO;
 import com.pomostudy.entity.User;
 import com.pomostudy.repository.UserRepository;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -24,17 +26,17 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
-    public UserResponseDTO save(UserRequestDTO userRequestDTO) {
+    public UserResponseDTO save(UserCreateRequestDTO userCreateRequestDTO) {
 
-        User user = userMapper.toUser(userRequestDTO, null);
+        User user = userMapper.toCreateUser(userCreateRequestDTO);
 
         return userMapper.toUserResponseDTO(userRepository.save(user));
 
     }
 
-    public UserResponseDTO edit(UserRequestDTO userRequestDTO, Long id) {
+    public UserResponseDTO edit(@Valid UserUpdateRequestDTO userUpdateRequestDTO, Long id) {
 
-        User userUpdate = userMapper.toUser(userRequestDTO, id);
+        User userUpdate = userMapper.toUpdateUser(userUpdateRequestDTO, id);
 
         return userMapper.toUserResponseDTO(userRepository.save(userUpdate));
 
