@@ -3,7 +3,7 @@ package com.pomostudy.controller;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.auth.AuthenticationDTO;
 import com.pomostudy.dto.auth.LoginResponseDTO;
-import com.pomostudy.dto.user.UserRequestDTO;
+import com.pomostudy.dto.user.UserCreateRequestDTO;
 import com.pomostudy.dto.user.UserResponseDTO;
 import com.pomostudy.entity.User;
 import com.pomostudy.service.TokenService;
@@ -61,9 +61,9 @@ public class AuthenticationController {
     @ApiResponse(responseCode = "200", description = "User created successfully")
     @ApiResponse(responseCode = "400", description = "Invalid input data")
     @ApiResponse(responseCode = "500", description = "Email already in use")
-    public ResponseEntity<UserResponseDTO> register(@RequestBody @Valid UserRequestDTO userRequestDTO, UriComponentsBuilder ucb) {
+    public ResponseEntity<UserResponseDTO> register(@RequestBody @Valid UserCreateRequestDTO userCreateRequestDTO, UriComponentsBuilder ucb) {
 
-        UserResponseDTO userResponseDTO = userService.save(userRequestDTO);
+        UserResponseDTO userResponseDTO = userService.save(userCreateRequestDTO);
 
         URI locationOfNewUser = ucb
                 .path("/api/user/{id}")
