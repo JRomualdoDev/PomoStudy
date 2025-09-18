@@ -28,6 +28,8 @@ jobs:
   # Um único job que se comporta de forma diferente
   build-test-and-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout do código
