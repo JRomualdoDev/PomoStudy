@@ -1,6 +1,7 @@
 package com.pomostudy.dto.user;
 
 import com.pomostudy.entity.User;
+import com.pomostudy.enums.UserRole;
 import com.pomostudy.exception.ResourceException;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.UserRepository;
@@ -28,20 +29,9 @@ public class UserMapper {
         );
     }
 
-    public User toUser(UserRequestDTO userRequestDTO, Long id) {
+    public User toCreateUser(UserCreateRequestDTO userCreateRequestDTO) {
 
-        User userUpdateOrCreate;
-
-        if (id != null) {
-            userUpdateOrCreate = userRepository.findById(id)
-                    .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
-            userUpdateOrCreate.setUpdatedAt(OffsetDateTime.now());
-            userUpdateOrCreate.setName(userRequestDTO.getName());
-            userUpdateOrCreate.setEmail(userUpdateOrCreate.getEmail());
-            userUpdateOrCreate.setPassword(userUpdateOrCreate.getPassword());
-        } else {
-
-            UserDetails userFound = userRepository.findUserByEmail(userRequestDTO.getEmail());
+            UserDetails userFound = userRepository.findUserByEmail(userCreateRequestDTO.getEmail());
             Optional.ofNullable(userFound)
                     .ifPresent(userDetails -> {
                         throw new ResourceException(
@@ -52,16 +42,28 @@ public class UserMapper {
                         );
                     });
 
-            String encryptedPassword = new BCryptPasswordEncoder().encode(userRequestDTO.password());
+            String encryptedPassword = new BCryptPasswordEncoder().encode(userCreateRequestDTO.password());
 
-            userUpdateOrCreate = new User(
-                    userRequestDTO.name(),
-                    userRequestDTO.email(),
+            return new User(
+                    userCreateRequestDTO.name(),
+                    userCreateRequestDTO.email(),
                     encryptedPassword,
-                    userRequestDTO.role()
+                    UserRole.USER
             );
-        }
+    }
 
-        return userUpdateOrCreate;
+    public User toUpdateUser(UserUpdateRequestDTO userUpdateRequestDTO, Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
+
+        user.setName(userUpdateRequestDTO.getName());
+
+        //Todo: Cryptografar password
+        user.setPassword(user.getPassword());
+
+        user.setUpdatedAt(OffsetDateTime.now());
+
+        return user;
     }
 }
