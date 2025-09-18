@@ -1,8 +1,9 @@
 package com.pomostudy.service;
 
+import com.pomostudy.dto.user.UserCreateRequestDTO;
 import com.pomostudy.dto.user.UserMapper;
-import com.pomostudy.dto.user.UserRequestDTO;
 import com.pomostudy.dto.user.UserResponseDTO;
+import com.pomostudy.dto.user.UserUpdateRequestDTO;
 import com.pomostudy.entity.User;
 import com.pomostudy.enums.UserRole;
 import com.pomostudy.exception.ResourceException;
@@ -36,13 +37,15 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    private UserRequestDTO userRequestDTO;
+    private UserCreateRequestDTO userCreateRequestDTO;
+    private UserUpdateRequestDTO userUpdateRequestDTO;
     private UserResponseDTO userResponseDTO;
     private User user;
 
     @BeforeEach
     void setUp() {
-        userRequestDTO = new UserRequestDTO("testuser", "test@example.com", "password123", UserRole.ADMIN);
+        userCreateRequestDTO = new UserCreateRequestDTO("testuser", "test@example.com", "password123");
+        userUpdateRequestDTO = new UserUpdateRequestDTO("testuser", "password123");
         userResponseDTO = new UserResponseDTO(1L,"testuser", "test@example.com");
         user = new User();
         user.setName("testuser");
@@ -53,17 +56,17 @@ class UserServiceTest {
     @DisplayName("Should save user with success in the db")
     void shouldSaveUserSuccessfully() {
 
-        when(userMapper.toUser(any(UserRequestDTO.class), eq(null))).thenReturn(user);
+        when(userMapper.toCreateUser(any(UserCreateRequestDTO.class))).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(userMapper.toUserResponseDTO(any(User.class))).thenReturn(userResponseDTO);
 
-        UserResponseDTO result = userService.save(userRequestDTO);
+        UserResponseDTO result = userService.save(userCreateRequestDTO);
 
         assertNotNull(result);
         assertEquals("testuser", result.name());
         assertEquals("test@example.com", result.email());
 
-        verify(userMapper, times(1)).toUser(any(UserRequestDTO.class), eq(null));
+        verify(userMapper, times(1)).toCreateUser(any(UserCreateRequestDTO.class));
         verify(userRepository, times(1)).save(any(User.class));
         verify(userMapper, times(1)).toUserResponseDTO(any(User.class));
     }
@@ -72,10 +75,10 @@ class UserServiceTest {
     @DisplayName("Should throw exception when save email is already in the db")
     void shouldThrowExceptionWhenSavingWithDuplicateData() {
 
-        when(userMapper.toUser(any(UserRequestDTO.class), eq(null))).thenReturn(user);
+        when(userMapper.toCreateUser(any(UserCreateRequestDTO.class))).thenReturn(user);
         when(userRepository.save(any(User.class))).thenThrow(DataIntegrityViolationException.class);
 
-        assertThrows(DataIntegrityViolationException.class, () -> userService.save(userRequestDTO));
+        assertThrows(DataIntegrityViolationException.class, () -> userService.save(userCreateRequestDTO));
 
         verify(userRepository, times(1)).save(any(User.class));
         verify(userMapper, never()).toUserResponseDTO(any(User.class));
@@ -85,17 +88,17 @@ class UserServiceTest {
     @DisplayName("Should edit user successfully in the db")
     void shouldEditUserSuccessfully() {
         Long userId = 1L;
-        when(userMapper.toUser(userRequestDTO, userId)).thenReturn(user);
+        when(userMapper.toUpdateUser(userUpdateRequestDTO, userId)).thenReturn(user);
         when(userRepository.save(any(User.class))).thenReturn(user);
         when(userMapper.toUserResponseDTO(any(User.class))).thenReturn(userResponseDTO);
 
-        UserResponseDTO result = userService.edit(userRequestDTO, userId);
+        UserResponseDTO result = userService.edit(userUpdateRequestDTO, userId);
 
         assertNotNull(result);
         assertEquals(userResponseDTO.name(), result.name());
         assertEquals(userResponseDTO.email(), result.email());
 
-        verify(userMapper, times(1)).toUser(userRequestDTO, userId);
+        verify(userMapper, times(1)).toUpdateUser(userUpdateRequestDTO, userId);
         verify(userRepository, times(1)).save(user);
         verify(userMapper, times(1)).toUserResponseDTO(user);
     }
@@ -104,13 +107,13 @@ class UserServiceTest {
     @DisplayName("Should throw exception when edit user that not exist in the db")
     void shouldThrowResourceExceptionWhenEditingNonExistentUser() {
         Long userId = 99L;
-        when(userMapper.toUser(userRequestDTO, userId)).thenThrow(ResourceExceptionFactory.notFound("User", userId));
+        when(userMapper.toUpdateUser(userUpdateRequestDTO, userId)).thenThrow(ResourceExceptionFactory.notFound("User", userId));
 
-        ResourceException error = assertThrows(ResourceException.class, () -> userService.edit(userRequestDTO, userId));
+        ResourceException error = assertThrows(ResourceException.class, () -> userService.edit(userUpdateRequestDTO, userId));
 
         assertEquals("User with id 99 not found.", error.getMessage());
 
-        verify(userMapper, times(1)).toUser(userRequestDTO, userId);
+        verify(userMapper, times(1)).toUpdateUser(userUpdateRequestDTO, userId);
         verify(userRepository, never()).save(any(User.class));
     }
 

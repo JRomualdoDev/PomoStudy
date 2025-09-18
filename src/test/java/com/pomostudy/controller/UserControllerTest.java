@@ -2,8 +2,9 @@ package com.pomostudy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pomostudy.config.security.SecurityConfigurations;
-import com.pomostudy.dto.user.UserRequestDTO;
+import com.pomostudy.dto.user.UserCreateRequestDTO;
 import com.pomostudy.dto.user.UserResponseDTO;
+import com.pomostudy.dto.user.UserUpdateRequestDTO;
 import com.pomostudy.entity.User;
 import com.pomostudy.enums.UserRole;
 import com.pomostudy.exception.ResourceExceptionFactory;
@@ -29,6 +30,7 @@ import java.util.Optional;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
@@ -52,7 +54,8 @@ public class UserControllerTest {
     @MockBean
     private TokenService tokenService;
 
-    private UserRequestDTO userRequestDTO;
+    private UserCreateRequestDTO userCreateRequestDTO;
+    private UserUpdateRequestDTO userUpdateRequestDTO;
     private UserResponseDTO userResponseDTO;
     private User user;
     private final Long userId = 1L;
@@ -60,7 +63,8 @@ public class UserControllerTest {
     @BeforeEach
     void setUp() {
 
-        userRequestDTO = new UserRequestDTO("testuser", "test@example.com", "Password@123", UserRole.ADMIN);
+        userCreateRequestDTO = new UserCreateRequestDTO("testuser", "test@example.com", "Password@123");
+        userUpdateRequestDTO = new UserUpdateRequestDTO("testuser", "Password@123");
         userResponseDTO = new UserResponseDTO(1L, "testuser", "test@example.com");
 
         user = new User();
@@ -71,17 +75,19 @@ public class UserControllerTest {
 
     }
 
+    // TODO: Resolver se vai ser removido.
+
 //    @Test
 //    @DisplayName("Should create a new user and return status 201 Created")
 //    void shouldCreateUser_andReturn201() throws Exception {
 //        // 1. Arrange
-//        when(userService.save(any(UserRequestDTO.class))).thenReturn(userResponseDTO);
+//        when(userService.save(any(UserCreateRequestDTO.class))).thenReturn(userResponseDTO);
 //        when(tokenService.validateToken(anyString())).thenReturn(String.valueOf(true));
 //
 //        // 2. Act & Assert
 //        mockMvc.perform(post("/api/user")
 //                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content(objectMapper.writeValueAsString(userRequestDTO))
+//                        .content(objectMapper.writeValueAsString(userCreateRequestDTO))
 //                        .header("Authorization", "testToken")
 //                )
 //                .andExpect(status().isCreated())
@@ -93,7 +99,7 @@ public class UserControllerTest {
 //    @DisplayName("Should be return 400 Bad Request for when create a new user with invalid data")
 //    void shouldReturn400_whenCreateUserWithInvalidData() throws Exception {
 //
-//        UserRequestDTO invalidUserDto = new UserRequestDTO(null, "invalid-email", "pass", UserRole.ADMIN);
+//        UserCreateRequestDTO invalidUserDto = new UserCreateRequestDTO(null, "invalid-email", "pass", UserRole.ADMIN);
 //
 //        mockMvc.perform(post("/api/user")
 //                    .contentType(MediaType.APPLICATION_JSON)
@@ -103,15 +109,15 @@ public class UserControllerTest {
 
 
     @Test
-    @DisplayName("Should be edit the existent user and return status 200 OK")
+    @DisplayName("Should be edit the user and return status 200 OK")
     void shouldEditUser_andReturn200() throws Exception {
 
-        when(userService.edit(any(UserRequestDTO.class), anyLong())).thenReturn(userResponseDTO);
+        when(userService.edit(any(UserUpdateRequestDTO.class), anyLong())).thenReturn(userResponseDTO);
 
         mockMvc.perform(put("/api/user/{id}", userId)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(userRequestDTO))
-                )
+                        .content(objectMapper.writeValueAsString(userUpdateRequestDTO)))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("testuser"))
                 .andExpect(jsonPath("$.email").value("test@example.com"));
@@ -122,12 +128,12 @@ public class UserControllerTest {
     @DisplayName("Should be return 404 Not Found for try edit the non-existent user")
     void shouldReturn404_whenEditNonExistentUser() throws Exception {
 
-        when(userService.edit(any(UserRequestDTO.class), anyLong()))
+        when(userService.edit(any(UserUpdateRequestDTO.class), anyLong()))
                 .thenThrow(ResourceExceptionFactory.notFound("User", userId));
 
         mockMvc.perform(put("/api/user/{id}", userId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(userRequestDTO)))
+                .content(objectMapper.writeValueAsString(userUpdateRequestDTO)))
                 .andExpect(status().isNotFound());
     }
 

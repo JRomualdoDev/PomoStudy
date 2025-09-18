@@ -1,6 +1,6 @@
 package com.pomostudy.repository;
 
-import com.pomostudy.dto.user.UserRequestDTO;
+import com.pomostudy.dto.user.UserCreateRequestDTO;
 import com.pomostudy.entity.User;
 import com.pomostudy.enums.UserRole;
 import jakarta.persistence.EntityManager;
@@ -34,7 +34,7 @@ class UserRepositoryTest {
         String email = "jromualdo3@hotmail.com";
 
         // Persist memory db
-        UserRequestDTO data =  new UserRequestDTO("junior", email, "A2314@fdaf", UserRole.ADMIN);
+        UserCreateRequestDTO data =  new UserCreateRequestDTO("junior", email, "A2314@fdaf");
         this.createUser(data);
 
         // 2 - Act
@@ -58,12 +58,12 @@ class UserRepositoryTest {
         assertThat(result.isEmpty()).isTrue();
     }
 
-    private User createUser(UserRequestDTO userRequestDTO) {
+    private User createUser(UserCreateRequestDTO userCreateRequestDTO) {
         User newUser = new User(
-                userRequestDTO.getName(),
-                userRequestDTO.getEmail(),
-                userRequestDTO.getPassword(),
-                userRequestDTO.getRole()
+                userCreateRequestDTO.getName(),
+                userCreateRequestDTO.getEmail(),
+                userCreateRequestDTO.getPassword(),
+                UserRole.ADMIN
         );
         this.entityManager.persist(newUser);
         return newUser;
