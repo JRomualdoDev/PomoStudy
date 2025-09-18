@@ -1,18 +1,23 @@
-# Nome do Workflow
-name: Disparar Release Manual da Aplicação
+name: CI e Release Manual do Spring Boot
 
+# Gatilhos do workflow
 on:
-  # Permite que você rode este workflow manualmente pela aba Actions
+  # 1. Gatilhos automáticos para Integração Contínua (CI)
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+  # 2. Gatilho manual para fazer uma Release (CD)
   workflow_dispatch:
-    # Campos de entrada que aparecerão no formulário do GitHub
     inputs:
       version:
         description: 'Versão para a release (ex: v1.4.0)'
         required: true
       release_notes:
-        description: 'Notas da release (changelog). O que mudou?'
-        required: false
-        default: 'Correções de bugs e melhorias de performance.'
+        description: 'Notas da release (changelog).'
+        required: true
+        default: 'Correções de bugs e melhorias.'
       is_prerelease:
         description: 'É uma pré-release (beta, alpha)?'
         type: boolean
@@ -20,14 +25,17 @@ on:
 
 # Definição do job
 jobs:
-  build_and_release:
+  # Um único job que se comporta de forma diferente
+  build-test-and-release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do código do branch master
+      - name: Checkout do código
         uses: actions/checkout@v4
         with:
-          ref: 'master' # Garante que estamos pegando o código mais recente do master
+          # Para o workflow_dispatch, garante que estamos pegando o código mais recente do master
+          # Para push/PR, ele já pega o commit/PR correto automaticamente
+          ref: 'master'
 
       - name: Configurar Java 21 e Maven
         uses: actions/setup-java@v4
@@ -37,30 +45,30 @@ jobs:
           cache: 'maven'
 
       - name: Rodar testes com Maven
+        # ESTE PASSO RODA SEMPRE, em todos os gatilhos (push, PR e workflow_dispatch)
         run: mvn -B test --file pom.xml
 
+      # --- PASSOS EXCLUSIVOS DA RELEASE ---
+      # Os passos a seguir só serão executados se o workflow foi iniciado manualmente
+
       - name: Empacotar a aplicação (gerar JAR)
+        # A condição 'if' verifica qual evento disparou o workflow
+        if: github.event_name == 'workflow_dispatch'
         run: mvn -B package --file pom.xml -DskipTests
 
       - name: Extrair nome do artefato do pom.xml
+        if: github.event_name == 'workflow_dispatch'
         id: get_artifact_name
         run: echo "ARTIFACT_NAME=$(mvn help:evaluate -Dexpression=project.build.finalName -q -DforceStdout).jar" >> $GITHUB_ENV
 
-
-      - name: Criar a Release no GitHub
-        # criar a tag e a release de uma vez só
+      - name: Criar Tag e Release no GitHub
+        if: github.event_name == 'workflow_dispatch'
         uses: softprops/action-gh-release@v1
         with:
-          # O token é necessário para criar tags/releases
           token: ${{ secrets.GITHUB_TOKEN }}
-          # Usa a versão que você digitou no formulário
           tag_name: ${{ github.event.inputs.version }}
-          # Nome da Release
           name: Release ${{ github.event.inputs.version }}
-          # Corpo da Release (changelog)
           body: ${{ github.event.inputs.release_notes }}
-          # Marca como pré-release se você selecionou a opção
           prerelease: ${{ github.event.inputs.is_prerelease }}
-          # Lista de arquivos para anexar à release
           files: |
             ./target/${{ env.ARTIFACT_NAME }}
