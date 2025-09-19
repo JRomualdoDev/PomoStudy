@@ -1,6 +1,6 @@
 # PomoStudy API
 
-API desenvolvida para gerenciar usuários, tarefas, metas e categorias do aplicativo PomoStudy.
+API desenvolvida para gerenciar usuários, tarefas, metas e categorias do aplicativo PomoStudy
 
 [![Build e Teste da Aplicação Spring Boot](https://github.com/JRomualdoDev/PomoStudy/actions/workflows/maven.yml/badge.svg)](https://github.com/JRomualdoDev/PomoStudy/actions/workflows/maven.yml)
 
