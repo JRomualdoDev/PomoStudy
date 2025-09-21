@@ -57,10 +57,14 @@ public class UserMapper {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
 
-        user.setName(userUpdateRequestDTO.getName());
+        if (userUpdateRequestDTO.getName() != null) {
+            user.setName(userUpdateRequestDTO.getName());
+        }
 
-        //Todo: Cryptografar password
-        user.setPassword(user.getPassword());
+        if (userUpdateRequestDTO.getPassword() != null) {
+            String encryptedPassword = new BCryptPasswordEncoder().encode(user.getPassword());
+            user.setPassword(encryptedPassword);
+        }
 
         user.setUpdatedAt(OffsetDateTime.now());
 
