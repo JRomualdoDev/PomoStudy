@@ -30,14 +30,14 @@ public class TaskService {
 
     public TaskResponseDTO save(TaskRequestDTO taskRequestDTO) {
 
-        Task taskSave = taskRepository.save(taskMapper.toTask(taskRequestDTO, null));
+        Task taskSave = taskRepository.save(taskMapper.toCreateTask(taskRequestDTO));
 
         return taskMapper.toTaskResponseDTO(taskSave);
     }
 
     public TaskResponseDTO edit(TaskRequestDTO taskRequestDTO, Long id) {
 
-            Task taskUpdate = taskRepository.save(taskMapper.toTask(taskRequestDTO, id));
+            Task taskUpdate = taskRepository.save(taskMapper.toUpdateTask(taskRequestDTO, id));
 
             return taskMapper.toTaskResponseDTO(taskUpdate);
     }
