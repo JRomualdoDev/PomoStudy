@@ -1,8 +1,6 @@
 package com.pomostudy.service;
 
 import com.pomostudy.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,6 +17,11 @@ public class AuthorizationService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findUserByEmail(email);
+        UserDetails user = userRepository.findUserByEmail(email);
+
+        if (user == null)
+            throw new UsernameNotFoundException("Email not found" + email);
+
+        return user;
     }
 }
