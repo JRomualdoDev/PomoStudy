@@ -5,6 +5,9 @@ import com.pomostudy.dto.ErrorResponseDTO;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -61,17 +64,17 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponseDTO> handleDataIntegrity(DataIntegrityViolationException ex) {
         String errorCode = "GENERIC_DATA_INTEGRITY";
-        String errorMessage = "Erro de integridade de dados.";
+        String errorMessage = "Data integrity error.";
 
         String originalMessage = ex.getMessage();
 
         // Tenta encontrar palavras-chave na mensagem original para personalizar a resposta
         if (originalMessage.contains("duplicate key")) {
             errorCode = "DUPLICATE_KEY";
-            errorMessage = "O registro que você tentou criar já existe.";
+            errorMessage = "THe register that you created already exist.";
         } else {
             // Mensagem genérica se as palavras-chave não forem encontradas
-            errorMessage = "Erro interno: " + originalMessage;
+            errorMessage = "Internal error: " + originalMessage;
         }
 
         ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
@@ -80,6 +83,35 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST
         );
         return new ResponseEntity<>(errorResponseDTO, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponseDTO> handleBadCredentials(BadCredentialsException ex) {
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
+                "INVALID_CREDENTIALS",
+                "Email or password invalid",
+                HttpStatus.UNAUTHORIZED
+        );
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<ErrorResponseDTO> handleAuthServiceException(InternalAuthenticationServiceException ex) {
+        if (ex.getCause() instanceof UsernameNotFoundException) {
+            ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
+                    "USERNAME_NOT_FOUND",
+                    "Email not found",
+                    HttpStatus.NOT_FOUND
+            );
+            return new ResponseEntity<>(errorResponseDTO, HttpStatus.NOT_FOUND);
+        }
+
+        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
+                "AUTHENTICATION_ERROR",
+                "Internal error authentication",
+                HttpStatus.INTERNAL_SERVER_ERROR
+        );
+        return new ResponseEntity<>(errorResponseDTO, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }
