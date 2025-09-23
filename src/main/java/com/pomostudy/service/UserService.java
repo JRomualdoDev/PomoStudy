@@ -34,7 +34,7 @@ public class UserService {
 
     }
 
-    public UserResponseDTO edit(@Valid UserUpdateRequestDTO userUpdateRequestDTO, Long id) {
+    public UserResponseDTO edit(UserUpdateRequestDTO userUpdateRequestDTO, Long id) {
 
         User userUpdate = userMapper.toUpdateUser(userUpdateRequestDTO, id);
 
