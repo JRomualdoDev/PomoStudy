@@ -41,41 +41,53 @@ public class TaskMapper {
         );
     }
 
-    public Task toTask(TaskRequestDTO taskRequestDTO, Long id) {
+    public Task toCreateTask(TaskRequestDTO taskRequestDTO) {
 
-        Task taskUpdateOrCreate;
+        Task task = new Task();
 
-        if ( id != null) {
-            taskUpdateOrCreate = taskRepository.findById(id)
-                    .filter(t -> t.getUserTask().getId().equals(taskRequestDTO.user_task()))
-                    .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
-        } else {
-            taskUpdateOrCreate = new Task();
-
-            Optional<User> user = userRepository.findById(taskRequestDTO.user_task());
-            if (user.isEmpty())
-                throw ResourceExceptionFactory.notFound("User", taskRequestDTO.user_task());
-
-            taskUpdateOrCreate.setUserTask(user.get());
-            // TODO: Campo pensar o que fazer
-            taskUpdateOrCreate.setCreatedAt(OffsetDateTime.now());
-        }
-
+        Optional<User> user = userRepository.findById(taskRequestDTO.user_task());
+        if (user.isEmpty())
+            throw ResourceExceptionFactory.notFound("User", taskRequestDTO.user_task());
 
         Optional<Category> category = categoryRepository.findById(taskRequestDTO.categoryId());
         if (category.isEmpty())
             throw ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId());
 
-        taskUpdateOrCreate.setName(taskRequestDTO.name());
-        taskUpdateOrCreate.setDescription(taskRequestDTO.description());
-        taskUpdateOrCreate.setStartDate(taskRequestDTO.startDate());
-        taskUpdateOrCreate.setEndDate(taskRequestDTO.endDate());
-        taskUpdateOrCreate.setStatus(taskRequestDTO.status());
-        taskUpdateOrCreate.setPriority(taskRequestDTO.priority());
-        taskUpdateOrCreate.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
-        taskUpdateOrCreate.setCategory(category.get());
+        task.setName(taskRequestDTO.name());
+        task.setDescription(taskRequestDTO.description());
+        task.setStartDate(taskRequestDTO.startDate());
+        task.setEndDate(taskRequestDTO.endDate());
+        task.setStatus(taskRequestDTO.status());
+        task.setPriority(taskRequestDTO.priority());
+        task.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
+        task.setUserTask(user.get());
+        task.setCategory(category.get());
 
+        // TODO: Campo pensar o que fazer
+//        task.setCreatedAt(OffsetDateTime.now());
 
-        return taskUpdateOrCreate;
+        return task;
+    }
+
+    public Task toUpdateTask(TaskRequestDTO taskRequestDTO, Long id) {
+
+        Task task = taskRepository.findById(id)
+                    .filter(t -> t.getUserTask().getId().equals(taskRequestDTO.user_task()))
+                    .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
+
+        Optional<Category> category = categoryRepository.findById(taskRequestDTO.categoryId());
+        if (category.isEmpty())
+            throw ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId());
+
+        task.setName(taskRequestDTO.name());
+        task.setDescription(taskRequestDTO.description());
+        task.setStartDate(taskRequestDTO.startDate());
+        task.setEndDate(taskRequestDTO.endDate());
+        task.setStatus(taskRequestDTO.status());
+        task.setPriority(taskRequestDTO.priority());
+        task.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
+        task.setCategory(category.get());
+
+        return task;
     }
 }
