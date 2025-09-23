@@ -100,7 +100,7 @@ class TaskServiceTest {
     @DisplayName("Should save Task with success in the db")
     void shouldSaveTaskSuccessfully() {
 
-        when(taskMapper.toTask(any(TaskRequestDTO.class), eq(null))).thenReturn(task);
+        when(taskMapper.toCreateTask(any(TaskRequestDTO.class))).thenReturn(task);
         when(taskRepository.save(any(Task.class))).thenReturn(task);
         when(taskMapper.toTaskResponseDTO(any(Task.class))).thenReturn(taskResponseDTO);
 
@@ -117,7 +117,7 @@ class TaskServiceTest {
         assertEquals(1L, result.user_task());
         assertEquals(1L, result.categoryId());
 
-        verify(taskMapper, times(1)).toTask(any(TaskRequestDTO.class), eq(null));
+        verify(taskMapper, times(1)).toCreateTask(any(TaskRequestDTO.class));
         verify(taskRepository, times(1)).save(any(Task.class));
         verify(taskMapper, times(1)).toTaskResponseDTO(any(Task.class));
     }
@@ -126,12 +126,12 @@ class TaskServiceTest {
     @DisplayName("Should throw exception when user is not found")
     void shouldThrowExceptionWhenUserNotFound() {
 
-        when(taskMapper.toTask(any(TaskRequestDTO.class), eq(null))).thenThrow(ResourceExceptionFactory.notFound("User", taskRequestDTO.user_task()));
+        when(taskMapper.toCreateTask(any(TaskRequestDTO.class))).thenThrow(ResourceExceptionFactory.notFound("User", taskRequestDTO.user_task()));
 
         ResourceException error = assertThrows(ResourceException.class, () -> taskService.save(taskRequestDTO));
         assertEquals("User with id 1 not found.", error.getMessage());
 
-        verify(taskMapper, times(1)).toTask(taskRequestDTO, null);
+        verify(taskMapper, times(1)).toCreateTask(taskRequestDTO);
         verify(taskRepository, never()).save(any(Task.class));
     }
 
@@ -139,7 +139,7 @@ class TaskServiceTest {
     @DisplayName("Should edit task successfully in the db")
     void shouldEditTaskSuccessfully() {
         Long taskId = 1L;
-        when(taskMapper.toTask(taskRequestDTO, taskId)).thenReturn(task);
+        when(taskMapper.toUpdateTask(taskRequestDTO, taskId)).thenReturn(task);
         when(taskRepository.save(any(Task.class))).thenReturn(task);
         when(taskMapper.toTaskResponseDTO(any(Task.class))).thenReturn(taskResponseDTO);
 
@@ -156,7 +156,7 @@ class TaskServiceTest {
         assertEquals(1L, result.user_task());
         assertEquals(1L, result.categoryId());
 
-        verify(taskMapper, times(1)).toTask(taskRequestDTO, taskId);
+        verify(taskMapper, times(1)).toUpdateTask(taskRequestDTO, taskId);
         verify(taskRepository, times(1)).save(task);
         verify(taskMapper, times(1)).toTaskResponseDTO(task);
     }
@@ -166,13 +166,13 @@ class TaskServiceTest {
     void shouldThrowExceptionWhenUserNotBelongToTask() {
 
         Long taskId = 1L;
-        when(taskMapper.toTask(taskRequestDTO, taskId)).thenThrow(ResourceExceptionFactory.notFound("Task", taskRequestDTO.user_task()));
+        when(taskMapper.toUpdateTask(taskRequestDTO, taskId)).thenThrow(ResourceExceptionFactory.notFound("Task", taskRequestDTO.user_task()));
 
         ResourceException error = assertThrows(ResourceException.class, () -> taskService.edit(taskRequestDTO, taskId));
 
         assertEquals("Task with id 1 not found.", error.getMessage());
 
-        verify(taskMapper, times(1)).toTask(taskRequestDTO, taskId);
+        verify(taskMapper, times(1)).toUpdateTask(taskRequestDTO, taskId);
         verify(taskRepository, never()).save(any(Task.class));
     }
 
@@ -181,13 +181,13 @@ class TaskServiceTest {
     void shouldThrowExceptionWhenCategoryNotFound() {
 
         Long taskId = 1L;
-        when(taskMapper.toTask(taskRequestDTO, taskId)).thenThrow(ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId()));
+        when(taskMapper.toUpdateTask(taskRequestDTO, taskId)).thenThrow(ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId()));
 
         ResourceException error = assertThrows(ResourceException.class, () -> taskService.edit(taskRequestDTO, taskId));
 
         assertEquals("Category with id 1 not found.", error.getMessage());
 
-        verify(taskMapper, times(1)).toTask(taskRequestDTO, taskId);
+        verify(taskMapper, times(1)).toUpdateTask(taskRequestDTO, taskId);
         verify(taskRepository, never()).save(any(Task.class));
     }
 
