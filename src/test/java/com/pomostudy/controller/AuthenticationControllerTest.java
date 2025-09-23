@@ -66,7 +66,6 @@ class AuthenticationControllerTest {
     private UserService userService;
 
     private User user;
-    private final Long userId = 1L;
     private AuthenticationDTO authenticationDTO;
 
     private UserCreateRequestDTO userCreateRequestDTO;
@@ -81,6 +80,7 @@ class AuthenticationControllerTest {
         userResponseDTO = new UserResponseDTO(1L, "testuser", "test@example.com");
 
         user = new User();
+        Long userId = 1L;
         user.setId(userId);
         user.setName("testuser");
         user.setEmail("test@example.com");
