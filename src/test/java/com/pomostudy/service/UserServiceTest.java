@@ -5,7 +5,6 @@ import com.pomostudy.dto.user.UserMapper;
 import com.pomostudy.dto.user.UserResponseDTO;
 import com.pomostudy.dto.user.UserUpdateRequestDTO;
 import com.pomostudy.entity.User;
-import com.pomostudy.enums.UserRole;
 import com.pomostudy.exception.ResourceException;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.UserRepository;
