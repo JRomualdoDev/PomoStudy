@@ -1,8 +1,13 @@
 package com.pomostudy.entity;
 
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.OffsetDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Category {
 
     @Id
@@ -15,6 +20,10 @@ public class Category {
     private String color;
 
     private String icon;
+
+    @Column(nullable = false, updatable = false)
+    @CreatedDate
+    private OffsetDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
