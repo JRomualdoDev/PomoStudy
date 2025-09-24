@@ -5,8 +5,11 @@ import com.pomostudy.dto.category.CategoryRequestDTO;
 import com.pomostudy.dto.category.CategoryResponseDTO;
 import com.pomostudy.entity.Category;
 import com.pomostudy.exception.ResourceException;
+import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.CategoryRepository;
 import com.pomostudy.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,52 +20,39 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final  CategoryMapper categoryMapper;
 
-    public CategoryService(CategoryRepository categoryRepository, UserRepository userRepository
-            , CategoryMapper categoryMapper) {
+    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
     }
 
     public CategoryResponseDTO save(CategoryRequestDTO categoryRequestDTO) {
 
-        try {
-            Category categorySave = categoryRepository.save(categoryMapper.toCategory(categoryRequestDTO, null));
+            Category categorySave = categoryRepository.save(categoryMapper.toCreateCategory(categoryRequestDTO));
 
             return categoryMapper.toResponseDTO(categorySave);
-
-        } catch(ResourceException e) {
-            System.out.println(e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException("Error create category.");
-        }
     }
 
     public CategoryResponseDTO edit(CategoryRequestDTO categoryRequestDTO, Long id) {
 
-        try {
-            Category categoryUpdade = categoryRepository.save(categoryMapper.toCategory(categoryRequestDTO, id));
+            Category categoryUpdate = categoryRepository.save(categoryMapper.toUpdateCategory(categoryRequestDTO, id));
 
-            return categoryMapper.toResponseDTO(categoryUpdade);
-        } catch (ResourceException e) {
-            System.out.println(e.getMessage());
-            throw e;
-        }catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException("Error updated category.");
-        }
+            return categoryMapper.toResponseDTO(categoryUpdate);
     }
 
-    public List<Category> findAll() {
-        return categoryRepository.findAll();
+    public Page<CategoryResponseDTO> findAll(Pageable pageable) {
+        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+        return categoryPage.map(categoryMapper::toResponseDTO);
     }
 
-    public Optional<Category> findById(Long id) {
-        return categoryRepository.findById(id);
+    public CategoryResponseDTO findById(Long id) {
+        return categoryRepository.findById(id)
+                .map(CategoryResponseDTO::new)
+                .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
     }
 
     public void delete(Long id) {
+        categoryRepository.findById(id)
+                .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
         categoryRepository.deleteById(id);
     }
 
