@@ -9,7 +9,6 @@ import com.pomostudy.repository.TaskRepository;
 import com.pomostudy.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
-import java.time.OffsetDateTime;
 import java.util.Optional;
 
 @Component
@@ -62,9 +61,6 @@ public class TaskMapper {
         task.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
         task.setUserTask(user.get());
         task.setCategory(category.get());
-
-        // TODO: Campo pensar o que fazer
-//        task.setCreatedAt(OffsetDateTime.now());
 
         return task;
     }
