@@ -44,12 +44,12 @@ public class TaskController {
 
         TaskResponseDTO taskResponseDTO = taskService.save(taskRequestDTO);
 
-        URI locationOfNewtask = ucb
+        URI locationOfNewTask = ucb
                 .path("api/task/{id}")
                 .buildAndExpand(taskResponseDTO.id())
                 .toUri();
 
-        return ResponseEntity.created(locationOfNewtask).body(taskResponseDTO);
+        return ResponseEntity.created(locationOfNewTask).body(taskResponseDTO);
     }
 
     @PutMapping("{id}")
@@ -102,6 +102,7 @@ public class TaskController {
     @ApiResponse(responseCode = "404", description = "Task id not found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
     public ResponseEntity<TaskResponseDTO> findTaskById(@PathVariable("id") Long id) {
+
         return ResponseEntity.ok(taskService.findById(id));
     }
 
@@ -111,6 +112,7 @@ public class TaskController {
     @ApiResponse(responseCode = "404", description = "Task not found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
     public ResponseEntity<String> deleteTask(@PathVariable("id") Long id) {
+
         taskService.delete(id);
         return ResponseEntity.noContent().build();
     }
