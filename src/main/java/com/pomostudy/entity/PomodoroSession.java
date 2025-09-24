@@ -3,10 +3,12 @@ package com.pomostudy.entity;
 import com.pomostudy.enums.PomodoroSessionType;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class PomodoroSession {
 
     @Id
@@ -18,7 +20,6 @@ public class PomodoroSession {
     private OffsetDateTime startDate;
 
     @Column(nullable = false)
-    @CreatedDate
     private OffsetDateTime endDate;
 
     private Integer plannedDuration;
