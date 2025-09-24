@@ -7,13 +7,23 @@ import com.pomostudy.entity.Category;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -33,11 +43,16 @@ public class CategoryController {
     @Operation(summary = "Create data category", description = "Method for create data category")
     @ApiResponse(responseCode = "201", description = "Category created with success")
     @ApiResponse(responseCode = "400", description = "Invalid input data")
-    public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO) {
+    public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO, UriComponentsBuilder ucb) {
 
         CategoryResponseDTO categoryResponseDTO = categoryService.save(categoryRequestDTO);
 
-        return ResponseEntity.status(201).body(categoryResponseDTO);
+        URI locationOfNewCategory = ucb
+                .path("api/category/{id}")
+                .buildAndExpand(categoryResponseDTO.id())
+                .toUri();
+
+        return ResponseEntity.created(locationOfNewCategory).body(categoryResponseDTO);
     }
 
     @PutMapping("{id}")
@@ -55,12 +70,32 @@ public class CategoryController {
     @Operation(summary = "List all data category", description = "Method for list data category")
     @ApiResponse(responseCode = "200", description = "Category listed successfully")
     @ApiResponse(responseCode = "500", description = "Internal server error")
-    public ResponseEntity<List<CategoryResponseDTO>> findALL() {
-        List<Category> categories = categoryService.findAll();
-        List<CategoryResponseDTO> responseDTO = categories.stream()
-                .map(CategoryResponseDTO::new)
-                .toList();
-        return ResponseEntity.ok(responseDTO);
+    public ResponseEntity<Page<CategoryResponseDTO>> findALL(
+            @Parameter(
+                    name = "pageable",
+                    in = ParameterIn.QUERY,
+                    description = "Pagination and sorting object. **To use default values, send an empty object: `{}`**.",
+                    examples = {
+                            @ExampleObject(
+                                    name = "Default Pagination",
+                                    summary = "Fetch with default values",
+                                    value = "{}"
+                            ),
+                            @ExampleObject(
+                                    name = "Custom Pagination",
+                                    summary = "Fetching the first page with 10 items",
+                                    value = "{\"page\": 0, \"size\": 10, \"sort\": \"name,asc\"}"
+                            )
+                    },
+                    schema = @Schema(type = "object")
+            )
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
+            Pageable pageable
+            ) {
+
+        Page<CategoryResponseDTO> listCategories = categoryService.findAll(pageable);
+
+        return ResponseEntity.ok(listCategories);
     }
 
     @GetMapping("{id}")
@@ -68,12 +103,9 @@ public class CategoryController {
     @ApiResponse(responseCode = "200", description = "Category listed successfully")
     @ApiResponse(responseCode = "404", description = "Category id not found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
-    public ResponseEntity<CategoryResponseDTO> findById(@PathVariable("id") Long id) {
-        CategoryResponseDTO categoryResponseDTO = categoryService.findById(id)
-                .map(CategoryResponseDTO::new)
-                .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
+    public ResponseEntity<CategoryResponseDTO> findCategoryById(@PathVariable("id") Long id) {
 
-        return ResponseEntity.ok(categoryResponseDTO);
+        return ResponseEntity.ok(categoryService.findById(id));
 
     }
 
@@ -83,8 +115,7 @@ public class CategoryController {
     @ApiResponse(responseCode = "404", description = "Category not found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
     public ResponseEntity<String> delete(@PathVariable("id") Long id) {
-        categoryService.findById(id)
-                        .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
+
         categoryService.delete(id);
         return ResponseEntity.noContent().build();
     }
