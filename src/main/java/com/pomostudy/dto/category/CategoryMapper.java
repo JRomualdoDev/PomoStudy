@@ -22,34 +22,44 @@ public class CategoryMapper {
 
     public CategoryResponseDTO toResponseDTO(Category category) {
         return new CategoryResponseDTO(
-               category.getName(),
-               category.getColor(),
-               category.getIcon()
+                category.getId(),
+                category.getName(),
+                category.getColor(),
+                category.getIcon()
         );
     }
 
-    public Category toCategory(CategoryRequestDTO categoryRequestDTO, Long id) {
+    public Category toCreateCategory(CategoryRequestDTO categoryRequestDTO) {
 
-        Category categoryUpdateOrCreate;
-
-        if (id != null) {
-            categoryUpdateOrCreate = categoryRepository.findById(id)
-                    .filter(category -> category.getUserCategory().getId().equals(categoryRequestDTO.userId()))
-                    .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
-        } else {
-            categoryUpdateOrCreate = new Category();
-        }
+        Category category = new Category();
 
         Optional<User> user = userRepository.findById(categoryRequestDTO.userId());
         if (user.isEmpty())
             throw ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId());
 
-        categoryUpdateOrCreate.setName(categoryRequestDTO.name());
-        categoryUpdateOrCreate.setColor(categoryRequestDTO.color());
-        categoryUpdateOrCreate.setIcon(categoryRequestDTO.icon());
-        categoryUpdateOrCreate.setUserCategory(user.get());
+        category.setName(categoryRequestDTO.name());
+        category.setColor(categoryRequestDTO.color());
+        category.setIcon(categoryRequestDTO.icon());
+        category.setUserCategory(user.get());
 
-        return categoryUpdateOrCreate;
+        return category;
+    }
 
+    public Category toUpdateCategory(CategoryRequestDTO categoryRequestDTO, Long id) {
+
+        Category category = categoryRepository.findById(id)
+                    .filter(c-> c.getUserCategory().getId().equals(categoryRequestDTO.userId()))
+                    .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
+
+        Optional<User> user = userRepository.findById(categoryRequestDTO.userId());
+        if (user.isEmpty())
+            throw ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId());
+
+        category.setName(categoryRequestDTO.name());
+        category.setColor(categoryRequestDTO.color());
+        category.setIcon(categoryRequestDTO.icon());
+        category.setUserCategory(user.get());
+
+        return category;
     }
 }
