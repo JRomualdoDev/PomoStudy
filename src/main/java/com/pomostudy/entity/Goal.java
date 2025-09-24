@@ -3,12 +3,14 @@ package com.pomostudy.entity;
 import com.pomostudy.enums.GoalType;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Goal {
 
     @Id

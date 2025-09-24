@@ -4,6 +4,7 @@ import com.pomostudy.enums.StatusUser;
 import com.pomostudy.enums.TaskPriority;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
 import java.util.Objects;
@@ -11,6 +12,7 @@ import java.util.Set;
 
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 public class Task {
 
     @Id
