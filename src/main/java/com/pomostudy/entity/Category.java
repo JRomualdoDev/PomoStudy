@@ -29,6 +29,9 @@ public class Category {
     @JoinColumn(name = "user_id", nullable = false)
     private User userCategory;
 
+    public void setId(Long id) {
+        this.id = id;
+    }
     public Long getId() {
         return id;
     }

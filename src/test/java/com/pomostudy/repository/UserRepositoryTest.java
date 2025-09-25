@@ -1,5 +1,6 @@
 package com.pomostudy.repository;
 
+import com.pomostudy.config.auditing.Config;
 import com.pomostudy.dto.user.UserCreateRequestDTO;
 import com.pomostudy.entity.User;
 import com.pomostudy.enums.UserRole;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -18,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
+@Import(Config.class)
 class UserRepositoryTest {
 
     @Autowired
@@ -40,11 +43,9 @@ class UserRepositoryTest {
         // 2 - Act
         Optional<UserDetails> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));
 
-
-
         // 3 - Assert
         assertNotNull(result);
-        assertThat(result.isPresent()).isTrue();
+        assertThat(result).isPresent();
     }
 
     @Test
@@ -55,7 +56,7 @@ class UserRepositoryTest {
 
         Optional<UserDetails> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));
 
-        assertThat(result.isEmpty()).isTrue();
+        assertThat(result).isEmpty();
     }
 
     private User createUser(UserCreateRequestDTO userCreateRequestDTO) {
