@@ -1,19 +1,16 @@
 package com.pomostudy.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.auth.AuthenticationDTO;
 import com.pomostudy.dto.user.UserCreateRequestDTO;
 import com.pomostudy.dto.user.UserResponseDTO;
-import com.pomostudy.dto.user.UserUpdateRequestDTO;
 import com.pomostudy.entity.User;
 import com.pomostudy.enums.UserRole;
 import com.pomostudy.repository.UserRepository;
 import com.pomostudy.service.AuthorizationService;
 import com.pomostudy.service.TokenService;
 import com.pomostudy.service.UserService;
-import org.h2.command.Token;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,26 +19,26 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.auditing.AuditingHandler;
+import org.springframework.data.auditing.DateTimeProvider;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AuthenticationController.class)
-@Import(SecurityConfigurations.class)
+
+@WebMvcTest(controllers = AuthenticationController.class)
+@Import({SecurityConfigurations.class})
 @ActiveProfiles("test")
-@WithMockUser(roles = "ADMIN")
 class AuthenticationControllerTest {
 
     @Autowired
@@ -64,6 +61,13 @@ class AuthenticationControllerTest {
 
     @MockBean
     private UserService userService;
+
+
+    @MockBean
+    private AuditingHandler auditingHandler;
+
+    @MockBean
+    private DateTimeProvider auditingDateTimeProvider;
 
     private User user;
     private AuthenticationDTO authenticationDTO;
