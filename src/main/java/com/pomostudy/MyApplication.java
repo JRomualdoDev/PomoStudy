@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 
 @SpringBootApplication
-@EnableJpaAuditing(dateTimeProviderRef = "auditingDateTimeProvider")
 public class MyApplication {
 
     public static void main(String[] args) {
