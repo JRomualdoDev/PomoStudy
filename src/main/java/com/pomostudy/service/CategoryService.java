@@ -29,19 +29,19 @@ public class CategoryService {
 
             Category categorySave = categoryRepository.save(categoryMapper.toCreateCategory(categoryRequestDTO));
 
-            return categoryMapper.toResponseDTO(categorySave);
+            return categoryMapper.toCategoryResponseDTO(categorySave);
     }
 
     public CategoryResponseDTO edit(CategoryRequestDTO categoryRequestDTO, Long id) {
 
             Category categoryUpdate = categoryRepository.save(categoryMapper.toUpdateCategory(categoryRequestDTO, id));
 
-            return categoryMapper.toResponseDTO(categoryUpdate);
+            return categoryMapper.toCategoryResponseDTO(categoryUpdate);
     }
 
     public Page<CategoryResponseDTO> findAll(Pageable pageable) {
         Page<Category> categoryPage = categoryRepository.findAll(pageable);
-        return categoryPage.map(categoryMapper::toResponseDTO);
+        return categoryPage.map(categoryMapper::toCategoryResponseDTO);
     }
 
     public CategoryResponseDTO findById(Long id) {
