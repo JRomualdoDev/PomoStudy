@@ -77,7 +77,7 @@ public class GoalController {
 
     @DeleteMapping("{id}")
     @Operation(summary = "Delete data goal for id", description = "Method for deleting data goal for the id")
-    @ApiResponse(responseCode = "204", description = "Goal editing with success")
+    @ApiResponse(responseCode = "204", description = "No content")
     @ApiResponse(responseCode = "404", description = "Goal not found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
     public ResponseEntity<String> deleteGoal(@PathVariable("id") Long id) {
