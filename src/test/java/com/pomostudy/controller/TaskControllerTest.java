@@ -53,7 +53,7 @@ import static org.hamcrest.CoreMatchers.is;
 class TaskControllerTest {
 
     @Autowired
-    private  MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -192,9 +192,7 @@ class TaskControllerTest {
     }
 
     @Test
-
     @DisplayName("Should be return all Tasks with status 200 OK")
-
     void shouldReturnAllTasksWithStatus200() throws Exception {
 
         Pageable pageable = PageRequest.of(0,10);
