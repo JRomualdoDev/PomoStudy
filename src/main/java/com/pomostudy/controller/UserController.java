@@ -77,7 +77,7 @@ public class UserController {
 
     @DeleteMapping("{id}")
     @Operation(summary = "Delete data user for id", description = "Method for deleting data user for the id")
-    @ApiResponse(responseCode = "204", description = "User editing with success")
+    @ApiResponse(responseCode = "204", description = "No content")
     @ApiResponse(responseCode = "404", description = "User not found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
     public ResponseEntity<String> delete(@PathVariable("id") Long id) {
