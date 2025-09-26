@@ -108,7 +108,7 @@ public class TaskController {
 
     @DeleteMapping("{id}")
     @Operation(summary = "Delete data task for id", description = "Method for deleting data task for the id")
-    @ApiResponse(responseCode = "204", description = "Task editing with success")
+    @ApiResponse(responseCode = "204", description = "No content")
     @ApiResponse(responseCode = "404", description = "Task not found")
     @ApiResponse(responseCode = "500", description = "Internal server error")
     public ResponseEntity<String> deleteTask(@PathVariable("id") Long id) {
