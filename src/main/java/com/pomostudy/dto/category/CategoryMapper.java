@@ -20,7 +20,7 @@ public class CategoryMapper {
         this.categoryRepository = categoryRepository;
     }
 
-    public CategoryResponseDTO toResponseDTO(Category category) {
+    public CategoryResponseDTO toCategoryResponseDTO(Category category) {
         return new CategoryResponseDTO(
                 category.getId(),
                 category.getName(),
