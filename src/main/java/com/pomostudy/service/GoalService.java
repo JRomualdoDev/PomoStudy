@@ -1,15 +1,16 @@
 package com.pomostudy.service;
 
-import com.pomostudy.dto.goal.GoalMapper;
+import com.pomostudy.exception.ResourceExceptionFactory;
+import com.pomostudy.mapper.GoalMapper;
 import com.pomostudy.dto.goal.GoalRequestDTO;
 import com.pomostudy.dto.goal.GoalResponseDTO;
 import com.pomostudy.entity.Goal;
-import com.pomostudy.exception.ResourceException;
 import com.pomostudy.repository.GoalRepository;
 import com.pomostudy.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,46 +27,30 @@ public class GoalService {
     }
 
     public GoalResponseDTO save(GoalRequestDTO goalRequestDTO) {
-
-        try {
-            Goal goal = goalRepository.save(goalMapper.toGoal(goalRequestDTO, null));
-
-            return goalMapper.toGoalResponseDTO(goal);
-
-        } catch(ResourceException e) {
-            System.out.println(e.getMessage());
-            throw e;
-        } catch (RuntimeException ex) {
-            System.out.println(ex.getMessage());
-            throw new RuntimeException("Error create Goal.");
-        }
+        Goal goal = goalRepository.save(goalMapper.toCreateGoal(goalRequestDTO));
+        return goalMapper.toGoalResponseDTO(goal);
     }
 
     public GoalResponseDTO edit(GoalRequestDTO goalRequestDTO, Long id) {
+        Goal goal = goalRepository.save(goalMapper.toUpdateGoal(goalRequestDTO, id));
+        return goalMapper.toGoalResponseDTO(goal);
 
-        try {
-            Goal goal = goalRepository.save(goalMapper.toGoal(goalRequestDTO, id));
-
-            return goalMapper.toGoalResponseDTO(goal);
-
-        } catch (ResourceException e) {
-            System.out.println(e.getMessage());
-            throw e;
-        } catch (RuntimeException e) {
-            System.out.println(e.getMessage());
-            throw new RuntimeException("Error updated goal.");
-        }
     }
 
-    public List<Goal> findAll() {
-        return goalRepository.findAll();
+    public Page<GoalResponseDTO> findAll(Pageable pageable) {
+        Page<Goal> goalPage = goalRepository.findAll(pageable);
+        return goalPage.map(goalMapper::toGoalResponseDTO);
     }
 
-    public Optional<Goal> findById(Long id) {
-        return goalRepository.findById(id);
+    public GoalResponseDTO findById(Long id) {
+        return goalRepository.findById(id)
+                .map(GoalResponseDTO::new)
+                .orElseThrow(() -> ResourceExceptionFactory.notFound("Goal", id));
     }
 
     public void delete(Long id) {
+        goalRepository.findById(id)
+                .orElseThrow(() -> ResourceExceptionFactory.notFound("Goal", id));
         goalRepository.deleteById(id);
     }
 }
