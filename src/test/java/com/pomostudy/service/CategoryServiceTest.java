@@ -1,14 +1,10 @@
 package com.pomostudy.service;
 
-import com.pomostudy.dto.category.CategoryMapper;
+import com.pomostudy.mapper.CategoryMapper;
 import com.pomostudy.dto.category.CategoryRequestDTO;
 import com.pomostudy.dto.category.CategoryResponseDTO;
-import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.entity.Category;
-import com.pomostudy.entity.Task;
 import com.pomostudy.entity.User;
-import com.pomostudy.enums.StatusUser;
-import com.pomostudy.enums.TaskPriority;
 import com.pomostudy.exception.ResourceException;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.CategoryRepository;

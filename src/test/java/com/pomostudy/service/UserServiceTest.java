@@ -1,7 +1,7 @@
 package com.pomostudy.service;
 
 import com.pomostudy.dto.user.UserCreateRequestDTO;
-import com.pomostudy.dto.user.UserMapper;
+import com.pomostudy.mapper.UserMapper;
 import com.pomostudy.dto.user.UserResponseDTO;
 import com.pomostudy.dto.user.UserUpdateRequestDTO;
 import com.pomostudy.entity.User;
