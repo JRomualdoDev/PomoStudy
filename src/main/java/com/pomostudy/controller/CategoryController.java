@@ -25,7 +25,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("api/category")
-@Tag(name = "category", description = "Controller for saving, edit, search and delete category.")
+@Tag(name = "category")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
 public class CategoryController {
 
