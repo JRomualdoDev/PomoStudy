@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "My Api", version = "1.0", description = "Documentation API for my project"),
+        info = @Info(title = "PomoStudy", version = "1.0", description = "Documentation API for my project - A simple and effective Pomodoro timer for studying. Helps you stay focused and manage your study sessions."),
         tags = {
                 @Tag(name = "authentication", description = "Controller for register and login user."),
                 @Tag(name = "user", description = "Controller for saving, edit, search and delete user."),
