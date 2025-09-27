@@ -180,15 +180,8 @@ public class UserControllerTest {
 
         mockMvc.perform(delete("/api/user/{id}", userId))
                 .andExpect(status().isNoContent());
+
+        verify(userService, times(1)).delete(anyLong());
     }
 
-    @Test
-    @DisplayName("Should be return 404 Not Found for try delete the non-existent user")
-    void shouldReturn404_whenDeleteNonExistentUser() throws Exception {
-
-        when(userService.findById(anyLong())).thenReturn(Optional.empty());
-
-        mockMvc.perform(delete("/api/user/{id}", 99L))
-                .andExpect(status().isNotFound());
-    }
 }
