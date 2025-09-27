@@ -25,7 +25,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -46,11 +48,16 @@ public class GoalController {
     @ApiResponse(responseCode = "400", description = "Invalid input data",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<GoalResponseDTO> createGoal(@Valid @RequestBody GoalRequestDTO goalRequestDTO) {
+    public ResponseEntity<GoalResponseDTO> createGoal(@Valid @RequestBody GoalRequestDTO goalRequestDTO, UriComponentsBuilder ucb) {
 
         GoalResponseDTO goalResponseDTO = goalService.save(goalRequestDTO);
 
-        return ResponseEntity.status(201).body(goalResponseDTO);
+        URI locationOfNewGoal = ucb
+                .path("api/goal/{id}")
+                .buildAndExpand(goalResponseDTO.id())
+                .toUri();
+
+        return ResponseEntity.created(locationOfNewGoal).body(goalResponseDTO);
     }
 
     @PutMapping("{id}")
