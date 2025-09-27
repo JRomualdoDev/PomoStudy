@@ -38,7 +38,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -187,5 +188,18 @@ class CategoryControllerTest {
                 .andExpect(jsonPath("$.name").value("testCategory"))
                 .andExpect(jsonPath("$.color").value("#fff"))
                 .andExpect(jsonPath("$.icon").value("test.icon"));
+    }
+
+    @Test
+    @DisplayName("Should be delete with success and return status 204 No Content")
+    void shouldBeDeleteWithSuccessReturnStatus204() throws Exception {
+
+        when(categoryService.findById(anyLong())).thenReturn(categoryResponseDTO);
+        doNothing().when(categoryService).delete(anyLong());
+
+        mockMvc.perform(delete("/api/category/{id}", categoryID))
+                .andExpect(status().isNoContent());
+
+        verify(categoryService, times(1)).delete(anyLong());
     }
 }
