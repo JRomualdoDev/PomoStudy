@@ -1,6 +1,6 @@
 package com.pomostudy.service;
 
-import com.pomostudy.dto.task.TaskMapper;
+import com.pomostudy.mapper.TaskMapper;
 import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.entity.Task;
