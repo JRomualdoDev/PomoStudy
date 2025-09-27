@@ -32,12 +32,13 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -220,4 +221,18 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.name").value("testTask"))
                 .andExpect(jsonPath("$.description").value("loremipsumloremipsumloremipsum"));
     }
+
+    @Test
+    @DisplayName("Should be delete with success and return status 204 No Content")
+    void shouldBeDeleteWithSuccessReturnStatus204() throws Exception {
+
+        when(taskService.findById(anyLong())).thenReturn(taskResponseDTO);
+        doNothing().when(taskService).delete(anyLong());
+
+        mockMvc.perform(delete("/api/task/{id}", taskID))
+                .andExpect(status().isNoContent());
+
+        verify(taskService, times(1)).delete(anyLong());
+    }
+
 }
