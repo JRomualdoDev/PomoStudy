@@ -180,7 +180,7 @@ class CategoryServiceTest {
 
     @Test
     @DisplayName("Should find the category from id when the category exist in the db")
-    void shouldFindUserFromIdWhenUserExistDB() {
+    void shouldFindCategoryFromIdWhenCategoryExistDB() {
         Long categoryId = 1L;
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
 
