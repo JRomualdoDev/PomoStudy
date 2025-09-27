@@ -3,8 +3,15 @@ name: Render Ping every 10 minutes
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Runs every 10 minutes
-  workflow_dispatch:  # Allows manual triggering
+    # Runs every 10 minutes, between 09:00 and 23:59 UTC
+    # (corresponds to 06:00 - 20:59 in Brasília Time, UTC-3)
+    - cron: '*/10 9-23 * * *'
+    
+    # Runs every 10 minutes, between 00:00 and 02:59 UTC
+    # (corresponds to 21:00 - 23:59 of the previous day in Brasília Time, UTC-3)
+    - cron: '*/10 0-2 * * *'
+    
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   curl-website:
