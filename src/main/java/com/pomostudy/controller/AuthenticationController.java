@@ -1,6 +1,7 @@
 package com.pomostudy.controller;
 
 import com.pomostudy.config.security.SecurityConfigurations;
+import com.pomostudy.dto.ErrorResponseDTO;
 import com.pomostudy.dto.auth.AuthenticationDTO;
 import com.pomostudy.dto.auth.LoginResponseDTO;
 import com.pomostudy.dto.user.UserCreateRequestDTO;
@@ -9,6 +10,8 @@ import com.pomostudy.entity.User;
 import com.pomostudy.service.TokenService;
 import com.pomostudy.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,7 +26,7 @@ import java.net.URI;
 
 @RestController
 @RequestMapping("api/auth")
-@Tag(name = "authentication", description = "Controller for register and login user.")
+@Tag(name = "authentication")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
 public class AuthenticationController {
 
@@ -44,8 +47,12 @@ public class AuthenticationController {
     @PostMapping("/login")
     @Operation(summary = "Login user", description = "Method for Login user")
     @ApiResponse(responseCode = "200", description = "User logged successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid input data")
-    @ApiResponse(responseCode = "401", description = "Credential invalid")
+    @ApiResponse(responseCode = "400", description = "Invalid input data",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    @ApiResponse(responseCode = "401", description = "Credential invalid",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO authenticationDTO) {
         UsernamePasswordAuthenticationToken emailPassword = new UsernamePasswordAuthenticationToken(authenticationDTO.email(), authenticationDTO.password());
 
@@ -59,8 +66,12 @@ public class AuthenticationController {
     @PostMapping("/register")
     @Operation(summary = "Register user", description = "Method for Register user")
     @ApiResponse(responseCode = "200", description = "User created successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid input data")
-    @ApiResponse(responseCode = "500", description = "Email already in use")
+    @ApiResponse(responseCode = "400", description = "Invalid input data",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    @ApiResponse(responseCode = "500", description = "Email already in use",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<UserResponseDTO> register(@RequestBody @Valid UserCreateRequestDTO userCreateRequestDTO, UriComponentsBuilder ucb) {
 
         UserResponseDTO userResponseDTO = userService.save(userCreateRequestDTO);
