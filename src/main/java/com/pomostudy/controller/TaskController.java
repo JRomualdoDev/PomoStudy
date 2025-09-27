@@ -1,12 +1,14 @@
 package com.pomostudy.controller;
 
 import com.pomostudy.config.security.SecurityConfigurations;
+import com.pomostudy.dto.ErrorResponseDTO;
 import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,7 +28,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/task")
-@Tag(name = "task", description = "Controller for saving, edit, search and delete task.")
+@Tag(name = "task")
 @SecurityRequirement(name = SecurityConfigurations.SECURITY)
 public class TaskController {
 
@@ -39,7 +41,9 @@ public class TaskController {
     @PostMapping
     @Operation(summary = "Create data task", description = "Method for create data task")
     @ApiResponse(responseCode = "201", description = "Task created with success")
-    @ApiResponse(responseCode = "400", description = "Invalid input data")
+    @ApiResponse(responseCode = "400", description = "Invalid input data",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<TaskResponseDTO> createTask(@Valid @RequestBody TaskRequestDTO taskRequestDTO, UriComponentsBuilder ucb) {
 
         TaskResponseDTO taskResponseDTO = taskService.save(taskRequestDTO);
@@ -55,8 +59,12 @@ public class TaskController {
     @PutMapping("{id}")
     @Operation(summary = "Edit data task", description = "Method for edit data task")
     @ApiResponse(responseCode = "200", description = "Task edited with success")
-    @ApiResponse(responseCode = "404", description = "Task not found")
-    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @ApiResponse(responseCode = "404", description = "Task not found",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<TaskResponseDTO> editTask(@Valid @RequestBody TaskRequestDTO taskRequestDTO, @PathVariable("id") Long id) {
 
         TaskResponseDTO taskResponseDTO = taskService.edit(taskRequestDTO, id);
@@ -67,7 +75,9 @@ public class TaskController {
     @GetMapping
     @Operation(summary = "List all data task", description = "Method for list data task")
     @ApiResponse(responseCode = "200", description = "Task listed successfully")
-    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<Page<TaskResponseDTO>> findAllTasks(
             @Parameter(
                     name = "pageable",
@@ -99,8 +109,12 @@ public class TaskController {
     @GetMapping("{id}")
     @Operation(summary = "Find data task for id", description = "Method for search data task for the id")
     @ApiResponse(responseCode = "200", description = "Task listed successfully")
-    @ApiResponse(responseCode = "404", description = "Task id not found")
-    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @ApiResponse(responseCode = "404", description = "Task id not found",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<TaskResponseDTO> findTaskById(@PathVariable("id") Long id) {
 
         return ResponseEntity.ok(taskService.findById(id));
@@ -109,8 +123,12 @@ public class TaskController {
     @DeleteMapping("{id}")
     @Operation(summary = "Delete data task for id", description = "Method for deleting data task for the id")
     @ApiResponse(responseCode = "204", description = "No content")
-    @ApiResponse(responseCode = "404", description = "Task not found")
-    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @ApiResponse(responseCode = "404", description = "Task not found",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<String> deleteTask(@PathVariable("id") Long id) {
 
         taskService.delete(id);
