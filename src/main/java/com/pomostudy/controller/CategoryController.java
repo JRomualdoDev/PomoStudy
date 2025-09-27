@@ -1,12 +1,14 @@
 package com.pomostudy.controller;
 
 import com.pomostudy.config.security.SecurityConfigurations;
+import com.pomostudy.dto.ErrorResponseDTO;
 import com.pomostudy.dto.category.CategoryRequestDTO;
 import com.pomostudy.dto.category.CategoryResponseDTO;
 import com.pomostudy.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -39,7 +41,9 @@ public class CategoryController {
     @PostMapping
     @Operation(summary = "Create data category", description = "Method for create data category")
     @ApiResponse(responseCode = "201", description = "Category created with success")
-    @ApiResponse(responseCode = "400", description = "Invalid input data")
+    @ApiResponse(responseCode = "400", description = "Invalid input data",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO, UriComponentsBuilder ucb) {
 
         CategoryResponseDTO categoryResponseDTO = categoryService.save(categoryRequestDTO);
@@ -55,8 +59,12 @@ public class CategoryController {
     @PutMapping("{id}")
     @Operation(summary = "Edit data category", description = "Method for edit data category")
     @ApiResponse(responseCode = "200", description = "Category edited with success")
-    @ApiResponse(responseCode = "404", description = "Category not found")
-    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @ApiResponse(responseCode = "404", description = "Category not found",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<CategoryResponseDTO> editCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO, @PathVariable("id") Long id) {
 
         CategoryResponseDTO categoryResponseDTO = categoryService.edit(categoryRequestDTO, id);
@@ -66,7 +74,9 @@ public class CategoryController {
     @GetMapping
     @Operation(summary = "List all data category", description = "Method for list data category")
     @ApiResponse(responseCode = "200", description = "Category listed successfully")
-    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<Page<CategoryResponseDTO>> findALL(
             @Parameter(
                     name = "pageable",
@@ -98,8 +108,12 @@ public class CategoryController {
     @GetMapping("{id}")
     @Operation(summary = "Find data category for id", description = "Method for search data category for the id")
     @ApiResponse(responseCode = "200", description = "Category listed successfully")
-    @ApiResponse(responseCode = "404", description = "Category id not found")
-    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @ApiResponse(responseCode = "404", description = "Category id not found",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<CategoryResponseDTO> findCategoryById(@PathVariable("id") Long id) {
 
         return ResponseEntity.ok(categoryService.findById(id));
@@ -109,8 +123,12 @@ public class CategoryController {
     @DeleteMapping("{id}")
     @Operation(summary = "Delete data category for id", description = "Method for deleting data category for the id")
     @ApiResponse(responseCode = "204", description = "No content")
-    @ApiResponse(responseCode = "404", description = "Category not found")
-    @ApiResponse(responseCode = "500", description = "Internal server error")
+    @ApiResponse(responseCode = "404", description = "Category not found",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<String> delete(@PathVariable("id") Long id) {
 
         categoryService.delete(id);
