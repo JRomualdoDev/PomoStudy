@@ -1,12 +1,11 @@
 package com.pomostudy.service;
 
 import com.pomostudy.dto.user.UserCreateRequestDTO;
-import com.pomostudy.dto.user.UserMapper;
+import com.pomostudy.mapper.UserMapper;
 import com.pomostudy.dto.user.UserResponseDTO;
 import com.pomostudy.dto.user.UserUpdateRequestDTO;
 import com.pomostudy.entity.User;
 import com.pomostudy.repository.UserRepository;
-import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
