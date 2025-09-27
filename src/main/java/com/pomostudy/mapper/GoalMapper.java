@@ -24,13 +24,14 @@ public class GoalMapper {
 
     public GoalResponseDTO toGoalResponseDTO(Goal goal) {
         return new GoalResponseDTO(
-            goal.getTitle(),
-            goal.getDescription(),
-            goal.getType(),
-            goal.getGoalValue(),
-            goal.getGoalActual(),
-            goal.getEndDate(),
-            goal.getActive()
+                goal.getId(),
+                goal.getTitle(),
+                goal.getDescription(),
+                goal.getType(),
+                goal.getGoalValue(),
+                goal.getGoalActual(),
+                goal.getEndDate(),
+                goal.getActive()
         );
     }
 
