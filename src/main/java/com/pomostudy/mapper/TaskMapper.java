@@ -1,5 +1,7 @@
-package com.pomostudy.dto.task;
+package com.pomostudy.mapper;
 
+import com.pomostudy.dto.task.TaskRequestDTO;
+import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.entity.Category;
 import com.pomostudy.entity.Task;
 import com.pomostudy.entity.User;

@@ -1,5 +1,7 @@
-package com.pomostudy.dto.category;
+package com.pomostudy.mapper;
 
+import com.pomostudy.dto.category.CategoryRequestDTO;
+import com.pomostudy.dto.category.CategoryResponseDTO;
 import com.pomostudy.entity.Category;
 import com.pomostudy.entity.User;
 import com.pomostudy.exception.ResourceExceptionFactory;

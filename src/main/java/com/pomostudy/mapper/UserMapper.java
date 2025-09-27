@@ -1,5 +1,8 @@
-package com.pomostudy.dto.user;
+package com.pomostudy.mapper;
 
+import com.pomostudy.dto.user.UserCreateRequestDTO;
+import com.pomostudy.dto.user.UserResponseDTO;
+import com.pomostudy.dto.user.UserUpdateRequestDTO;
 import com.pomostudy.entity.User;
 import com.pomostudy.enums.UserRole;
 import com.pomostudy.exception.ResourceException;
