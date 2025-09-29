@@ -168,6 +168,99 @@ A URL base para todos os endpoints é `/api`.
 
 </details>
 
+<details>
+<summary><strong>Class diagrams</strong></summary>
+
+```mermaid
+classDiagram
+  class User {
+    +Long id
+    +String name
+    +String email
+    +String password
+    +UserRole role
+    +OffsetDateTime createdAt
+    +OffsetDateTime updatedAt
+  }
+  
+  class Task {
+      +Long id
+      +String name
+      +String description
+      +OffsetDateTime startDate
+      +OffsetDateTime endDate
+      +StatusUser status
+      +TaskPriority priority
+      +Integer timeTotalLearning
+      +OffsetDateTime createdAt
+  }
+
+  class Category {
+      +Long id
+      +String name
+      +String color
+      +String icon
+      +OffsetDateTime createdAt
+  }
+
+  class Goal {
+      +Long id
+      +String title
+      +String description
+      +GoalType type
+      +Integer goalValue
+      +Integer goalActual
+      +OffsetDateTime createdAt
+      +OffsetDateTime endDate
+      +Boolean active
+  }
+
+  class GoalHistory {
+      +Long id
+      +OffsetDateTime referenceDate
+      +Integer registeredValue
+      +BigDecimal percentageAchieved
+      +String observation
+      +OffsetDateTime createdAt
+      +OffsetDateTime updatedAt
+  }
+
+  class PomodoroSession {
+      +Long id
+      +OffsetDateTime startDate
+      +OffsetDateTime endDate
+      +Integer plannedDuration
+      +Integer realDuration
+      +PomodoroSessionType type
+      +Boolean completed
+      +String observations
+  }
+
+  class PomodoroUserConfig {
+      +Long id
+      +int focusDuration
+      +int shortBreakDuration
+      +int longBreakDuration
+      +int cyclesUntilLongBreak
+      +Boolean autoStartBreaks
+      +Boolean autoStartNextPomodoro
+      +Boolean notificationSoundActive
+      +String soundType
+      +Integer notificationVolume
+      +OffsetDateTime createdAt
+      +OffsetDateTime updatedAt
+  }
+
+  User "1" -- "0..*" Task : has
+  User "1" -- "0..*" Category : has
+  User "1" -- "0..*" Goal : has
+  User "1" -- "1" PomodoroUserConfig : has
+  Task "1" -- "0..*" PomodoroSession : has
+  Task "1" -- "1" Category : belongs to
+  Goal "1" -- "0..*" GoalHistory : has
+```
+</details>
+
 ## Autor
 
 - **José Romualdo**
