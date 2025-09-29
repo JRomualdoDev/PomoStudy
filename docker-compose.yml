@@ -4,7 +4,7 @@ services:
     image: postgres:17.5-alpine3.22
     ports:
       - "5432:5432"
-    restart: always
+    restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
