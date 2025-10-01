@@ -1,0 +1,19 @@
+<h1 mat-dialog-title>{{ isEditMode ? 'Edit' : 'New' }} Category</h1>
+<div mat-dialog-content [formGroup]="form">
+  <mat-form-field>
+    <mat-label>Name</mat-label>
+    <input matInput formControlName="name">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Color</mat-label>
+    <input matInput formControlName="color">
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>Icon</mat-label>
+    <input matInput formControlName="icon">
+  </mat-form-field>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [mat-dialog-close]="form.value" [disabled]="!form.valid">Save</button>
+</div>

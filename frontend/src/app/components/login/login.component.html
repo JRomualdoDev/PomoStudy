@@ -1,0 +1,26 @@
+<div class="login-container">
+  <hlm-card class="w-full max-w-sm">
+    <hlm-card-header>
+      <hlm-card-title>Login</hlm-card-title>
+    </hlm-card-header>
+    <hlm-card-content [formGroup]="loginForm">
+      <div class="grid gap-4">
+        <div class="grid gap-2">
+          <label hlmLabel for="email">Email</label>
+          <input hlmInput formControlName="email" type="email" id="email" placeholder="m@example.com" />
+        </div>
+        <div class="grid gap-2">
+          <label hlmLabel for="password">Password</label>
+          <input hlmInput formControlName="password" type="password" id="password" />
+        </div>
+        <div *ngIf="error" class="text-red-500 text-sm">
+          {{ error }}
+        </div>
+      </div>
+    </hlm-card-content>
+    <hlm-card-footer class="flex justify-between">
+      <a routerLink="/register" hlmBtn variant="link">Don't have an account?</a>
+      <button hlmBtn (click)="onLogin()" [disabled]="!loginForm.valid">Login</button>
+    </hlm-card-footer>
+  </hlm-card>
+</div>

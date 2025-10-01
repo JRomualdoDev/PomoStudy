@@ -1,0 +1,31 @@
+<div class="register-container">
+  <hlm-card class="w-full max-w-sm">
+    <hlm-card-header>
+      <hlm-card-title>Register</hlm-card-title>
+    </hlm-card-header>
+    <hlm-card-content [formGroup]="registerForm">
+      <div class="grid gap-4">
+        <div class="grid gap-2">
+          <label hlmLabel for="name">Name</label>
+          <input hlmInput formControlName="name" id="name" />
+          <div *ngIf="name?.errors?.['required']" class="text-red-500 text-sm">Name is required.</div>
+        </div>
+        <div class="grid gap-2">
+          <label hlmLabel for="email">Email</label>
+          <input hlmInput formControlName="email" type="email" id="email" placeholder="m@example.com" />
+          <div *ngIf="email?.errors?.['required']" class="text-red-500 text-sm">Email is required.</div>
+          <div *ngIf="email?.errors?.['email']" class="text-red-500 text-sm">Please enter a valid email address.</div>
+        </div>
+        <div class="grid gap-2">
+          <label hlmLabel for="password">Password</label>
+          <input hlmInput formControlName="password" type="password" id="password" />
+          <div *ngIf="password?.errors?.['required']" class="text-red-500 text-sm">Password is required.</div>
+        </div>
+      </div>
+    </hlm-card-content>
+    <hlm-card-footer class="flex justify-between">
+      <a routerLink="/login" hlmBtn variant="link">Already have an account?</a>
+      <button hlmBtn (click)="onRegister()" [disabled]="!registerForm.valid">Register</button>
+    </hlm-card-footer>
+  </hlm-card>
+</div>
