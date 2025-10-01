@@ -3,10 +3,10 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CommonModule } from '@angular/common';
-import { HlmButtonDirective } from '@spartan-ng/ui-button-helm';
-import { HlmInputDirective } from '@spartan-ng/ui-input-helm';
-import { HlmLabelDirective } from '@spartan-ng/ui-label-helm';
-import { HlmCardModule } from '@spartan-ng/ui-card-helm';
+import { HlmButtonDirective } from '@spartan-ng/ui-button';
+import { HlmInputDirective } from '@spartan-ng/ui-input';
+import { HlmLabelDirective } from '@spartan-ng/ui-label';
+import { HlmCardModule } from '@spartan-ng/ui-card';
 
 @Component({
   selector: 'app-register',
@@ -20,8 +20,7 @@ import { HlmCardModule } from '@spartan-ng/ui-card-helm';
     HlmInputDirective,
     HlmButtonDirective
   ],
-  templateUrl: './register.component.html',
-  styleUrls: ['./register.component.css']
+  templateUrl: './register.component.html'
 })
 export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
