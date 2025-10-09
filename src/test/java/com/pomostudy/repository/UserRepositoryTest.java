@@ -41,7 +41,7 @@ class UserRepositoryTest {
         this.createUser(data);
 
         // 2 - Act
-        Optional<UserDetails> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));
+        Optional<User> result = this.userRepository.findUserByEmail(email);
 
         // 3 - Assert
         assertNotNull(result);
@@ -54,7 +54,7 @@ class UserRepositoryTest {
 
         String email = "jromualdo3@hotmail.com";
 
-        Optional<UserDetails> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));
+        Optional<User> result = this.userRepository.findUserByEmail(email);
 
         assertThat(result).isEmpty();
     }
