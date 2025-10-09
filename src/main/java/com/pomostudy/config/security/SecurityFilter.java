@@ -1,5 +1,7 @@
 package com.pomostudy.config.security;
 
+import com.pomostudy.entity.User;
+import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.UserRepository;
 import com.pomostudy.service.TokenService;
 import jakarta.servlet.FilterChain;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 public class SecurityFilter extends OncePerRequestFilter {
@@ -30,10 +33,12 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = this.recoveryToken(request);
         if (token != null) {
             var email = tokenService.validateToken(token);
-            UserDetails user = userRepository.findUserByEmail(email);
+            User user = userRepository.findUserByEmail(email).orElseThrow(() -> ResourceExceptionFactory.notFound("User", 1L));
+
+            AuthenticatedUser authenticatedUser = new AuthenticatedUser(user);
 
             if (user != null) {
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                var authentication = new UsernamePasswordAuthenticationToken(authenticatedUser, null, authenticatedUser.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         }
