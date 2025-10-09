@@ -1,5 +1,6 @@
 package com.pomostudy.controller;
 
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.ErrorResponseDTO;
 import com.pomostudy.dto.auth.AuthenticationDTO;
@@ -58,7 +59,7 @@ public class AuthenticationController {
 
         var auth = this.authenticationManager.authenticate(emailPassword);
 
-        var token = tokenService.generateToken((User) auth.getPrincipal());
+        var token = tokenService.generateToken((AuthenticatedUser) auth.getPrincipal());
 
         return ResponseEntity.ok(new LoginResponseDTO(token));
     }
