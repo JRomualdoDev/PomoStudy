@@ -1,5 +1,6 @@
 package com.pomostudy.entity;
 
+import com.pomostudy.entity.base.UserOwned;
 import com.pomostudy.enums.StatusUser;
 import com.pomostudy.enums.TaskPriority;
 import jakarta.persistence.*;
@@ -13,7 +14,7 @@ import java.util.Set;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Task {
+public class Task implements UserOwned {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +48,7 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", nullable = false)
-    private User userTask;
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "categoryId")
@@ -141,12 +142,8 @@ public class Task {
         this.createdAt = createdAt;
     }
 
-    public User getUserTask() {
-        return userTask;
-    }
-
-    public void setUserTask(User userTask) {
-        this.userTask = userTask;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Category getCategory() {
@@ -169,9 +166,14 @@ public class Task {
                 ", priority=" + priority +
                 ", timeTotalLearning=" + timeTotalLearning +
                 ", createdAt=" + createdAt +
-                ", userTask=" + userTask +
+                ", userTask=" + user +
                 ", category=" + category +
                 ", sessions=" + sessions +
                 '}';
+    }
+
+    @Override
+    public User getUser() {
+        return user;
     }
 }
