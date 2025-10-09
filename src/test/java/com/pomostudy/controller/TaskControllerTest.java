@@ -112,7 +112,7 @@ class TaskControllerTest {
         category.setName("categoryTest");
         category.setColor("#FFF");
         category.setIcon("test.icon");
-        category.setUserCategory(user);
+        category.setUser(user);
 
         task = new Task();
         task.setId(1L);
@@ -123,7 +123,7 @@ class TaskControllerTest {
         task.setStatus(StatusUser.IN_PROGRESS);
         task.setPriority(TaskPriority.MEDIUM);
         task.setTimeTotalLearning(30);
-        task.setUserTask(user);
+        task.setUser(user);
         task.setCategory(category);
     }
 
