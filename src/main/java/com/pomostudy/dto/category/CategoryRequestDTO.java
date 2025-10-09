@@ -14,9 +14,7 @@ public record CategoryRequestDTO(
         String color,
 
         @NotBlank(message = "Icon is required")
-        String icon,
-
-        @NotNull(message = "User id is required")
-        Long userId) {
+        String icon
+) {
 
 }
