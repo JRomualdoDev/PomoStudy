@@ -34,16 +34,7 @@ public class UserMapper {
 
     public User toCreateUser(UserCreateRequestDTO userCreateRequestDTO) {
 
-            UserDetails userFound = userRepository.findUserByEmail(userCreateRequestDTO.getEmail());
-            Optional.ofNullable(userFound)
-                    .ifPresent(userDetails -> {
-                        throw new ResourceException(
-                                "",
-                                "",
-                                "EMAIL DUPLICATED",
-                                "Email Already in use"
-                        );
-                    });
+            userRepository.findUserByEmail(userCreateRequestDTO.getEmail()).orElseThrow(() -> new ResourceException("","","EMAIL DUPLICATED","Email Already in use"));
 
             String encryptedPassword = new BCryptPasswordEncoder().encode(userCreateRequestDTO.password());
 
