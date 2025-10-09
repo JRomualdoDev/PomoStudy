@@ -1,6 +1,7 @@
 package com.pomostudy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.auth.AuthenticationDTO;
 import com.pomostudy.dto.user.UserCreateRequestDTO;
@@ -8,9 +9,11 @@ import com.pomostudy.dto.user.UserResponseDTO;
 import com.pomostudy.entity.User;
 import com.pomostudy.enums.UserRole;
 import com.pomostudy.repository.UserRepository;
+import com.pomostudy.security.WithMockAuthenticatedUser;
 import com.pomostudy.service.AuthorizationService;
 import com.pomostudy.service.TokenService;
 import com.pomostudy.service.UserService;
+import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = AuthenticationController.class)
 @Import({SecurityConfigurations.class})
 @ActiveProfiles("test")
+@WithMockAuthenticatedUser
 class AuthenticationControllerTest {
 
     @Autowired
@@ -70,6 +74,7 @@ class AuthenticationControllerTest {
     private DateTimeProvider auditingDateTimeProvider;
 
     private User user;
+    private AuthenticatedUser authenticatedUser;
     private AuthenticationDTO authenticationDTO;
 
     private UserCreateRequestDTO userCreateRequestDTO;
@@ -90,16 +95,17 @@ class AuthenticationControllerTest {
         user.setEmail("test@example.com");
         user.setRole(UserRole.ADMIN);
 
+        authenticatedUser = new AuthenticatedUser(user);
     }
 
     @Test
     @DisplayName("Should do login with success and return status 200 with JWT token")
     void shouldLoginSuccessReturnStatus200WithJWTToken() throws Exception {
-        Authentication auth = new UsernamePasswordAuthenticationToken(user, null);
+        Authentication auth = new UsernamePasswordAuthenticationToken(authenticatedUser, null);
         String expectedToken = "sample.jwt.token";
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
-        when(tokenService.generateToken(any(User.class))).thenReturn(expectedToken);
+        when(tokenService.generateToken(authenticatedUser)).thenReturn(expectedToken);
 
         mockMvc.perform(post("/api/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
