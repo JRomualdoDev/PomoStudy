@@ -37,7 +37,7 @@ public class TaskMapper {
                 task.getStatus(),
                 task.getPriority(),
                 task.getTimeTotalLearning(),
-                task.getUserTask().getId(),
+                task.getUser().getId(),
                 task.getCategory().getId()
         );
     }
@@ -61,7 +61,7 @@ public class TaskMapper {
         task.setStatus(taskRequestDTO.status());
         task.setPriority(taskRequestDTO.priority());
         task.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
-        task.setUserTask(user.get());
+        task.setUser(user.get());
         task.setCategory(category.get());
 
         return task;
@@ -70,7 +70,7 @@ public class TaskMapper {
     public Task toUpdateTask(TaskRequestDTO taskRequestDTO, Long id) {
 
         Task task = taskRepository.findById(id)
-                    .filter(t -> t.getUserTask().getId().equals(taskRequestDTO.user_task()))
+                    .filter(t -> t.getUser().getId().equals(taskRequestDTO.user_task()))
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
 
         Optional<Category> category = categoryRepository.findById(taskRequestDTO.categoryId());
