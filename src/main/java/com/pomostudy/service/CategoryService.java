@@ -1,5 +1,7 @@
 package com.pomostudy.service;
 
+import com.pomostudy.config.security.AuthenticatedUser;
+import com.pomostudy.entity.User;
 import com.pomostudy.mapper.CategoryMapper;
 import com.pomostudy.dto.category.CategoryRequestDTO;
 import com.pomostudy.dto.category.CategoryResponseDTO;
@@ -16,35 +18,77 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final  CategoryMapper categoryMapper;
 
-    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
+    private final AuthorizationService authorizationService;
+
+    private static final String CATEGORY = "Category";
+
+    public CategoryService(
+            CategoryRepository categoryRepository,
+            CategoryMapper categoryMapper,
+            AuthorizationService authorizationService
+    ) {
         this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
+        this.authorizationService = authorizationService;
     }
 
-    public CategoryResponseDTO save(CategoryRequestDTO categoryRequestDTO) {
-            Category categorySave = categoryRepository.save(categoryMapper.toCreateCategory(categoryRequestDTO));
+    public CategoryResponseDTO save(CategoryRequestDTO categoryRequestDTO, AuthenticatedUser authenticatedUser) {
+
+            Category categorySave = categoryRepository.save(categoryMapper.toCreateCategory(categoryRequestDTO, authenticatedUser));
             return categoryMapper.toCategoryResponseDTO(categorySave);
     }
 
-    public CategoryResponseDTO edit(CategoryRequestDTO categoryRequestDTO, Long id) {
-            Category categoryUpdate = categoryRepository.save(categoryMapper.toUpdateCategory(categoryRequestDTO, id));
+    public CategoryResponseDTO edit(CategoryRequestDTO categoryRequestDTO, AuthenticatedUser authenticatedUser, Long id) {
+
+            Long userId = authenticatedUser.getUser().getId();
+
+            if (!authorizationService.isOwner(Category.class, id, userId) && !authenticatedUser.isAdmin()) {
+                throw ResourceExceptionFactory.notFound(CATEGORY, id);
+            }
+
+            Category categoryUpdate = categoryRepository.save(categoryMapper.toUpdateCategory(categoryRequestDTO, authenticatedUser.getUser(), id));
             return categoryMapper.toCategoryResponseDTO(categoryUpdate);
     }
 
-    public Page<CategoryResponseDTO> findAll(Pageable pageable) {
-        Page<Category> categoryPage = categoryRepository.findAll(pageable);
+    public Page<CategoryResponseDTO> findAll(Pageable pageable, AuthenticatedUser authenticatedUser) {
+        Page<Category> categoryPage;
+
+        if (authenticatedUser.isAdmin()) {
+            categoryPage = categoryRepository.findAll(pageable);
+        } else {
+            categoryPage = categoryRepository.findByUser(authenticatedUser.getUser(), pageable);
+        }
+
         return categoryPage.map(categoryMapper::toCategoryResponseDTO);
     }
 
-    public CategoryResponseDTO findById(Long id) {
-        return categoryRepository.findById(id)
+    public CategoryResponseDTO findById(Long id, AuthenticatedUser authenticatedUser) {
+
+        CategoryResponseDTO categoryResponseDTO;
+        Long userId = authenticatedUser.getUser().getId();
+
+        // Not user Owner or not Admin
+        if (!authorizationService.isOwner(Category.class, id, userId) && !authenticatedUser.isAdmin()) {
+            throw ResourceExceptionFactory.notFound(CATEGORY, id);
+        }
+
+        categoryResponseDTO = categoryRepository.findById(id)
                 .map(CategoryResponseDTO::new)
-                .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
+                .orElseThrow(() -> ResourceExceptionFactory.notFound(CATEGORY, id));
+
+        return categoryResponseDTO;
     }
 
-    public void delete(Long id) {
+    public void delete(Long id, AuthenticatedUser authenticatedUser) {
+
+        Long userId = authenticatedUser.getUser().getId();
+
+        if (!authorizationService.isOwner(Category.class, id, userId) && !authenticatedUser.isAdmin()) {
+            throw ResourceExceptionFactory.notFound(CATEGORY, id);
+        }
+
         categoryRepository.findById(id)
-                .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
+                .orElseThrow(() -> ResourceExceptionFactory.notFound(CATEGORY, id));
         categoryRepository.deleteById(id);
     }
 
