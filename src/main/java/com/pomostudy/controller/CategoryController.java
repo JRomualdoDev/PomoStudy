@@ -1,9 +1,12 @@
 package com.pomostudy.controller;
 
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.ErrorResponseDTO;
+import com.pomostudy.dto.PaginationDTO;
 import com.pomostudy.dto.category.CategoryRequestDTO;
 import com.pomostudy.dto.category.CategoryResponseDTO;
+import com.pomostudy.entity.User;
 import com.pomostudy.service.CategoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,11 +18,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -39,14 +46,20 @@ public class CategoryController {
     }
 
     @PostMapping
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Create data category", description = "Method for create data category")
     @ApiResponse(responseCode = "201", description = "Category created with success")
     @ApiResponse(responseCode = "400", description = "Invalid input data",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO, UriComponentsBuilder ucb) {
+    public ResponseEntity<CategoryResponseDTO> createCategory(
+            @Valid
+            @RequestBody CategoryRequestDTO categoryRequestDTO,
+            UriComponentsBuilder ucb,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+            ) {
 
-        CategoryResponseDTO categoryResponseDTO = categoryService.save(categoryRequestDTO);
+        CategoryResponseDTO categoryResponseDTO = categoryService.save(categoryRequestDTO, authenticatedUser);
 
         URI locationOfNewCategory = ucb
                 .path("api/category/{id}")
@@ -65,9 +78,14 @@ public class CategoryController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<CategoryResponseDTO> editCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<CategoryResponseDTO> editCategory(
+            @Valid
+            @RequestBody CategoryRequestDTO categoryRequestDTO,
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
 
-        CategoryResponseDTO categoryResponseDTO = categoryService.edit(categoryRequestDTO, id);
+        CategoryResponseDTO categoryResponseDTO = categoryService.edit(categoryRequestDTO, authenticatedUser, id);
         return ResponseEntity.ok(categoryResponseDTO);
     }
 
@@ -77,7 +95,7 @@ public class CategoryController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<Page<CategoryResponseDTO>> findALL(
+    public ResponseEntity<PaginationDTO<CategoryResponseDTO>> findALL(
             @Parameter(
                     name = "pageable",
                     in = ParameterIn.QUERY,
@@ -97,12 +115,13 @@ public class CategoryController {
                     schema = @Schema(type = "object")
             )
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
-            Pageable pageable
+            Pageable pageable,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
             ) {
 
-        Page<CategoryResponseDTO> listCategories = categoryService.findAll(pageable);
-
-        return ResponseEntity.ok(listCategories);
+        Page<CategoryResponseDTO> listCategories = categoryService.findAll(pageable, authenticatedUser);
+        System.out.println(listCategories);
+        return ResponseEntity.ok(new PaginationDTO<>(listCategories));
     }
 
     @GetMapping("{id}")
@@ -114,9 +133,12 @@ public class CategoryController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<CategoryResponseDTO> findCategoryById(@PathVariable("id") Long id) {
+    public ResponseEntity<CategoryResponseDTO> findCategoryById(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
 
-        return ResponseEntity.ok(categoryService.findById(id));
+        return ResponseEntity.ok(categoryService.findById(id, authenticatedUser));
 
     }
 
@@ -129,9 +151,12 @@ public class CategoryController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
+    public ResponseEntity<String> delete(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+            ) {
 
-        categoryService.delete(id);
+        categoryService.delete(id, authenticatedUser);
         return ResponseEntity.noContent().build();
     }
 }
