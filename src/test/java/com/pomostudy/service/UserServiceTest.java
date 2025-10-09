@@ -47,6 +47,7 @@ class UserServiceTest {
         userUpdateRequestDTO = new UserUpdateRequestDTO("testuser", "password123");
         userResponseDTO = new UserResponseDTO(1L,"testuser", "test@example.com");
         user = new User();
+        user.setId(1L);
         user.setName("testuser");
         user.setEmail("test@example.com");
     }
