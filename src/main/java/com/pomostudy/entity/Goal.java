@@ -1,5 +1,6 @@
 package com.pomostudy.entity;
 
+import com.pomostudy.entity.base.UserOwned;
 import com.pomostudy.enums.GoalType;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Goal {
+public class Goal implements UserOwned {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +44,7 @@ public class Goal {
 
     @ManyToOne
     @JoinColumn(name = "userId")
-    private User userGoal;
+    private User user;
 
     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<GoalHistory> goalHistory = new ArrayList<>();
@@ -121,11 +122,11 @@ public class Goal {
     }
 
     public User getUserGoal() {
-        return userGoal;
+        return user;
     }
 
     public void setUserGoal(User userGoal) {
-        this.userGoal = userGoal;
+        this.user = userGoal;
     }
 
     public List<GoalHistory> getGoalHistory() {
@@ -134,5 +135,10 @@ public class Goal {
 
     public void setGoalHistory(List<GoalHistory> goalHistory) {
         this.goalHistory = goalHistory;
+    }
+
+    @Override
+    public User getUser() {
+        return user;
     }
 }
