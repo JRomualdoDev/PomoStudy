@@ -1,5 +1,6 @@
 package com.pomostudy.service;
 
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.mapper.CategoryMapper;
 import com.pomostudy.dto.category.CategoryRequestDTO;
 import com.pomostudy.dto.category.CategoryResponseDTO;
@@ -37,17 +38,25 @@ class CategoryServiceTest {
     @Mock
     private CategoryMapper categoryMapper;
 
+    @Mock
+    private AuthenticatedUser authenticatedUser;
+
+    @Mock
+    private AuthorizationService authorizationService;
+
     @InjectMocks
     private CategoryService categoryService;
 
     private CategoryRequestDTO categoryRequestDTO;
     private CategoryResponseDTO categoryResponseDTO;
     private Category category;
+    private User user;
+
 
     @BeforeEach
     void setUp() {
 
-        User user = new User();
+        user = new User();
         user.setId(1L);
         user.setName("test");
         user.setEmail("test@example.com");
@@ -57,13 +66,12 @@ class CategoryServiceTest {
         category.setName("testCategory");
         category.setColor("#fff");
         category.setIcon("test.icon");
-        category.setUserCategory(user);
+        category.setUser(user);
 
         categoryRequestDTO = new CategoryRequestDTO(
                 "testCategory",
                 "#fff",
-                "test.icon",
-                user.getId()
+                "test.icon"
         );
 
         categoryResponseDTO = new CategoryResponseDTO(
@@ -78,11 +86,11 @@ class CategoryServiceTest {
     @DisplayName("Should save Category with success in the db")
     void shouldSaveCategorySuccessfully() {
 
-        when(categoryMapper.toCreateCategory(any(CategoryRequestDTO.class))).thenReturn(category);
+        when(categoryMapper.toCreateCategory(any(CategoryRequestDTO.class), any(AuthenticatedUser.class))).thenReturn(category);
         when(categoryRepository.save(any(Category.class))).thenReturn(category);
         when(categoryMapper.toCategoryResponseDTO(any(Category.class))).thenReturn(categoryResponseDTO);
 
-        CategoryResponseDTO result = categoryService.save(categoryRequestDTO);
+        CategoryResponseDTO result = categoryService.save(categoryRequestDTO, authenticatedUser);
 
         assertNotNull(result);
         assertEquals(1, result.id());
@@ -90,7 +98,7 @@ class CategoryServiceTest {
         assertEquals("#fff", result.color());
         assertEquals("test.icon", result.icon());
 
-        verify(categoryMapper, times(1)).toCreateCategory(any(CategoryRequestDTO.class));
+        verify(categoryMapper, times(1)).toCreateCategory(any(CategoryRequestDTO.class), any(AuthenticatedUser.class));
         verify(categoryRepository, times(1)).save(any(Category.class));
         verify(categoryMapper, times(1)).toCategoryResponseDTO(any(Category.class));
     }
@@ -99,12 +107,12 @@ class CategoryServiceTest {
     @DisplayName("Should throw exception when user is not found")
     void shouldThrowExceptionWhenUserNotFound() {
 
-        when(categoryMapper.toCreateCategory(any(CategoryRequestDTO.class))).thenThrow(ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId()));
+        when(categoryMapper.toCreateCategory(any(CategoryRequestDTO.class), any(AuthenticatedUser.class))).thenThrow(ResourceExceptionFactory.notFound("User", user.getId()));
 
-        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.save(categoryRequestDTO));
+        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.save(categoryRequestDTO, authenticatedUser));
         assertEquals("User with id 1 not found.", error.getMessage());
 
-        verify(categoryMapper, times(1)).toCreateCategory(categoryRequestDTO);
+        verify(categoryMapper, times(1)).toCreateCategory(categoryRequestDTO, authenticatedUser);
         verify(categoryRepository, never()).save(any(Category.class));
     }
 
@@ -112,18 +120,20 @@ class CategoryServiceTest {
     @DisplayName("Should edit category successfully in the db")
     void shouldEditCategorySuccessfully() {
         Long categoryId = 1L;
-        when(categoryMapper.toUpdateCategory(categoryRequestDTO, categoryId)).thenReturn(category);
+        when(authenticatedUser.getUser()).thenReturn(user);
+        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
+        when(categoryMapper.toUpdateCategory(categoryRequestDTO, user, categoryId)).thenReturn(category);
         when(categoryRepository.save(any(Category.class))).thenReturn(category);
         when(categoryMapper.toCategoryResponseDTO(any(Category.class))).thenReturn(categoryResponseDTO);
 
-        CategoryResponseDTO result = categoryService.edit(categoryRequestDTO, categoryId);
+        CategoryResponseDTO result = categoryService.edit(categoryRequestDTO, authenticatedUser, categoryId);
 
         assertNotNull(result);
         assertEquals("testCategory", result.name());
         assertEquals("#fff", result.color());
         assertEquals("test.icon", result.icon());
 
-        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, categoryId);
+        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, user, categoryId);
         verify(categoryRepository, times(1)).save(category);
         verify(categoryMapper, times(1)).toCategoryResponseDTO(category);
     }
@@ -133,13 +143,15 @@ class CategoryServiceTest {
     void shouldThrowExceptionWhenUserNotBelongToCategory() {
 
         Long categoryId = 1L;
-        when(categoryMapper.toUpdateCategory(categoryRequestDTO, categoryId)).thenThrow(ResourceExceptionFactory.notFound("Category", categoryRequestDTO.userId()));
+        when(authenticatedUser.getUser()).thenReturn(user);
+        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
+        when(categoryMapper.toUpdateCategory(categoryRequestDTO, user, categoryId)).thenThrow(ResourceExceptionFactory.notFound("Category", user.getId()));
 
-        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.edit(categoryRequestDTO, categoryId));
+        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.edit(categoryRequestDTO, authenticatedUser, categoryId));
 
         assertEquals("Category with id 1 not found.", error.getMessage());
 
-        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, categoryId);
+        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, user, categoryId);
         verify(categoryRepository, never()).save(any(Category.class));
     }
 
@@ -148,43 +160,74 @@ class CategoryServiceTest {
     void shouldThrowExceptionWhenCategoryNotFound() {
 
         Long categoryId = 1L;
-        when(categoryMapper.toUpdateCategory(categoryRequestDTO, categoryId)).thenThrow(ResourceExceptionFactory.notFound("Category", categoryId));
+        when(authenticatedUser.getUser()).thenReturn(user);
+        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
+        when(categoryMapper.toUpdateCategory(categoryRequestDTO, user, categoryId)).thenThrow(ResourceExceptionFactory.notFound("Category", categoryId));
 
-        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.edit(categoryRequestDTO, categoryId));
+        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.edit(categoryRequestDTO, authenticatedUser, categoryId));
 
         assertEquals("Category with id 1 not found.", error.getMessage());
 
-        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, categoryId);
+        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, user, categoryId);
         verify(categoryRepository, never()).save(any(Category.class));
     }
 
     @Test
-    @DisplayName("Should be pass correct pagination parameters to service and return 200 OK")
+    @DisplayName("Should find all categories for an ADMIN user and return 200 OK")
+    void shouldFindAllCategoriesForAdmin() {
+
+        List<Category> categoryResponse = Collections.singletonList(category);
+        Pageable pageable = PageRequest.of(0, 10);
+
+
+        when(authenticatedUser.isAdmin()).thenReturn(true);
+
+        when(categoryRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(categoryResponse));
+        when(categoryMapper.toCategoryResponseDTO(category)).thenReturn(categoryResponseDTO);
+
+
+        Page<CategoryResponseDTO> result = categoryService.findAll(pageable, authenticatedUser);
+
+
+        assertFalse(result.isEmpty());
+        assertEquals(1, result.getContent().size());
+        verify(categoryRepository, times(1)).findAll(any(Pageable.class));
+        verify(categoryRepository, never()).findByUser(any(), any());
+    }
+
+    @Test
+    @DisplayName("Should find categories for a NON-ADMIN user and return 200 OK")
     void shouldFindAllCategoriesDBWithStatus200() {
 
         List<Category> categoryResponse = Collections.singletonList(category);
         Pageable pageable = PageRequest.of(0,10);
 
-        when(categoryRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(categoryResponse));
+        when(authenticatedUser.isAdmin()).thenReturn(false);
+        when(authenticatedUser.getUser()).thenReturn(user);
+
+        when(categoryRepository.findByUser(user, pageable)).thenReturn(new PageImpl<>(categoryResponse));
         when(categoryMapper.toCategoryResponseDTO(category)).thenReturn(categoryResponseDTO);
 
-        Page<CategoryResponseDTO> result = categoryService.findAll(pageable);
+        Page<CategoryResponseDTO> result = categoryService.findAll(pageable, authenticatedUser);
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.getContent().size());
         assertEquals(categoryResponseDTO,result.getContent().getFirst());
         assertEquals(categoryRequestDTO.name(), result.getContent().getFirst().name());
 
-        verify(categoryRepository, times(1)).findAll(any(Pageable.class));
+        verify(categoryRepository, never()).findAll(pageable);
+        verify(categoryRepository, times(1)).findByUser(user, pageable);
     }
 
     @Test
     @DisplayName("Should find the category from id when the category exist in the db")
     void shouldFindCategoryFromIdWhenCategoryExistDB() {
         Long categoryId = 1L;
+        when(authenticatedUser.getUser()).thenReturn(user);
+        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
 
-        Optional<CategoryResponseDTO> result = Optional.ofNullable(categoryService.findById(categoryId));
+        Optional<CategoryResponseDTO> result = Optional.ofNullable(categoryService.findById(categoryId, authenticatedUser));
 
         assertTrue(result.isPresent());
         assertEquals(categoryResponseDTO, result.get());
@@ -196,9 +239,11 @@ class CategoryServiceTest {
     @DisplayName("Should get Exception when do not find category from id")
     void shouldGetExceptionWhenNotFindCategoryFromId() {
         Long categoryId = 99L;
+        when(authenticatedUser.getUser()).thenReturn(user);
+        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
         when(categoryRepository.findById(categoryId)).thenThrow(ResourceExceptionFactory.notFound("Category", categoryId));
 
-        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.findById(categoryId));
+        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.findById(categoryId, authenticatedUser));
 
         assertEquals("Category with id 99 not found.", error.getMessage());
 
@@ -209,10 +254,12 @@ class CategoryServiceTest {
     @DisplayName("Should delete category succefully from db")
     void shouldDeleteTaskSuccessfullyDB() {
         Long categoryId = 1L;
+        when(authenticatedUser.getUser()).thenReturn(user);
+        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
         when(categoryRepository.findById(categoryId)).thenReturn(Optional.ofNullable(category));
         doNothing().when(categoryRepository).deleteById(categoryId);
 
-        categoryService.delete(categoryId);
+        categoryService.delete(categoryId, authenticatedUser);
 
         verify(categoryRepository, times(1)).deleteById(categoryId);
     }
