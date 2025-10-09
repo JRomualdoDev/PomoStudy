@@ -1,5 +1,6 @@
 package com.pomostudy.mapper;
 
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.dto.category.CategoryRequestDTO;
 import com.pomostudy.dto.category.CategoryResponseDTO;
 import com.pomostudy.entity.Category;
@@ -31,36 +32,36 @@ public class CategoryMapper {
         );
     }
 
-    public Category toCreateCategory(CategoryRequestDTO categoryRequestDTO) {
+    public Category toCreateCategory(CategoryRequestDTO categoryRequestDTO, AuthenticatedUser authenticatedUser) {
 
         Category category = new Category();
 
-        Optional<User> user = userRepository.findById(categoryRequestDTO.userId());
+        Optional<User> user = userRepository.findById(authenticatedUser.getUser().getId());
         if (user.isEmpty())
-            throw ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId());
+            throw ResourceExceptionFactory.notFound("User", authenticatedUser.getUser().getId());
 
         category.setName(categoryRequestDTO.name());
         category.setColor(categoryRequestDTO.color());
         category.setIcon(categoryRequestDTO.icon());
-        category.setUserCategory(user.get());
+        category.setUser(authenticatedUser.getUser());
 
         return category;
     }
 
-    public Category toUpdateCategory(CategoryRequestDTO categoryRequestDTO, Long id) {
+    public Category toUpdateCategory(CategoryRequestDTO categoryRequestDTO, User authenticatedUser, Long id) {
 
         Category category = categoryRepository.findById(id)
-                    .filter(c-> c.getUserCategory().getId().equals(categoryRequestDTO.userId()))
+                    .filter(c-> c.getUser().getId().equals(authenticatedUser.getId()))
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
 
-        Optional<User> user = userRepository.findById(categoryRequestDTO.userId());
+        Optional<User> user = userRepository.findById(authenticatedUser.getId());
         if (user.isEmpty())
-            throw ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId());
+            throw ResourceExceptionFactory.notFound("User", authenticatedUser.getId());
 
         category.setName(categoryRequestDTO.name());
         category.setColor(categoryRequestDTO.color());
         category.setIcon(categoryRequestDTO.icon());
-        category.setUserCategory(user.get());
+        category.setUser(user.get());
 
         return category;
     }
