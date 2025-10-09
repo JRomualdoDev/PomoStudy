@@ -1,14 +1,16 @@
 package com.pomostudy.entity;
 
+import com.pomostudy.entity.base.UserOwned;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.OffsetDateTime;
+import java.util.Objects;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-public class Category {
+public class Category  implements UserOwned {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +27,12 @@ public class Category {
     @CreatedDate
     private OffsetDateTime createdAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User userCategory;
+    private User user;
+
+
+    /*** GETTERS AND SETTERS **/
 
     public void setId(Long id) {
         this.id = id;
@@ -60,11 +65,27 @@ public class Category {
         this.icon = icon;
     }
 
-    public User getUserCategory() {
-        return userCategory;
+    public void setUser(User user) {
+        this.user = user;
     }
 
-    public void setUserCategory(User userCategory) {
-        this.userCategory = userCategory;
+    @Override
+    public User getUser() {
+        return user;
     }
+
+    /*** METHODS **/
+
+    @Override
+    public String toString() {
+        return "Category{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", color='" + color + '\'' +
+                ", icon='" + icon + '\'' +
+                ", createdAt=" + createdAt +
+                ", userCategory=" + user +
+                '}';
+    }
+
 }
