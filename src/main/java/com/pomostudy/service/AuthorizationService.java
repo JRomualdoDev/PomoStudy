@@ -1,27 +1,19 @@
 package com.pomostudy.service;
 
-import com.pomostudy.repository.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.pomostudy.entity.base.UserOwned;
+import com.pomostudy.repository.AuthorizationRepository;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AuthorizationService implements UserDetailsService {
+public class AuthorizationService {
 
-    UserRepository userRepository;
+    private final AuthorizationRepository authorizationRepository;
 
-    public AuthorizationService(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public AuthorizationService(AuthorizationRepository authorizationRepository) {
+        this.authorizationRepository = authorizationRepository;
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        UserDetails user = userRepository.findUserByEmail(email);
-
-        if (user == null)
-            throw new UsernameNotFoundException("Email not found" + email);
-
-        return user;
+    public <T extends UserOwned> boolean isOwner(Class<T> entityClass, Long entityId, Long userId) {
+        return authorizationRepository.isOwner(entityClass, entityId, userId);
     }
 }
