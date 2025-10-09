@@ -28,7 +28,7 @@ public record TaskResponseDTO(
                 task.getStatus(),
                 task.getPriority(),
                 task.getTimeTotalLearning(),
-                task.getUserTask().getId(),
+                task.getUser().getId(),
                 task.getCategory().getId());
     }
 }
