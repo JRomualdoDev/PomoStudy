@@ -2,17 +2,15 @@ package com.pomostudy.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.category.CategoryRequestDTO;
 import com.pomostudy.dto.category.CategoryResponseDTO;
-import com.pomostudy.dto.task.TaskRequestDTO;
-import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.entity.Category;
 import com.pomostudy.entity.User;
-import com.pomostudy.enums.StatusUser;
-import com.pomostudy.enums.TaskPriority;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.UserRepository;
+import com.pomostudy.security.WithMockAuthenticatedUser;
 import com.pomostudy.service.CategoryService;
 import com.pomostudy.service.TokenService;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +25,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -47,7 +44,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(CategoryController.class)
 @Import(SecurityConfigurations.class)
 @ActiveProfiles("test")
-@WithMockUser(roles = "USER")
+//@WithMockUser(roles = "USER")
+@WithMockAuthenticatedUser
 class CategoryControllerTest {
 
     @Autowired
@@ -70,10 +68,12 @@ class CategoryControllerTest {
     private Category category;
     private final Long categoryID = 1L;
 
+    private User user;
+
     @BeforeEach
     void setUp() {
 
-        User user = new User();
+        user = new User();
         user.setId(1L);
         user.setName("test");
         user.setEmail("test@example.com");
@@ -83,13 +83,12 @@ class CategoryControllerTest {
         category.setName("testCategory");
         category.setColor("#fff");
         category.setIcon("test.icon");
-        category.setUserCategory(user);
+        category.setUser(user);
 
         categoryRequestDTO = new CategoryRequestDTO(
                 "testCategory",
                 "#fff",
-                "test.icon",
-                user.getId()
+                "test.icon"
         );
 
         categoryResponseDTO = new CategoryResponseDTO(
@@ -98,13 +97,14 @@ class CategoryControllerTest {
                 "#fff",
                 "test.icon"
         );
+
     }
 
     @Test
     @DisplayName("Should be create category and return status 201 created")
     void shouldCreateCategoryReturnStatus201() throws Exception {
 
-        when(categoryService.save(any(CategoryRequestDTO.class))).thenReturn(categoryResponseDTO);
+        when(categoryService.save(any(CategoryRequestDTO.class), any(AuthenticatedUser.class))).thenReturn(categoryResponseDTO);
 
         mockMvc.perform(post("/api/category")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -122,8 +122,7 @@ class CategoryControllerTest {
         CategoryRequestDTO invalidCategoryRequestDTO = new CategoryRequestDTO(
                 null,
                 "loremipsumloremipsumloremipsum",
-                "test.icon",
-                1L
+                "test.icon"
                 );
 
         mockMvc.perform(post("/api/category")
@@ -136,7 +135,7 @@ class CategoryControllerTest {
     @DisplayName("Should be edit category and return status 200 ok")
     void shouldEditCategoryAndReturnStatus200OK() throws Exception {
 
-        when(categoryService.edit(any(CategoryRequestDTO.class), anyLong())).thenReturn(categoryResponseDTO);
+        when(categoryService.edit(any(CategoryRequestDTO.class), any(AuthenticatedUser.class), anyLong())).thenReturn(categoryResponseDTO);
 
         mockMvc.perform(put("/api/category/{id}", categoryID)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -150,7 +149,7 @@ class CategoryControllerTest {
     @DisplayName("Should be return 404 Not Found for try edit non-existent category")
     void shouldReturn404TryEditNonExistentCategory() throws Exception {
 
-        when(categoryService.edit(any(CategoryRequestDTO.class), anyLong()))
+        when(categoryService.edit(any(CategoryRequestDTO.class), any(AuthenticatedUser.class), anyLong()))
                 .thenThrow(ResourceExceptionFactory.notFound("Category", categoryID));
 
         mockMvc.perform(put("/api/category/{id}", categoryID)
@@ -166,9 +165,13 @@ class CategoryControllerTest {
         Pageable pageable = PageRequest.of(0,10);
         Page<CategoryResponseDTO> categoryPage = new PageImpl<>(List.of(categoryResponseDTO), pageable, 1);
 
-        when(categoryService.findAll(any(Pageable.class))).thenReturn(categoryPage);
+        when(categoryService.findAll(any(Pageable.class), any(AuthenticatedUser.class))).thenReturn(categoryPage);
 
-        mockMvc.perform(get("/api/category?page=0&size=10&sort=id,asc"))
+        mockMvc.perform(get("/api/category")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("sort", "id,asc")
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)))
                 .andExpect(jsonPath("$.content[0].name", is("testCategory")))
@@ -181,7 +184,7 @@ class CategoryControllerTest {
     @DisplayName("Should be found one category for the id and return 200 OK")
     void shouldFoundCategoryForTheIdReturn200() throws Exception {
 
-        when(categoryService.findById(anyLong())).thenReturn(categoryResponseDTO);
+        when(categoryService.findById(anyLong(), any(AuthenticatedUser.class))).thenReturn(categoryResponseDTO);
 
         mockMvc.perform(get("/api/category/{id}", categoryID))
                 .andExpect(status().isOk())
@@ -194,12 +197,12 @@ class CategoryControllerTest {
     @DisplayName("Should be delete with success and return status 204 No Content")
     void shouldBeDeleteWithSuccessReturnStatus204() throws Exception {
 
-        when(categoryService.findById(anyLong())).thenReturn(categoryResponseDTO);
-        doNothing().when(categoryService).delete(anyLong());
+        when(categoryService.findById(anyLong(), any(AuthenticatedUser.class))).thenReturn(categoryResponseDTO);
+        doNothing().when(categoryService).delete(anyLong(), any(AuthenticatedUser.class));
 
         mockMvc.perform(delete("/api/category/{id}", categoryID))
                 .andExpect(status().isNoContent());
 
-        verify(categoryService, times(1)).delete(anyLong());
+        verify(categoryService, times(1)).delete(anyLong(), any(AuthenticatedUser.class));
     }
 }
