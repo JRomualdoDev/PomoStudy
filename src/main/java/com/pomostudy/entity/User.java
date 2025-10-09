@@ -13,11 +13,12 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.LongStream;
 
 @Entity
 @Table(name = "app_user")
 @EntityListeners(AuditingEntityListener.class)
-public class User implements UserDetails {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,36 +44,30 @@ public class User implements UserDetails {
     @LastModifiedDate
     private OffsetDateTime updatedAt;
 
-    @OneToMany(mappedBy = "userTask", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Task> tasks = new ArrayList<>();
 
-    @OneToMany(mappedBy = "userCategory", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Category> categories = new ArrayList<>();
 
-    @OneToMany(mappedBy = "userGoal", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Goal> goal = new ArrayList<>();
 
     public void addTask(Task task) {
         tasks.add(task);
-        task.setUserTask(this); // mantém o relacionamento bidirecional consistente
+        task.setUser(this); // mantém o relacionamento bidirecional consistente
     }
 
     public void removeTask(Task task) {
         tasks.remove(task);
-        task.setUserTask(null);
+        task.setUser(null);
     }
 
     @OneToOne(mappedBy = "userPomoConfig", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private PomodoroUserConfig pomodoroUserConfig;
 
-    // Getter e Setter
-    public PomodoroUserConfig getPomodoroConfiguration() {
-        return pomodoroUserConfig;
-    }
 
-    public void setPomodoroConfiguration(PomodoroUserConfig pomodoroConfiguration) {
-        this.pomodoroUserConfig = pomodoroConfiguration;
-    }
+    /*** Constructors **/
 
     public User() {}
 
@@ -84,7 +79,20 @@ public class User implements UserDetails {
         this.createdAt = OffsetDateTime.now();
     }
 
-    /* Setters e Getters */
+
+    /*** GETTERS AND SETTERS **/
+
+    public PomodoroUserConfig getPomodoroConfiguration() {
+        return pomodoroUserConfig;
+    }
+
+    public void setPomodoroConfiguration(PomodoroUserConfig pomodoroConfiguration) {
+        this.pomodoroUserConfig = pomodoroConfiguration;
+    }
+
+    public List<Category> getCategories() {
+        return categories;
+    }
 
     public UserRole getRole() {
         return role;
@@ -118,40 +126,8 @@ public class User implements UserDetails {
         this.email = email;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (this.role == UserRole.ADMIN)
-            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
-        else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
-    }
-
     public String getPassword() {
         return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
     }
 
     public void setPassword(String password) {
@@ -173,4 +149,8 @@ public class User implements UserDetails {
     public void setUpdatedAt(OffsetDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
+
+
+    /*** METHODS **/
+
 }
