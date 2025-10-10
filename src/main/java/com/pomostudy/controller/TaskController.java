@@ -1,7 +1,9 @@
 package com.pomostudy.controller;
 
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.ErrorResponseDTO;
+import com.pomostudy.dto.PaginationDTO;
 import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.service.TaskService;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -44,9 +47,14 @@ public class TaskController {
     @ApiResponse(responseCode = "400", description = "Invalid input data",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<TaskResponseDTO> createTask(@Valid @RequestBody TaskRequestDTO taskRequestDTO, UriComponentsBuilder ucb) {
+    public ResponseEntity<TaskResponseDTO> createTask(
+            @Valid
+            @RequestBody TaskRequestDTO taskRequestDTO,
+            UriComponentsBuilder ucb,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
 
-        TaskResponseDTO taskResponseDTO = taskService.save(taskRequestDTO);
+        TaskResponseDTO taskResponseDTO = taskService.save(taskRequestDTO, authenticatedUser);
 
         URI locationOfNewTask = ucb
                 .path("api/task/{id}")
@@ -65,9 +73,14 @@ public class TaskController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<TaskResponseDTO> editTask(@Valid @RequestBody TaskRequestDTO taskRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<TaskResponseDTO> editTask(
+            @Valid
+            @RequestBody TaskRequestDTO taskRequestDTO,
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
 
-        TaskResponseDTO taskResponseDTO = taskService.edit(taskRequestDTO, id);
+        TaskResponseDTO taskResponseDTO = taskService.edit(taskRequestDTO, authenticatedUser, id);
 
         return ResponseEntity.ok(taskResponseDTO);
     }
@@ -78,7 +91,7 @@ public class TaskController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<Page<TaskResponseDTO>> findAllTasks(
+    public ResponseEntity<PaginationDTO<TaskResponseDTO>> findAllTasks(
             @Parameter(
                     name = "pageable",
                     in = ParameterIn.QUERY,
@@ -98,12 +111,13 @@ public class TaskController {
                     schema = @Schema(type = "object")
             )
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
-            Pageable pageable
+            Pageable pageable,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
             ) {
 
-        Page<TaskResponseDTO> listTasks = taskService.findAll(pageable);
+        Page<TaskResponseDTO> listTasks = taskService.findAll(pageable, authenticatedUser);
 
-        return ResponseEntity.ok(listTasks);
+        return ResponseEntity.ok(new PaginationDTO<>(listTasks));
     }
 
     @GetMapping("{id}")
@@ -115,9 +129,12 @@ public class TaskController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<TaskResponseDTO> findTaskById(@PathVariable("id") Long id) {
+    public ResponseEntity<TaskResponseDTO> findTaskById(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
 
-        return ResponseEntity.ok(taskService.findById(id));
+        return ResponseEntity.ok(taskService.findById(id, authenticatedUser));
     }
 
     @DeleteMapping("{id}")
@@ -129,9 +146,12 @@ public class TaskController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<String> deleteTask(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteTask(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
 
-        taskService.delete(id);
+        taskService.delete(id,authenticatedUser);
         return ResponseEntity.noContent().build();
     }
 }
