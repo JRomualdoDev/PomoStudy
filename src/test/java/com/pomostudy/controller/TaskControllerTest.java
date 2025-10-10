@@ -1,6 +1,7 @@
 package com.pomostudy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
@@ -12,6 +13,7 @@ import com.pomostudy.enums.TaskPriority;
 import com.pomostudy.enums.UserRole;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.UserRepository;
+import com.pomostudy.security.WithMockAuthenticatedUser;
 import com.pomostudy.service.TaskService;
 import com.pomostudy.service.TokenService;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,13 +28,11 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
@@ -50,7 +50,7 @@ import static org.hamcrest.CoreMatchers.is;
 @WebMvcTest(TaskController.class)
 @Import(SecurityConfigurations.class)
 @ActiveProfiles("test")
-@WithMockUser(roles = "USER")
+@WithMockAuthenticatedUser
 class TaskControllerTest {
 
     @Autowired
@@ -88,7 +88,6 @@ class TaskControllerTest {
                 StatusUser.IN_PROGRESS,
                 TaskPriority.MEDIUM,
                 30,
-                1L,
                 1L);
         taskResponseDTO = new TaskResponseDTO(
                 1L,
@@ -99,7 +98,6 @@ class TaskControllerTest {
                 StatusUser.IN_PROGRESS,
                 TaskPriority.MEDIUM,
                 30,
-                1L,
                 1L);
 
         user = new User();
@@ -131,7 +129,7 @@ class TaskControllerTest {
     @DisplayName("Should be create task and return status 201 created")
     void shouldCreateTaskReturnStatus201() throws Exception {
 
-        when(taskService.save(any(TaskRequestDTO.class))).thenReturn(taskResponseDTO);
+        when(taskService.save(any(TaskRequestDTO.class), any(AuthenticatedUser.class))).thenReturn(taskResponseDTO);
 
         mockMvc.perform(post("/api/task")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -154,7 +152,6 @@ class TaskControllerTest {
                 StatusUser.IN_PROGRESS,
                 TaskPriority.MEDIUM,
                 30,
-                1L,
                 1L);
 
         mockMvc.perform(post("/api/task")
@@ -168,7 +165,7 @@ class TaskControllerTest {
     @DisplayName("Should be edit task and return status 200 ok")
     void shouldEditTaskAndReturnStatus200OK() throws Exception {
 
-        when(taskService.edit(any(TaskRequestDTO.class), anyLong())).thenReturn(taskResponseDTO);
+        when(taskService.edit(any(TaskRequestDTO.class), any(AuthenticatedUser.class), anyLong())).thenReturn(taskResponseDTO);
 
         mockMvc.perform(put("/api/task/{id}", taskID)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -183,7 +180,7 @@ class TaskControllerTest {
     @DisplayName("Should be return 404 Not Found for try edit non-existent task")
     void shouldReturn404TryEditNonExistentTask() throws Exception {
 
-        when(taskService.edit(any(TaskRequestDTO.class), anyLong()))
+        when(taskService.edit(any(TaskRequestDTO.class), any(AuthenticatedUser.class), anyLong()))
                 .thenThrow(ResourceExceptionFactory.notFound("Task", taskID));
 
         mockMvc.perform(put("/api/task/{id}", taskID)
@@ -199,7 +196,7 @@ class TaskControllerTest {
         Pageable pageable = PageRequest.of(0,10);
         Page<TaskResponseDTO> taskPage = new PageImpl<>(List.of(taskResponseDTO), pageable, 1);
 
-        when(taskService.findAll(any(Pageable.class))).thenReturn(taskPage);
+        when(taskService.findAll(any(Pageable.class), any(AuthenticatedUser.class))).thenReturn(taskPage);
 
         mockMvc.perform(get("/api/task?page=0&size=10&sort=id,asc"))
                 .andExpect(status().isOk())
@@ -214,7 +211,7 @@ class TaskControllerTest {
     @DisplayName("Should be found one task for the id and return 200 OK")
     void shouldFoundTaskForTheIdReturn200() throws Exception {
 
-        when(taskService.findById(anyLong())).thenReturn(taskResponseDTO);
+        when(taskService.findById(anyLong(), any(AuthenticatedUser.class))).thenReturn(taskResponseDTO);
 
         mockMvc.perform(get("/api/task/{id}", taskID))
                 .andExpect(status().isOk())
@@ -226,13 +223,13 @@ class TaskControllerTest {
     @DisplayName("Should be delete with success and return status 204 No Content")
     void shouldBeDeleteWithSuccessReturnStatus204() throws Exception {
 
-        when(taskService.findById(anyLong())).thenReturn(taskResponseDTO);
-        doNothing().when(taskService).delete(anyLong());
+        when(taskService.findById(anyLong(), any(AuthenticatedUser.class))).thenReturn(taskResponseDTO);
+        doNothing().when(taskService).delete(anyLong(), any(AuthenticatedUser.class));
 
         mockMvc.perform(delete("/api/task/{id}", taskID))
                 .andExpect(status().isNoContent());
 
-        verify(taskService, times(1)).delete(anyLong());
+        verify(taskService, times(1)).delete(anyLong(), any(AuthenticatedUser.class));
     }
 
 }
