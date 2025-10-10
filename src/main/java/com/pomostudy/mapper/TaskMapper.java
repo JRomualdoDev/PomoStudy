@@ -1,5 +1,6 @@
 package com.pomostudy.mapper;
 
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.entity.Category;
@@ -37,20 +38,19 @@ public class TaskMapper {
                 task.getStatus(),
                 task.getPriority(),
                 task.getTimeTotalLearning(),
-                task.getUser().getId(),
                 task.getCategory().getId()
         );
     }
 
-    public Task toCreateTask(TaskRequestDTO taskRequestDTO) {
+    public Task toCreateTask(TaskRequestDTO taskRequestDTO, AuthenticatedUser authenticatedUser) {
 
         Task task = new Task();
 
-        Optional<User> user = userRepository.findById(taskRequestDTO.user_task());
+        Optional<User> user = userRepository.findById(authenticatedUser.getUser().getId());
         if (user.isEmpty())
-            throw ResourceExceptionFactory.notFound("User", taskRequestDTO.user_task());
+            throw ResourceExceptionFactory.notFound("User", authenticatedUser.getUser().getId());
 
-        Optional<Category> category = categoryRepository.findById(taskRequestDTO.categoryId());
+        Optional<Category> category = categoryRepository.findByIdAndUser(taskRequestDTO.categoryId(), authenticatedUser.getUser());
         if (category.isEmpty())
             throw ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId());
 
@@ -67,13 +67,13 @@ public class TaskMapper {
         return task;
     }
 
-    public Task toUpdateTask(TaskRequestDTO taskRequestDTO, Long id) {
+    public Task toUpdateTask(TaskRequestDTO taskRequestDTO, AuthenticatedUser authenticatedUser,Long id) {
 
         Task task = taskRepository.findById(id)
-                    .filter(t -> t.getUser().getId().equals(taskRequestDTO.user_task()))
+                    .filter(t -> t.getUser().getId().equals(authenticatedUser.getUser().getId()))
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
 
-        Optional<Category> category = categoryRepository.findById(taskRequestDTO.categoryId());
+        Optional<Category> category = categoryRepository.findByIdAndUser(taskRequestDTO.categoryId(), authenticatedUser.getUser());
         if (category.isEmpty())
             throw ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId());
 
