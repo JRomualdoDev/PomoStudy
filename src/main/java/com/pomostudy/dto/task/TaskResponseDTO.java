@@ -15,7 +15,6 @@ public record TaskResponseDTO(
         StatusUser status,
         TaskPriority priority,
         Integer timeTotalLearning,
-        Long user_task,
         Long categoryId) {
 
     public TaskResponseDTO(Task task) {
@@ -28,7 +27,6 @@ public record TaskResponseDTO(
                 task.getStatus(),
                 task.getPriority(),
                 task.getTimeTotalLearning(),
-                task.getUser().getId(),
                 task.getCategory().getId());
     }
 }
