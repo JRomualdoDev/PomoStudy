@@ -34,9 +34,6 @@ public record TaskRequestDTO(
 
         Integer timeTotalLearning,
 
-        @NotNull(message = "User Task is required")
-        Long user_task,
-
         @NotNull(message = "Category ID is required")
         Long categoryId ) {
 }
