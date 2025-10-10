@@ -64,7 +64,6 @@ public class CategoryService {
 
     public CategoryResponseDTO findById(Long id, AuthenticatedUser authenticatedUser) {
 
-        CategoryResponseDTO categoryResponseDTO;
         Long userId = authenticatedUser.getUser().getId();
 
         // Not user Owner or not Admin
@@ -72,11 +71,9 @@ public class CategoryService {
             throw ResourceExceptionFactory.notFound(CATEGORY, id);
         }
 
-        categoryResponseDTO = categoryRepository.findById(id)
+        return categoryRepository.findById(id)
                 .map(CategoryResponseDTO::new)
                 .orElseThrow(() -> ResourceExceptionFactory.notFound(CATEGORY, id));
-
-        return categoryResponseDTO;
     }
 
     public void delete(Long id, AuthenticatedUser authenticatedUser) {
