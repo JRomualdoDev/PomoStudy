@@ -120,7 +120,7 @@ public class CategoryController {
             ) {
 
         Page<CategoryResponseDTO> listCategories = categoryService.findAll(pageable, authenticatedUser);
-        System.out.println(listCategories);
+
         return ResponseEntity.ok(new PaginationDTO<>(listCategories));
     }
 
