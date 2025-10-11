@@ -16,4 +16,5 @@ public class AuthorizationService {
     public <T extends UserOwned> boolean isOwner(Class<T> entityClass, Long entityId, Long userId) {
         return authorizationRepository.isOwner(entityClass, entityId, userId);
     }
+
 }
