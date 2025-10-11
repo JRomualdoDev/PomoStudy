@@ -1,12 +1,11 @@
 package com.pomostudy.controller;
 
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.ErrorResponseDTO;
+import com.pomostudy.dto.PaginationDTO;
 import com.pomostudy.dto.goal.GoalRequestDTO;
 import com.pomostudy.dto.goal.GoalResponseDTO;
-import com.pomostudy.entity.Goal;
-import com.pomostudy.exception.ResourceException;
-import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.service.GoalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -23,12 +22,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.ErrorResponse;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/goal")
@@ -48,9 +46,13 @@ public class GoalController {
     @ApiResponse(responseCode = "400", description = "Invalid input data",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<GoalResponseDTO> createGoal(@Valid @RequestBody GoalRequestDTO goalRequestDTO, UriComponentsBuilder ucb) {
+    public ResponseEntity<GoalResponseDTO> createGoal(
+            @Valid @RequestBody GoalRequestDTO goalRequestDTO,
+            UriComponentsBuilder ucb,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
 
-        GoalResponseDTO goalResponseDTO = goalService.save(goalRequestDTO);
+        GoalResponseDTO goalResponseDTO = goalService.save(goalRequestDTO, authenticatedUser);
 
         URI locationOfNewGoal = ucb
                 .path("api/goal/{id}")
@@ -69,9 +71,13 @@ public class GoalController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<GoalResponseDTO> editGoal(@Valid @RequestBody GoalRequestDTO goalRequestDTO, @PathVariable("id") Long id) {
+    public ResponseEntity<GoalResponseDTO> editGoal(
+            @Valid @RequestBody GoalRequestDTO goalRequestDTO,
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
 
-        GoalResponseDTO goalResponseDTO = goalService.edit(goalRequestDTO, id);
+        GoalResponseDTO goalResponseDTO = goalService.edit(goalRequestDTO, authenticatedUser, id);
 
         return ResponseEntity.ok(goalResponseDTO);
     }
@@ -82,7 +88,7 @@ public class GoalController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<Page<GoalResponseDTO>> findAllGoals(
+    public ResponseEntity<PaginationDTO<GoalResponseDTO>> findAllGoals(
             @Parameter(
                     name = "pageable",
                     in = ParameterIn.QUERY,
@@ -102,11 +108,12 @@ public class GoalController {
                     schema = @Schema(type = "object")
             )
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
-            Pageable pageable
+            Pageable pageable,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
     ){
-        Page<GoalResponseDTO> listGoals = goalService.findAll(pageable);
+        Page<GoalResponseDTO> listGoals = goalService.findAll(pageable, authenticatedUser);
 
-        return ResponseEntity.ok(listGoals);
+        return ResponseEntity.ok(new PaginationDTO<>(listGoals));
     }
 
     @GetMapping("{id}")
@@ -118,9 +125,12 @@ public class GoalController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<GoalResponseDTO> findGoalById(@PathVariable("id") Long id) {
+    public ResponseEntity<GoalResponseDTO> findGoalById(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
 
-        return ResponseEntity.ok(goalService.findById(id));
+        return ResponseEntity.ok(goalService.findById(id, authenticatedUser));
     }
 
     @DeleteMapping("{id}")
@@ -132,9 +142,12 @@ public class GoalController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<String> deleteGoal(@PathVariable("id") Long id) {
+    public ResponseEntity<String> deleteGoal(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
 
-        goalService.delete(id);
+        goalService.delete(id, authenticatedUser);
         return ResponseEntity.noContent().build();
     }
 }
