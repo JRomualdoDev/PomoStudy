@@ -1,6 +1,7 @@
 package com.pomostudy.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.goal.GoalRequestDTO;
 import com.pomostudy.dto.goal.GoalResponseDTO;
@@ -9,6 +10,7 @@ import com.pomostudy.entity.User;
 import com.pomostudy.enums.GoalType;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.UserRepository;
+import com.pomostudy.security.WithMockAuthenticatedUser;
 import com.pomostudy.service.GoalService;
 import com.pomostudy.service.TokenService;
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(GoalController.class)
 @Import(SecurityConfigurations.class)
 @ActiveProfiles("test")
-@WithMockUser(roles = "USER")
+@WithMockAuthenticatedUser
 class GoalControllerTest {
 
     @Autowired
@@ -94,8 +96,7 @@ class GoalControllerTest {
                 2,
                 1,
                 endDate,
-                true,
-                1L
+                true
         );
 
         goalResponseDTO = new GoalResponseDTO(
@@ -114,7 +115,7 @@ class GoalControllerTest {
     @DisplayName("Should be create goal and return status 201 created")
     void shouldCreateGoalReturnStatus201() throws Exception {
 
-        when(goalService.save(any(GoalRequestDTO.class))).thenReturn(goalResponseDTO);
+        when(goalService.save(any(GoalRequestDTO.class), any(AuthenticatedUser.class))).thenReturn(goalResponseDTO);
 
         mockMvc.perform(post("/api/goal")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -136,8 +137,7 @@ class GoalControllerTest {
                 2,
                 1,
                 endDate,
-                true,
-                1L
+                true
         );
 
         mockMvc.perform(post("/api/goal")
@@ -150,7 +150,7 @@ class GoalControllerTest {
     @DisplayName("Should be edit goal and return status 200 ok")
     void shouldEditGoalAndReturnStatus200OK() throws Exception {
 
-        when(goalService.edit(any(GoalRequestDTO.class), anyLong())).thenReturn(goalResponseDTO);
+        when(goalService.edit(any(GoalRequestDTO.class), any(AuthenticatedUser.class), anyLong())).thenReturn(goalResponseDTO);
 
         mockMvc.perform(put("/api/goal/{id}", goalID)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -164,7 +164,7 @@ class GoalControllerTest {
     @DisplayName("Should be return 404 Not Found for try edit non-existent goal")
     void shouldReturn404TryEditNonExistentGoal() throws Exception {
 
-        when(goalService.edit(any(GoalRequestDTO.class), anyLong()))
+        when(goalService.edit(any(GoalRequestDTO.class), any(AuthenticatedUser.class), anyLong()))
                 .thenThrow(ResourceExceptionFactory.notFound("Goal", goalID));
 
         mockMvc.perform(put("/api/goal/{id}", goalID)
@@ -180,7 +180,7 @@ class GoalControllerTest {
         Pageable pageable = PageRequest.of(0,10);
         Page<GoalResponseDTO> goalPage = new PageImpl<>(List.of(goalResponseDTO), pageable, 1);
 
-        when(goalService.findAll(any(Pageable.class))).thenReturn(goalPage);
+        when(goalService.findAll(any(Pageable.class), any(AuthenticatedUser.class))).thenReturn(goalPage);
 
         mockMvc.perform(get("/api/goal?page=0&size=10&sort=id,asc"))
                 .andExpect(status().isOk())
@@ -195,7 +195,7 @@ class GoalControllerTest {
     @DisplayName("Should be found one goal for the id and return 200 OK")
     void shouldFoundGoalForTheIdReturn200() throws Exception {
 
-        when(goalService.findById(anyLong())).thenReturn(goalResponseDTO);
+        when(goalService.findById(anyLong(), any(AuthenticatedUser.class))).thenReturn(goalResponseDTO);
 
         mockMvc.perform(get("/api/goal/{id}", goalID))
                 .andExpect(status().isOk())
@@ -211,12 +211,12 @@ class GoalControllerTest {
     @DisplayName("Should be delete with success and return status 204 No Content")
     void shouldBeDeleteWithSuccessReturnStatus204() throws Exception {
 
-        when(goalService.findById(anyLong())).thenReturn(goalResponseDTO);
-        doNothing().when(goalService).delete(anyLong());
+        when(goalService.findById(anyLong(), any(AuthenticatedUser.class))).thenReturn(goalResponseDTO);
+        doNothing().when(goalService).delete(anyLong(), any(AuthenticatedUser.class));
 
         mockMvc.perform(delete("/api/goal/{id}", goalID))
                 .andExpect(status().isNoContent());
 
-        verify(goalService, times(1)).delete(anyLong());
+        verify(goalService, times(1)).delete(anyLong(), any(AuthenticatedUser.class));
     }
 }
