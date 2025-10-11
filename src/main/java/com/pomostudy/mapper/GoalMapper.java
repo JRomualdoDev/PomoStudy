@@ -1,5 +1,6 @@
 package com.pomostudy.mapper;
 
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.dto.goal.GoalRequestDTO;
 import com.pomostudy.dto.goal.GoalResponseDTO;
 import com.pomostudy.entity.Goal;
@@ -35,13 +36,13 @@ public class GoalMapper {
         );
     }
 
-    public Goal toCreateGoal(GoalRequestDTO goalRequestDTO) {
+    public Goal toCreateGoal(GoalRequestDTO goalRequestDTO, AuthenticatedUser authenticatedUser) {
 
         Goal goal = new Goal();
 
-        Optional<User> user = userRepository.findById(goalRequestDTO.user_goal());
+        Optional<User> user = userRepository.findById(authenticatedUser.getUser().getId());
         if (user.isEmpty())
-            throw ResourceExceptionFactory.notFound("User", goalRequestDTO.user_goal());
+            throw ResourceExceptionFactory.notFound("User", authenticatedUser.getUser().getId());
 
         goal.setTitle(goalRequestDTO.title());
         goal.setDescription(goalRequestDTO.description());
@@ -55,15 +56,15 @@ public class GoalMapper {
         return goal;
     }
 
-    public Goal toUpdateGoal(GoalRequestDTO goalRequestDTO, Long id) {
+    public Goal toUpdateGoal(GoalRequestDTO goalRequestDTO, AuthenticatedUser authenticatedUser, Long id) {
 
         Goal goal = goalRepository.findById(id)
-                    .filter(g -> g.getUserGoal().getId().equals(goalRequestDTO.user_goal()))
+                    .filter(g -> g.getUserGoal().getId().equals(authenticatedUser.getUser().getId()))
                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Goal", id));
 
-        Optional<User> user = userRepository.findById(goalRequestDTO.user_goal());
+        Optional<User> user = userRepository.findById(authenticatedUser.getUser().getId());
         if (user.isEmpty())
-            throw ResourceExceptionFactory.notFound("User", goalRequestDTO.user_goal());
+            throw ResourceExceptionFactory.notFound("User", authenticatedUser.getUser().getId());
 
         goal.setTitle(goalRequestDTO.title());
         goal.setDescription(goalRequestDTO.description());
