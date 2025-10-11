@@ -34,16 +34,18 @@ public class UserMapper {
 
     public User toCreateUser(UserCreateRequestDTO userCreateRequestDTO) {
 
-            userRepository.findUserByEmail(userCreateRequestDTO.getEmail()).orElseThrow(() -> new ResourceException("","","EMAIL DUPLICATED","Email Already in use"));
+        userRepository.findUserByEmail(userCreateRequestDTO.getEmail()).ifPresent(user -> {
+            throw new ResourceException("", "", "EMAIL_DUPLICATED", "Email Already in use");
+        });
 
-            String encryptedPassword = new BCryptPasswordEncoder().encode(userCreateRequestDTO.password());
+        String encryptedPassword = new BCryptPasswordEncoder().encode(userCreateRequestDTO.password());
 
-            return new User(
-                    userCreateRequestDTO.name(),
-                    userCreateRequestDTO.email(),
-                    encryptedPassword,
-                    UserRole.USER
-            );
+        return new User(
+                userCreateRequestDTO.name(),
+                userCreateRequestDTO.email(),
+                encryptedPassword,
+                UserRole.USER
+        );
     }
 
     public User toUpdateUser(UserUpdateRequestDTO userUpdateRequestDTO, Long id) {
