@@ -33,8 +33,5 @@ public record GoalRequestDTO(
         OffsetDateTime endDate,
 
         @NotNull(message = "Active is required")
-        Boolean active,
-
-        @NotNull(message = "User goal is required")
-        Long user_goal) {
+        Boolean active) {
 }
