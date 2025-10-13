@@ -1,5 +1,6 @@
 package com.pomostudy.mapper;
 
+import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.dto.user.UserCreateRequestDTO;
 import com.pomostudy.dto.user.UserResponseDTO;
 import com.pomostudy.dto.user.UserUpdateRequestDTO;
@@ -48,10 +49,14 @@ public class UserMapper {
         );
     }
 
-    public User toUpdateUser(UserUpdateRequestDTO userUpdateRequestDTO, Long id) {
+    public User toUpdateUser(UserUpdateRequestDTO userUpdateRequestDTO, AuthenticatedUser authenticatedUser,Long id) {
 
         User user = userRepository.findById(id)
                 .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
+
+        if (!authenticatedUser.getUser().getEmail().equals(user.getEmail()) && !authenticatedUser.isAdmin()) {
+            throw ResourceExceptionFactory.notFound("User", id);
+        }
 
         if (userUpdateRequestDTO.getName() != null) {
             user.setName(userUpdateRequestDTO.getName());
@@ -62,7 +67,7 @@ public class UserMapper {
             user.setPassword(encryptedPassword);
         }
 
-        user.setUpdatedAt(OffsetDateTime.now());
+//        user.setUpdatedAt(OffsetDateTime.now());
 
         return user;
     }

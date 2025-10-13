@@ -26,4 +26,5 @@ public class AuthorizationRepository {
 
         return query.getSingleResult();
     }
+
 }

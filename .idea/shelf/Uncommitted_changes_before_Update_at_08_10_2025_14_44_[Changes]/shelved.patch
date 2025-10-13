@@ -1,0 +1,1961 @@
+Index: src/main/java/com/pomostudy/service/CategoryService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.service;\r\n\r\nimport com.pomostudy.mapper.CategoryMapper;\r\nimport com.pomostudy.dto.category.CategoryRequestDTO;\r\nimport com.pomostudy.dto.category.CategoryResponseDTO;\r\nimport com.pomostudy.entity.Category;\r\nimport com.pomostudy.exception.ResourceExceptionFactory;\r\nimport com.pomostudy.repository.CategoryRepository;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.Pageable;\r\nimport org.springframework.stereotype.Service;\r\n\r\n\r\n@Service\r\npublic class CategoryService {\r\n    private final CategoryRepository categoryRepository;\r\n    private final  CategoryMapper categoryMapper;\r\n\r\n    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {\r\n        this.categoryRepository = categoryRepository;\r\n        this.categoryMapper = categoryMapper;\r\n    }\r\n\r\n    public CategoryResponseDTO save(CategoryRequestDTO categoryRequestDTO) {\r\n            Category categorySave = categoryRepository.save(categoryMapper.toCreateCategory(categoryRequestDTO));\r\n            return categoryMapper.toCategoryResponseDTO(categorySave);\r\n    }\r\n\r\n    public CategoryResponseDTO edit(CategoryRequestDTO categoryRequestDTO, Long id) {\r\n            Category categoryUpdate = categoryRepository.save(categoryMapper.toUpdateCategory(categoryRequestDTO, id));\r\n            return categoryMapper.toCategoryResponseDTO(categoryUpdate);\r\n    }\r\n\r\n    public Page<CategoryResponseDTO> findAll(Pageable pageable) {\r\n        Page<Category> categoryPage = categoryRepository.findAll(pageable);\r\n        return categoryPage.map(categoryMapper::toCategoryResponseDTO);\r\n    }\r\n\r\n    public CategoryResponseDTO findById(Long id) {\r\n        return categoryRepository.findById(id)\r\n                .map(CategoryResponseDTO::new)\r\n                .orElseThrow(() -> ResourceExceptionFactory.notFound(\"Category\", id));\r\n    }\r\n\r\n    public void delete(Long id) {\r\n        categoryRepository.findById(id)\r\n                .orElseThrow(() -> ResourceExceptionFactory.notFound(\"Category\", id));\r\n        categoryRepository.deleteById(id);\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/service/CategoryService.java b/src/main/java/com/pomostudy/service/CategoryService.java
+--- a/src/main/java/com/pomostudy/service/CategoryService.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/service/CategoryService.java	(date 1759891840983)
+@@ -1,5 +1,7 @@
+ package com.pomostudy.service;
+ 
++import com.pomostudy.config.security.AuthenticatedUser;
++import com.pomostudy.entity.User;
+ import com.pomostudy.mapper.CategoryMapper;
+ import com.pomostudy.dto.category.CategoryRequestDTO;
+ import com.pomostudy.dto.category.CategoryResponseDTO;
+@@ -16,35 +18,78 @@
+     private final CategoryRepository categoryRepository;
+     private final  CategoryMapper categoryMapper;
+ 
+-    public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
++    private final AuthorizationService authorizationService;
++
++    private static final String CATEGORY = "Category";
++
++    public CategoryService(
++            CategoryRepository categoryRepository,
++            CategoryMapper categoryMapper,
++            AuthorizationService authorizationService
++    ) {
+         this.categoryRepository = categoryRepository;
+         this.categoryMapper = categoryMapper;
++        this.authorizationService = authorizationService;
+     }
+ 
+-    public CategoryResponseDTO save(CategoryRequestDTO categoryRequestDTO) {
+-            Category categorySave = categoryRepository.save(categoryMapper.toCreateCategory(categoryRequestDTO));
++    public CategoryResponseDTO save(CategoryRequestDTO categoryRequestDTO, User authenticatedUser) {
++
++            Category categorySave = categoryRepository.save(categoryMapper.toCreateCategory(categoryRequestDTO, authenticatedUser));
+             return categoryMapper.toCategoryResponseDTO(categorySave);
+     }
+ 
+-    public CategoryResponseDTO edit(CategoryRequestDTO categoryRequestDTO, Long id) {
+-            Category categoryUpdate = categoryRepository.save(categoryMapper.toUpdateCategory(categoryRequestDTO, id));
++    public CategoryResponseDTO edit(CategoryRequestDTO categoryRequestDTO, AuthenticatedUser authenticatedUser, Long id) {
++
++            Long userId = authenticatedUser.getUser().getId();
++
++
++            if (!authorizationService.isOwner(Category.class, id, userId) && !authenticatedUser.isAdmin()) {
++                throw ResourceExceptionFactory.notFound(CATEGORY, id);
++            }
++
++            Category categoryUpdate = categoryRepository.save(categoryMapper.toUpdateCategory(categoryRequestDTO, authenticatedUser.getUser(), id));
+             return categoryMapper.toCategoryResponseDTO(categoryUpdate);
+     }
+ 
+-    public Page<CategoryResponseDTO> findAll(Pageable pageable) {
+-        Page<Category> categoryPage = categoryRepository.findAll(pageable);
++    public Page<CategoryResponseDTO> findAll(Pageable pageable, AuthenticatedUser authenticatedUser) {
++        Page<Category> categoryPage;
++
++        if (authenticatedUser.isAdmin()) {
++            categoryPage = categoryRepository.findAll(pageable);
++        } else {
++            categoryPage = categoryRepository.findByUser(authenticatedUser.getUser(), pageable);
++        }
++
+         return categoryPage.map(categoryMapper::toCategoryResponseDTO);
+     }
+ 
+-    public CategoryResponseDTO findById(Long id) {
+-        return categoryRepository.findById(id)
++    public CategoryResponseDTO findById(Long id, AuthenticatedUser authenticatedUser) {
++
++        CategoryResponseDTO categoryResponseDTO;
++        Long userId = authenticatedUser.getUser().getId();
++
++        // Not user Owner or not Admin
++        if (!authorizationService.isOwner(Category.class, id, userId) && !authenticatedUser.isAdmin()) {
++            throw ResourceExceptionFactory.notFound(CATEGORY, id);
++        }
++
++        categoryResponseDTO = categoryRepository.findById(id)
+                 .map(CategoryResponseDTO::new)
+-                .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
++                .orElseThrow(() -> ResourceExceptionFactory.notFound(CATEGORY, id));
++
++        return categoryResponseDTO;
+     }
+ 
+-    public void delete(Long id) {
++    public void delete(Long id, AuthenticatedUser authenticatedUser) {
++
++        Long userId = authenticatedUser.getUser().getId();
++
++        if (!authorizationService.isOwner(Category.class, id, userId) && !authenticatedUser.isAdmin()) {
++            throw ResourceExceptionFactory.notFound(CATEGORY, id);
++        }
++
+         categoryRepository.findById(id)
+-                .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
++                .orElseThrow(() -> ResourceExceptionFactory.notFound(CATEGORY, id));
+         categoryRepository.deleteById(id);
+     }
+ 
+Index: src/main/java/com/pomostudy/config/security/SecurityFilter.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.config.security;\r\n\r\nimport com.pomostudy.repository.UserRepository;\r\nimport com.pomostudy.service.TokenService;\r\nimport jakarta.servlet.FilterChain;\r\nimport jakarta.servlet.ServletException;\r\nimport jakarta.servlet.http.HttpServletRequest;\r\nimport jakarta.servlet.http.HttpServletResponse;\r\nimport org.springframework.security.authentication.UsernamePasswordAuthenticationToken;\r\nimport org.springframework.security.core.context.SecurityContextHolder;\r\nimport org.springframework.security.core.userdetails.UserDetails;\r\nimport org.springframework.stereotype.Component;\r\nimport org.springframework.web.filter.OncePerRequestFilter;\r\n\r\nimport java.io.IOException;\r\n\r\n@Component\r\npublic class SecurityFilter extends OncePerRequestFilter {\r\n\r\n    TokenService tokenService;\r\n    UserRepository userRepository;\r\n\r\n    public SecurityFilter(TokenService tokenService, UserRepository userRepository) {\r\n        this.tokenService = tokenService;\r\n        this.userRepository = userRepository;\r\n    }\r\n\r\n    @Override\r\n    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {\r\n        var token = this.recoveryToken(request);\r\n        if (token != null) {\r\n            var email = tokenService.validateToken(token);\r\n            UserDetails user = userRepository.findUserByEmail(email);\r\n\r\n            if (user != null) {\r\n                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());\r\n                SecurityContextHolder.getContext().setAuthentication(authentication);\r\n            }\r\n        }\r\n        filterChain.doFilter(request, response);\r\n    }\r\n\r\n    private String recoveryToken(HttpServletRequest request) {\r\n        var authHeader = request.getHeader(\"Authorization\");\r\n\r\n        if (authHeader == null) return null;\r\n\r\n        return authHeader.replace(\"Bearer \", \"\");\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/config/security/SecurityFilter.java b/src/main/java/com/pomostudy/config/security/SecurityFilter.java
+--- a/src/main/java/com/pomostudy/config/security/SecurityFilter.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/config/security/SecurityFilter.java	(date 1759768380973)
+@@ -1,5 +1,7 @@
+ package com.pomostudy.config.security;
+ 
++import com.pomostudy.entity.User;
++import com.pomostudy.exception.ResourceExceptionFactory;
+ import com.pomostudy.repository.UserRepository;
+ import com.pomostudy.service.TokenService;
+ import jakarta.servlet.FilterChain;
+@@ -13,6 +15,7 @@
+ import org.springframework.web.filter.OncePerRequestFilter;
+ 
+ import java.io.IOException;
++import java.util.Optional;
+ 
+ @Component
+ public class SecurityFilter extends OncePerRequestFilter {
+@@ -30,10 +33,12 @@
+         var token = this.recoveryToken(request);
+         if (token != null) {
+             var email = tokenService.validateToken(token);
+-            UserDetails user = userRepository.findUserByEmail(email);
++            User user = userRepository.findUserByEmail(email).orElseThrow(() -> ResourceExceptionFactory.notFound("User", 1L));
++
++            AuthenticatedUser authenticatedUser = new AuthenticatedUser(user);
+ 
+             if (user != null) {
+-                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
++                var authentication = new UsernamePasswordAuthenticationToken(authenticatedUser, null, authenticatedUser.getAuthorities());
+                 SecurityContextHolder.getContext().setAuthentication(authentication);
+             }
+         }
+Index: src/main/java/com/pomostudy/controller/AuthenticationController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.controller;\r\n\r\nimport com.pomostudy.config.security.SecurityConfigurations;\r\nimport com.pomostudy.dto.ErrorResponseDTO;\r\nimport com.pomostudy.dto.auth.AuthenticationDTO;\r\nimport com.pomostudy.dto.auth.LoginResponseDTO;\r\nimport com.pomostudy.dto.user.UserCreateRequestDTO;\r\nimport com.pomostudy.dto.user.UserResponseDTO;\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.service.TokenService;\r\nimport com.pomostudy.service.UserService;\r\nimport io.swagger.v3.oas.annotations.Operation;\r\nimport io.swagger.v3.oas.annotations.media.Content;\r\nimport io.swagger.v3.oas.annotations.media.Schema;\r\nimport io.swagger.v3.oas.annotations.responses.ApiResponse;\r\nimport io.swagger.v3.oas.annotations.security.SecurityRequirement;\r\nimport io.swagger.v3.oas.annotations.tags.Tag;\r\nimport jakarta.validation.Valid;\r\nimport org.springframework.http.ResponseEntity;\r\nimport org.springframework.security.authentication.AuthenticationManager;\r\nimport org.springframework.security.authentication.UsernamePasswordAuthenticationToken;\r\nimport org.springframework.web.bind.annotation.*;\r\nimport org.springframework.web.util.UriComponentsBuilder;\r\n\r\nimport java.net.URI;\r\n\r\n@RestController\r\n@RequestMapping(\"api/auth\")\r\n@Tag(name = \"authentication\")\r\n@SecurityRequirement(name = SecurityConfigurations.SECURITY)\r\npublic class AuthenticationController {\r\n\r\n    private final AuthenticationManager authenticationManager;\r\n    private final UserService userService;\r\n    private final TokenService tokenService;\r\n\r\n    public AuthenticationController(\r\n            AuthenticationManager authenticationManager,\r\n            UserService userService,\r\n            TokenService tokenService\r\n    ) {\r\n        this.authenticationManager = authenticationManager;\r\n        this.userService = userService;\r\n        this.tokenService = tokenService;\r\n    }\r\n\r\n    @PostMapping(\"/login\")\r\n    @Operation(summary = \"Login user\", description = \"Method for Login user\")\r\n    @ApiResponse(responseCode = \"200\", description = \"User logged successfully\")\r\n    @ApiResponse(responseCode = \"400\", description = \"Invalid input data\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    @ApiResponse(responseCode = \"401\", description = \"Credential invalid\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    public ResponseEntity<LoginResponseDTO> login(@RequestBody @Valid AuthenticationDTO authenticationDTO) {\r\n        UsernamePasswordAuthenticationToken emailPassword = new UsernamePasswordAuthenticationToken(authenticationDTO.email(), authenticationDTO.password());\r\n\r\n        var auth = this.authenticationManager.authenticate(emailPassword);\r\n\r\n        var token = tokenService.generateToken((User) auth.getPrincipal());\r\n\r\n        return ResponseEntity.ok(new LoginResponseDTO(token));\r\n    }\r\n\r\n    @PostMapping(\"/register\")\r\n    @Operation(summary = \"Register user\", description = \"Method for Register user\")\r\n    @ApiResponse(responseCode = \"200\", description = \"User created successfully\")\r\n    @ApiResponse(responseCode = \"400\", description = \"Invalid input data\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    @ApiResponse(responseCode = \"500\", description = \"Email already in use\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    public ResponseEntity<UserResponseDTO> register(@RequestBody @Valid UserCreateRequestDTO userCreateRequestDTO, UriComponentsBuilder ucb) {\r\n\r\n        UserResponseDTO userResponseDTO = userService.save(userCreateRequestDTO);\r\n\r\n        URI locationOfNewUser = ucb\r\n                .path(\"/api/user/{id}\")\r\n                .buildAndExpand(userResponseDTO.id())\r\n                .toUri();\r\n\r\n\r\n        return ResponseEntity.created(locationOfNewUser).body(userResponseDTO);\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/controller/AuthenticationController.java b/src/main/java/com/pomostudy/controller/AuthenticationController.java
+--- a/src/main/java/com/pomostudy/controller/AuthenticationController.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/controller/AuthenticationController.java	(date 1759756958771)
+@@ -1,5 +1,6 @@
+ package com.pomostudy.controller;
+ 
++import com.pomostudy.config.security.AuthenticatedUser;
+ import com.pomostudy.config.security.SecurityConfigurations;
+ import com.pomostudy.dto.ErrorResponseDTO;
+ import com.pomostudy.dto.auth.AuthenticationDTO;
+@@ -57,8 +58,7 @@
+         UsernamePasswordAuthenticationToken emailPassword = new UsernamePasswordAuthenticationToken(authenticationDTO.email(), authenticationDTO.password());
+ 
+         var auth = this.authenticationManager.authenticate(emailPassword);
+-
+-        var token = tokenService.generateToken((User) auth.getPrincipal());
++        var token = tokenService.generateToken((AuthenticatedUser) auth.getPrincipal());
+ 
+         return ResponseEntity.ok(new LoginResponseDTO(token));
+     }
+Index: src/main/java/com/pomostudy/controller/CategoryController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.controller;\r\n\r\nimport com.pomostudy.config.security.SecurityConfigurations;\r\nimport com.pomostudy.dto.ErrorResponseDTO;\r\nimport com.pomostudy.dto.category.CategoryRequestDTO;\r\nimport com.pomostudy.dto.category.CategoryResponseDTO;\r\nimport com.pomostudy.service.CategoryService;\r\nimport io.swagger.v3.oas.annotations.Operation;\r\nimport io.swagger.v3.oas.annotations.Parameter;\r\nimport io.swagger.v3.oas.annotations.enums.ParameterIn;\r\nimport io.swagger.v3.oas.annotations.media.Content;\r\nimport io.swagger.v3.oas.annotations.media.ExampleObject;\r\nimport io.swagger.v3.oas.annotations.media.Schema;\r\nimport io.swagger.v3.oas.annotations.responses.ApiResponse;\r\nimport io.swagger.v3.oas.annotations.security.SecurityRequirement;\r\nimport io.swagger.v3.oas.annotations.tags.Tag;\r\nimport jakarta.validation.Valid;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.Pageable;\r\nimport org.springframework.data.domain.Sort;\r\nimport org.springframework.data.web.PageableDefault;\r\nimport org.springframework.http.ResponseEntity;\r\nimport org.springframework.web.bind.annotation.*;\r\nimport org.springframework.web.util.UriComponentsBuilder;\r\n\r\nimport java.net.URI;\r\n\r\n@RestController\r\n@RequestMapping(\"api/category\")\r\n@Tag(name = \"category\")\r\n@SecurityRequirement(name = SecurityConfigurations.SECURITY)\r\npublic class CategoryController {\r\n\r\n\r\n    private final CategoryService categoryService;\r\n\r\n    public CategoryController(CategoryService categoryService) {\r\n        this.categoryService = categoryService;\r\n    }\r\n\r\n    @PostMapping\r\n    @Operation(summary = \"Create data category\", description = \"Method for create data category\")\r\n    @ApiResponse(responseCode = \"201\", description = \"Category created with success\")\r\n    @ApiResponse(responseCode = \"400\", description = \"Invalid input data\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO, UriComponentsBuilder ucb) {\r\n\r\n        CategoryResponseDTO categoryResponseDTO = categoryService.save(categoryRequestDTO);\r\n\r\n        URI locationOfNewCategory = ucb\r\n                .path(\"api/category/{id}\")\r\n                .buildAndExpand(categoryResponseDTO.id())\r\n                .toUri();\r\n\r\n        return ResponseEntity.created(locationOfNewCategory).body(categoryResponseDTO);\r\n    }\r\n\r\n    @PutMapping(\"{id}\")\r\n    @Operation(summary = \"Edit data category\", description = \"Method for edit data category\")\r\n    @ApiResponse(responseCode = \"200\", description = \"Category edited with success\")\r\n    @ApiResponse(responseCode = \"404\", description = \"Category not found\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    @ApiResponse(responseCode = \"500\", description = \"Internal server error\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    public ResponseEntity<CategoryResponseDTO> editCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO, @PathVariable(\"id\") Long id) {\r\n\r\n        CategoryResponseDTO categoryResponseDTO = categoryService.edit(categoryRequestDTO, id);\r\n        return ResponseEntity.ok(categoryResponseDTO);\r\n    }\r\n\r\n    @GetMapping\r\n    @Operation(summary = \"List all data category\", description = \"Method for list data category\")\r\n    @ApiResponse(responseCode = \"200\", description = \"Category listed successfully\")\r\n    @ApiResponse(responseCode = \"500\", description = \"Internal server error\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    public ResponseEntity<Page<CategoryResponseDTO>> findALL(\r\n            @Parameter(\r\n                    name = \"pageable\",\r\n                    in = ParameterIn.QUERY,\r\n                    description = \"Pagination and sorting object. **To use default values, send an empty object: `{}`**.\",\r\n                    examples = {\r\n                            @ExampleObject(\r\n                                    name = \"Default Pagination\",\r\n                                    summary = \"Fetch with default values\",\r\n                                    value = \"{}\"\r\n                            ),\r\n                            @ExampleObject(\r\n                                    name = \"Custom Pagination\",\r\n                                    summary = \"Fetching the first page with 10 items\",\r\n                                    value = \"{\\\"page\\\": 0, \\\"size\\\": 10, \\\"sort\\\": \\\"name,asc\\\"}\"\r\n                            )\r\n                    },\r\n                    schema = @Schema(type = \"object\")\r\n            )\r\n            @PageableDefault(page = 0, size = 10, sort = \"id\", direction = Sort.Direction.ASC)\r\n            Pageable pageable\r\n            ) {\r\n\r\n        Page<CategoryResponseDTO> listCategories = categoryService.findAll(pageable);\r\n\r\n        return ResponseEntity.ok(listCategories);\r\n    }\r\n\r\n    @GetMapping(\"{id}\")\r\n    @Operation(summary = \"Find data category for id\", description = \"Method for search data category for the id\")\r\n    @ApiResponse(responseCode = \"200\", description = \"Category listed successfully\")\r\n    @ApiResponse(responseCode = \"404\", description = \"Category id not found\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    @ApiResponse(responseCode = \"500\", description = \"Internal server error\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    public ResponseEntity<CategoryResponseDTO> findCategoryById(@PathVariable(\"id\") Long id) {\r\n\r\n        return ResponseEntity.ok(categoryService.findById(id));\r\n\r\n    }\r\n\r\n    @DeleteMapping(\"{id}\")\r\n    @Operation(summary = \"Delete data category for id\", description = \"Method for deleting data category for the id\")\r\n    @ApiResponse(responseCode = \"204\", description = \"No content\")\r\n    @ApiResponse(responseCode = \"404\", description = \"Category not found\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    @ApiResponse(responseCode = \"500\", description = \"Internal server error\",\r\n            content = @Content(mediaType = \"application/json\",\r\n                    schema = @Schema(implementation = ErrorResponseDTO.class)))\r\n    public ResponseEntity<String> delete(@PathVariable(\"id\") Long id) {\r\n\r\n        categoryService.delete(id);\r\n        return ResponseEntity.noContent().build();\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/controller/CategoryController.java b/src/main/java/com/pomostudy/controller/CategoryController.java
+--- a/src/main/java/com/pomostudy/controller/CategoryController.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/controller/CategoryController.java	(date 1759937837022)
+@@ -1,9 +1,12 @@
+ package com.pomostudy.controller;
+ 
++import com.pomostudy.config.security.AuthenticatedUser;
+ import com.pomostudy.config.security.SecurityConfigurations;
+ import com.pomostudy.dto.ErrorResponseDTO;
++import com.pomostudy.dto.PaginationDTO;
+ import com.pomostudy.dto.category.CategoryRequestDTO;
+ import com.pomostudy.dto.category.CategoryResponseDTO;
++import com.pomostudy.entity.User;
+ import com.pomostudy.service.CategoryService;
+ import io.swagger.v3.oas.annotations.Operation;
+ import io.swagger.v3.oas.annotations.Parameter;
+@@ -15,11 +18,15 @@
+ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+ import io.swagger.v3.oas.annotations.tags.Tag;
+ import jakarta.validation.Valid;
++import org.springframework.beans.factory.annotation.Autowired;
+ import org.springframework.data.domain.Page;
+ import org.springframework.data.domain.Pageable;
+ import org.springframework.data.domain.Sort;
+ import org.springframework.data.web.PageableDefault;
+ import org.springframework.http.ResponseEntity;
++import org.springframework.security.access.prepost.PreAuthorize;
++import org.springframework.security.core.annotation.AuthenticationPrincipal;
++import org.springframework.security.core.userdetails.UserDetails;
+ import org.springframework.web.bind.annotation.*;
+ import org.springframework.web.util.UriComponentsBuilder;
+ 
+@@ -39,14 +46,20 @@
+     }
+ 
+     @PostMapping
++    @PreAuthorize("isAuthenticated()")
+     @Operation(summary = "Create data category", description = "Method for create data category")
+     @ApiResponse(responseCode = "201", description = "Category created with success")
+     @ApiResponse(responseCode = "400", description = "Invalid input data",
+             content = @Content(mediaType = "application/json",
+                     schema = @Schema(implementation = ErrorResponseDTO.class)))
+-    public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO, UriComponentsBuilder ucb) {
++    public ResponseEntity<CategoryResponseDTO> createCategory(
++            @Valid
++            @RequestBody CategoryRequestDTO categoryRequestDTO,
++            UriComponentsBuilder ucb,
++            @AuthenticationPrincipal User authenticatedUser
++            ) {
+ 
+-        CategoryResponseDTO categoryResponseDTO = categoryService.save(categoryRequestDTO);
++        CategoryResponseDTO categoryResponseDTO = categoryService.save(categoryRequestDTO, authenticatedUser);
+ 
+         URI locationOfNewCategory = ucb
+                 .path("api/category/{id}")
+@@ -65,9 +78,14 @@
+     @ApiResponse(responseCode = "500", description = "Internal server error",
+             content = @Content(mediaType = "application/json",
+                     schema = @Schema(implementation = ErrorResponseDTO.class)))
+-    public ResponseEntity<CategoryResponseDTO> editCategory(@Valid @RequestBody CategoryRequestDTO categoryRequestDTO, @PathVariable("id") Long id) {
++    public ResponseEntity<CategoryResponseDTO> editCategory(
++            @Valid
++            @RequestBody CategoryRequestDTO categoryRequestDTO,
++            @PathVariable("id") Long id,
++            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
++    ) {
+ 
+-        CategoryResponseDTO categoryResponseDTO = categoryService.edit(categoryRequestDTO, id);
++        CategoryResponseDTO categoryResponseDTO = categoryService.edit(categoryRequestDTO, authenticatedUser, id);
+         return ResponseEntity.ok(categoryResponseDTO);
+     }
+ 
+@@ -77,7 +95,7 @@
+     @ApiResponse(responseCode = "500", description = "Internal server error",
+             content = @Content(mediaType = "application/json",
+                     schema = @Schema(implementation = ErrorResponseDTO.class)))
+-    public ResponseEntity<Page<CategoryResponseDTO>> findALL(
++    public ResponseEntity<PaginationDTO<CategoryResponseDTO>> findALL(
+             @Parameter(
+                     name = "pageable",
+                     in = ParameterIn.QUERY,
+@@ -97,12 +115,13 @@
+                     schema = @Schema(type = "object")
+             )
+             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
+-            Pageable pageable
++            Pageable pageable,
++            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+             ) {
+ 
+-        Page<CategoryResponseDTO> listCategories = categoryService.findAll(pageable);
+-
+-        return ResponseEntity.ok(listCategories);
++        Page<CategoryResponseDTO> listCategories = categoryService.findAll(pageable, authenticatedUser);
++        System.out.println(listCategories);
++        return ResponseEntity.ok(new PaginationDTO<>(listCategories));
+     }
+ 
+     @GetMapping("{id}")
+@@ -114,9 +133,12 @@
+     @ApiResponse(responseCode = "500", description = "Internal server error",
+             content = @Content(mediaType = "application/json",
+                     schema = @Schema(implementation = ErrorResponseDTO.class)))
+-    public ResponseEntity<CategoryResponseDTO> findCategoryById(@PathVariable("id") Long id) {
++    public ResponseEntity<CategoryResponseDTO> findCategoryById(
++            @PathVariable("id") Long id,
++            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
++    ) {
+ 
+-        return ResponseEntity.ok(categoryService.findById(id));
++        return ResponseEntity.ok(categoryService.findById(id, authenticatedUser));
+ 
+     }
+ 
+@@ -129,9 +151,12 @@
+     @ApiResponse(responseCode = "500", description = "Internal server error",
+             content = @Content(mediaType = "application/json",
+                     schema = @Schema(implementation = ErrorResponseDTO.class)))
+-    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
++    public ResponseEntity<String> delete(
++            @PathVariable("id") Long id,
++            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
++            ) {
+ 
+-        categoryService.delete(id);
++        categoryService.delete(id, authenticatedUser);
+         return ResponseEntity.noContent().build();
+     }
+ }
+Index: src/main/java/com/pomostudy/service/TokenService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.service;\r\n\r\nimport com.auth0.jwt.JWT;\r\nimport com.auth0.jwt.algorithms.Algorithm;\r\nimport com.auth0.jwt.exceptions.JWTCreationException;\r\nimport com.pomostudy.entity.User;\r\nimport org.springframework.beans.factory.annotation.Value;\r\nimport org.springframework.stereotype.Service;\r\n\r\nimport java.time.Instant;\r\nimport java.time.LocalDateTime;\r\nimport java.time.ZoneOffset;\r\n\r\n@Service\r\npublic class TokenService {\r\n\r\n    @Value(\"${api.security.token.secret}\")\r\n    private String secret;\r\n\r\n    public String generateToken(User user) {\r\n        try {\r\n            Algorithm algorithm = Algorithm.HMAC256(secret);\r\n            return JWT.create()\r\n                    .withIssuer(\"auth-api\")\r\n                    .withSubject(user.getEmail())\r\n                    .withExpiresAt(genExpirationDate())\r\n                    .sign(algorithm);\r\n        } catch (JWTCreationException exception) {\r\n            throw new RuntimeException(\"Error while generation token\", exception);\r\n        }\r\n    }\r\n\r\n    public String validateToken(String token) {\r\n        try {\r\n            Algorithm algorithm = Algorithm.HMAC256(secret);\r\n            return JWT.require(algorithm)\r\n                    .withIssuer(\"auth-api\")\r\n                    .build()\r\n                    .verify(token)\r\n                    .getSubject();\r\n        } catch (JWTCreationException exception) {\r\n            return \"\";\r\n        }\r\n    }\r\n\r\n    private Instant genExpirationDate() {\r\n        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of(\"-03:00\"));\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/service/TokenService.java b/src/main/java/com/pomostudy/service/TokenService.java
+--- a/src/main/java/com/pomostudy/service/TokenService.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/service/TokenService.java	(date 1759754790512)
+@@ -3,6 +3,7 @@
+ import com.auth0.jwt.JWT;
+ import com.auth0.jwt.algorithms.Algorithm;
+ import com.auth0.jwt.exceptions.JWTCreationException;
++import com.pomostudy.config.security.AuthenticatedUser;
+ import com.pomostudy.entity.User;
+ import org.springframework.beans.factory.annotation.Value;
+ import org.springframework.stereotype.Service;
+@@ -17,12 +18,12 @@
+     @Value("${api.security.token.secret}")
+     private String secret;
+ 
+-    public String generateToken(User user) {
++    public String generateToken(AuthenticatedUser authenticatedUser) {
+         try {
+             Algorithm algorithm = Algorithm.HMAC256(secret);
+             return JWT.create()
+                     .withIssuer("auth-api")
+-                    .withSubject(user.getEmail())
++                    .withSubject(authenticatedUser.getUsername())
+                     .withExpiresAt(genExpirationDate())
+                     .sign(algorithm);
+         } catch (JWTCreationException exception) {
+Index: src/main/java/com/pomostudy/repository/UserRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.repository;\r\n\r\nimport com.pomostudy.entity.User;\r\nimport org.springframework.data.jpa.repository.JpaRepository;\r\nimport org.springframework.security.core.userdetails.UserDetails;\r\nimport org.springframework.stereotype.Repository;\r\n\r\n@Repository\r\npublic interface UserRepository extends JpaRepository<User, Long> {\r\n\r\n    UserDetails findUserByEmail(String email);\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/repository/UserRepository.java b/src/main/java/com/pomostudy/repository/UserRepository.java
+--- a/src/main/java/com/pomostudy/repository/UserRepository.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/repository/UserRepository.java	(date 1759928234858)
+@@ -2,11 +2,16 @@
+ 
+ import com.pomostudy.entity.User;
+ import org.springframework.data.jpa.repository.JpaRepository;
++import org.springframework.data.jpa.repository.Query;
++import org.springframework.data.repository.query.Param;
+ import org.springframework.security.core.userdetails.UserDetails;
+ import org.springframework.stereotype.Repository;
+ 
++import java.util.Optional;
++
+ @Repository
+ public interface UserRepository extends JpaRepository<User, Long> {
+ 
+-    UserDetails findUserByEmail(String email);
++    Optional<User> findUserByEmail(String email);
++
+ }
+Index: src/test/java/com/pomostudy/controller/CategoryControllerTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.controller;\r\n\r\n\r\nimport com.fasterxml.jackson.databind.ObjectMapper;\r\nimport com.pomostudy.config.security.SecurityConfigurations;\r\nimport com.pomostudy.dto.category.CategoryRequestDTO;\r\nimport com.pomostudy.dto.category.CategoryResponseDTO;\r\nimport com.pomostudy.dto.task.TaskRequestDTO;\r\nimport com.pomostudy.dto.task.TaskResponseDTO;\r\nimport com.pomostudy.entity.Category;\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.enums.StatusUser;\r\nimport com.pomostudy.enums.TaskPriority;\r\nimport com.pomostudy.exception.ResourceExceptionFactory;\r\nimport com.pomostudy.repository.UserRepository;\r\nimport com.pomostudy.service.CategoryService;\r\nimport com.pomostudy.service.TokenService;\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.DisplayName;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\r\nimport org.springframework.boot.test.mock.mockito.MockBean;\r\nimport org.springframework.context.annotation.Import;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.PageImpl;\r\nimport org.springframework.data.domain.PageRequest;\r\nimport org.springframework.data.domain.Pageable;\r\nimport org.springframework.http.MediaType;\r\nimport org.springframework.security.test.context.support.WithMockUser;\r\nimport org.springframework.test.context.ActiveProfiles;\r\nimport org.springframework.test.web.servlet.MockMvc;\r\n\r\nimport java.util.List;\r\n\r\nimport static org.hamcrest.CoreMatchers.is;\r\nimport static org.hamcrest.Matchers.containsString;\r\nimport static org.hamcrest.Matchers.hasSize;\r\nimport static org.mockito.ArgumentMatchers.any;\r\nimport static org.mockito.ArgumentMatchers.anyLong;\r\nimport static org.mockito.Mockito.*;\r\nimport static org.mockito.Mockito.times;\r\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\r\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\r\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;\r\n\r\n@WebMvcTest(CategoryController.class)\r\n@Import(SecurityConfigurations.class)\r\n@ActiveProfiles(\"test\")\r\n@WithMockUser(roles = \"USER\")\r\nclass CategoryControllerTest {\r\n\r\n    @Autowired\r\n    private MockMvc mockMvc;\r\n\r\n    @Autowired\r\n    private ObjectMapper objectMapper;\r\n\r\n    @MockBean\r\n    private CategoryService categoryService;\r\n\r\n    @MockBean\r\n    private UserRepository userRepository;\r\n\r\n    @MockBean\r\n    private TokenService tokenService;\r\n\r\n    private CategoryRequestDTO categoryRequestDTO;\r\n    private CategoryResponseDTO categoryResponseDTO;\r\n    private Category category;\r\n    private final Long categoryID = 1L;\r\n\r\n    @BeforeEach\r\n    void setUp() {\r\n\r\n        User user = new User();\r\n        user.setId(1L);\r\n        user.setName(\"test\");\r\n        user.setEmail(\"test@example.com\");\r\n\r\n        category = new Category();\r\n        category.setId(1L);\r\n        category.setName(\"testCategory\");\r\n        category.setColor(\"#fff\");\r\n        category.setIcon(\"test.icon\");\r\n        category.setUserCategory(user);\r\n\r\n        categoryRequestDTO = new CategoryRequestDTO(\r\n                \"testCategory\",\r\n                \"#fff\",\r\n                \"test.icon\",\r\n                user.getId()\r\n        );\r\n\r\n        categoryResponseDTO = new CategoryResponseDTO(\r\n                1L,\r\n                \"testCategory\",\r\n                \"#fff\",\r\n                \"test.icon\"\r\n        );\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be create category and return status 201 created\")\r\n    void shouldCreateCategoryReturnStatus201() throws Exception {\r\n\r\n        when(categoryService.save(any(CategoryRequestDTO.class))).thenReturn(categoryResponseDTO);\r\n\r\n        mockMvc.perform(post(\"/api/category\")\r\n                        .contentType(MediaType.APPLICATION_JSON)\r\n                        .content(objectMapper.writeValueAsString(categoryRequestDTO)))\r\n                .andExpect(status().isCreated())\r\n                .andExpect(header().string(\"Location\", containsString(\"api/category/1\")))\r\n                .andExpect(jsonPath(\"$.id\", is(1)))\r\n                .andExpect(jsonPath(\"$.name\", is(\"testCategory\")));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be return 400 Bad request when create a new category with invalid data\")\r\n    void shouldBeReturn400BadRequestWhenCreateNewCategoryWithInvalidData() throws Exception {\r\n\r\n        CategoryRequestDTO invalidCategoryRequestDTO = new CategoryRequestDTO(\r\n                null,\r\n                \"loremipsumloremipsumloremipsum\",\r\n                \"test.icon\",\r\n                1L\r\n                );\r\n\r\n        mockMvc.perform(post(\"/api/category\")\r\n                        .contentType(MediaType.APPLICATION_JSON)\r\n                        .content(objectMapper.writeValueAsString(invalidCategoryRequestDTO)))\r\n                .andExpect(status().isBadRequest());\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be edit category and return status 200 ok\")\r\n    void shouldEditCategoryAndReturnStatus200OK() throws Exception {\r\n\r\n        when(categoryService.edit(any(CategoryRequestDTO.class), anyLong())).thenReturn(categoryResponseDTO);\r\n\r\n        mockMvc.perform(put(\"/api/category/{id}\", categoryID)\r\n                        .contentType(MediaType.APPLICATION_JSON)\r\n                        .content(objectMapper.writeValueAsString(categoryRequestDTO)))\r\n                .andExpect(status().isOk())\r\n                .andExpect(jsonPath(\"$.id\").value(1L))\r\n                .andExpect(jsonPath(\"$.name\").value(\"testCategory\"));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be return 404 Not Found for try edit non-existent category\")\r\n    void shouldReturn404TryEditNonExistentCategory() throws Exception {\r\n\r\n        when(categoryService.edit(any(CategoryRequestDTO.class), anyLong()))\r\n                .thenThrow(ResourceExceptionFactory.notFound(\"Category\", categoryID));\r\n\r\n        mockMvc.perform(put(\"/api/category/{id}\", categoryID)\r\n                        .contentType(MediaType.APPLICATION_JSON)\r\n                        .content(objectMapper.writeValueAsString(categoryRequestDTO)))\r\n                .andExpect(status().isNotFound());\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be return all Category with status 200 OK\")\r\n    void shouldReturnAllCategoryWithStatus200() throws Exception {\r\n\r\n        Pageable pageable = PageRequest.of(0,10);\r\n        Page<CategoryResponseDTO> categoryPage = new PageImpl<>(List.of(categoryResponseDTO), pageable, 1);\r\n\r\n        when(categoryService.findAll(any(Pageable.class))).thenReturn(categoryPage);\r\n\r\n        mockMvc.perform(get(\"/api/category?page=0&size=10&sort=id,asc\"))\r\n                .andExpect(status().isOk())\r\n                .andExpect(jsonPath(\"$.content\", hasSize(1)))\r\n                .andExpect(jsonPath(\"$.content[0].name\", is(\"testCategory\")))\r\n                .andExpect(jsonPath(\"$.totalPages\", is(1)))\r\n                .andExpect(jsonPath(\"$.totalElements\", is(1)));\r\n\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be found one category for the id and return 200 OK\")\r\n    void shouldFoundCategoryForTheIdReturn200() throws Exception {\r\n\r\n        when(categoryService.findById(anyLong())).thenReturn(categoryResponseDTO);\r\n\r\n        mockMvc.perform(get(\"/api/category/{id}\", categoryID))\r\n                .andExpect(status().isOk())\r\n                .andExpect(jsonPath(\"$.name\").value(\"testCategory\"))\r\n                .andExpect(jsonPath(\"$.color\").value(\"#fff\"))\r\n                .andExpect(jsonPath(\"$.icon\").value(\"test.icon\"));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be delete with success and return status 204 No Content\")\r\n    void shouldBeDeleteWithSuccessReturnStatus204() throws Exception {\r\n\r\n        when(categoryService.findById(anyLong())).thenReturn(categoryResponseDTO);\r\n        doNothing().when(categoryService).delete(anyLong());\r\n\r\n        mockMvc.perform(delete(\"/api/category/{id}\", categoryID))\r\n                .andExpect(status().isNoContent());\r\n\r\n        verify(categoryService, times(1)).delete(anyLong());\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/pomostudy/controller/CategoryControllerTest.java b/src/test/java/com/pomostudy/controller/CategoryControllerTest.java
+--- a/src/test/java/com/pomostudy/controller/CategoryControllerTest.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/test/java/com/pomostudy/controller/CategoryControllerTest.java	(date 1759938048461)
+@@ -2,7 +2,9 @@
+ 
+ 
+ import com.fasterxml.jackson.databind.ObjectMapper;
++import com.pomostudy.config.security.AuthenticatedUser;
+ import com.pomostudy.config.security.SecurityConfigurations;
++import com.pomostudy.dto.PaginationDTO;
+ import com.pomostudy.dto.category.CategoryRequestDTO;
+ import com.pomostudy.dto.category.CategoryResponseDTO;
+ import com.pomostudy.dto.task.TaskRequestDTO;
+@@ -27,6 +29,7 @@
+ import org.springframework.data.domain.PageRequest;
+ import org.springframework.data.domain.Pageable;
+ import org.springframework.http.MediaType;
++import org.springframework.security.core.parameters.P;
+ import org.springframework.security.test.context.support.WithMockUser;
+ import org.springframework.test.context.ActiveProfiles;
+ import org.springframework.test.web.servlet.MockMvc;
+@@ -40,7 +43,9 @@
+ import static org.mockito.ArgumentMatchers.anyLong;
+ import static org.mockito.Mockito.*;
+ import static org.mockito.Mockito.times;
++import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
++import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+ 
+@@ -67,13 +72,16 @@
+ 
+     private CategoryRequestDTO categoryRequestDTO;
+     private CategoryResponseDTO categoryResponseDTO;
++    private PaginationDTO paginationDTO;
+     private Category category;
+     private final Long categoryID = 1L;
+ 
++    private User user;
++
+     @BeforeEach
+     void setUp() {
+ 
+-        User user = new User();
++        user = new User();
+         user.setId(1L);
+         user.setName("test");
+         user.setEmail("test@example.com");
+@@ -83,13 +91,12 @@
+         category.setName("testCategory");
+         category.setColor("#fff");
+         category.setIcon("test.icon");
+-        category.setUserCategory(user);
++        category.setUser(user);
+ 
+         categoryRequestDTO = new CategoryRequestDTO(
+                 "testCategory",
+                 "#fff",
+-                "test.icon",
+-                user.getId()
++                "test.icon"
+         );
+ 
+         categoryResponseDTO = new CategoryResponseDTO(
+@@ -98,13 +105,14 @@
+                 "#fff",
+                 "test.icon"
+         );
++
+     }
+ 
+     @Test
+     @DisplayName("Should be create category and return status 201 created")
+     void shouldCreateCategoryReturnStatus201() throws Exception {
+ 
+-        when(categoryService.save(any(CategoryRequestDTO.class))).thenReturn(categoryResponseDTO);
++        when(categoryService.save(any(CategoryRequestDTO.class), user)).thenReturn(categoryResponseDTO);
+ 
+         mockMvc.perform(post("/api/category")
+                         .contentType(MediaType.APPLICATION_JSON)
+@@ -122,8 +130,7 @@
+         CategoryRequestDTO invalidCategoryRequestDTO = new CategoryRequestDTO(
+                 null,
+                 "loremipsumloremipsumloremipsum",
+-                "test.icon",
+-                1L
++                "test.icon"
+                 );
+ 
+         mockMvc.perform(post("/api/category")
+@@ -136,7 +143,7 @@
+     @DisplayName("Should be edit category and return status 200 ok")
+     void shouldEditCategoryAndReturnStatus200OK() throws Exception {
+ 
+-        when(categoryService.edit(any(CategoryRequestDTO.class), anyLong())).thenReturn(categoryResponseDTO);
++        when(categoryService.edit(any(CategoryRequestDTO.class), any(AuthenticatedUser.class), user.getId())).thenReturn(categoryResponseDTO);
+ 
+         mockMvc.perform(put("/api/category/{id}", categoryID)
+                         .contentType(MediaType.APPLICATION_JSON)
+@@ -150,7 +157,7 @@
+     @DisplayName("Should be return 404 Not Found for try edit non-existent category")
+     void shouldReturn404TryEditNonExistentCategory() throws Exception {
+ 
+-        when(categoryService.edit(any(CategoryRequestDTO.class), anyLong()))
++        when(categoryService.edit(any(CategoryRequestDTO.class), any(AuthenticatedUser.class), user.getId()))
+                 .thenThrow(ResourceExceptionFactory.notFound("Category", categoryID));
+ 
+         mockMvc.perform(put("/api/category/{id}", categoryID)
+@@ -166,9 +173,13 @@
+         Pageable pageable = PageRequest.of(0,10);
+         Page<CategoryResponseDTO> categoryPage = new PageImpl<>(List.of(categoryResponseDTO), pageable, 1);
+ 
+-        when(categoryService.findAll(any(Pageable.class))).thenReturn(categoryPage);
++        when(categoryService.findAll(any(Pageable.class), any(AuthenticatedUser.class))).thenReturn(categoryPage);
+ 
+-        mockMvc.perform(get("/api/category?page=0&size=10&sort=id,asc"))
++        mockMvc.perform(get("/api/category")
++                        .param("page", "0")
++                        .param("size", "10")
++                        .param("sort", "id,asc")
++                        .contentType(MediaType.APPLICATION_JSON))
+                 .andExpect(status().isOk())
+                 .andExpect(jsonPath("$.content", hasSize(1)))
+                 .andExpect(jsonPath("$.content[0].name", is("testCategory")))
+@@ -181,7 +192,7 @@
+     @DisplayName("Should be found one category for the id and return 200 OK")
+     void shouldFoundCategoryForTheIdReturn200() throws Exception {
+ 
+-        when(categoryService.findById(anyLong())).thenReturn(categoryResponseDTO);
++        when(categoryService.findById(anyLong(), any(AuthenticatedUser.class))).thenReturn(categoryResponseDTO);
+ 
+         mockMvc.perform(get("/api/category/{id}", categoryID))
+                 .andExpect(status().isOk())
+@@ -194,12 +205,12 @@
+     @DisplayName("Should be delete with success and return status 204 No Content")
+     void shouldBeDeleteWithSuccessReturnStatus204() throws Exception {
+ 
+-        when(categoryService.findById(anyLong())).thenReturn(categoryResponseDTO);
+-        doNothing().when(categoryService).delete(anyLong());
++        when(categoryService.findById(anyLong(), any(AuthenticatedUser.class))).thenReturn(categoryResponseDTO);
++        doNothing().when(categoryService).delete(anyLong(), any(AuthenticatedUser.class));
+ 
+         mockMvc.perform(delete("/api/category/{id}", categoryID))
+                 .andExpect(status().isNoContent());
+ 
+-        verify(categoryService, times(1)).delete(anyLong());
++        verify(categoryService, times(1)).delete(anyLong(), any(AuthenticatedUser.class));
+     }
+ }
+\ No newline at end of file
+Index: src/main/java/com/pomostudy/controller/BaseController.java
+===================================================================
+diff --git a/src/main/java/com/pomostudy/controller/BaseController.java b/src/main/java/com/pomostudy/controller/BaseController.java
+deleted file mode 100644
+--- a/src/main/java/com/pomostudy/controller/BaseController.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ /dev/null	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
+@@ -1,4 +0,0 @@
+-package com.pomostudy.controller;
+-
+-public class BaseController {
+-}
+Index: src/main/java/com/pomostudy/dto/auth/LoginResponseDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.dto.auth;\r\n\r\npublic record LoginResponseDTO(String token) {\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/dto/auth/LoginResponseDTO.java b/src/main/java/com/pomostudy/dto/auth/LoginResponseDTO.java
+--- a/src/main/java/com/pomostudy/dto/auth/LoginResponseDTO.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/dto/auth/LoginResponseDTO.java	(date 1759284286200)
+@@ -1,4 +1,6 @@
+ package com.pomostudy.dto.auth;
+ 
++import com.pomostudy.entity.User;
++
+ public record LoginResponseDTO(String token) {
+ }
+Index: src/main/java/com/pomostudy/entity/Task.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.entity;\r\n\r\nimport com.pomostudy.enums.StatusUser;\r\nimport com.pomostudy.enums.TaskPriority;\r\nimport jakarta.persistence.*;\r\nimport org.springframework.data.annotation.CreatedDate;\r\nimport org.springframework.data.jpa.domain.support.AuditingEntityListener;\r\n\r\nimport java.time.OffsetDateTime;\r\nimport java.util.Objects;\r\nimport java.util.Set;\r\n\r\n\r\n@Entity\r\n@EntityListeners(AuditingEntityListener.class)\r\npublic class Task {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @Column(nullable = false)\r\n    private String name;\r\n\r\n    private String description;\r\n\r\n    @Column(nullable = false, updatable = false)\r\n    @CreatedDate\r\n    private OffsetDateTime startDate;\r\n\r\n    private OffsetDateTime endDate;\r\n\r\n    @Enumerated(EnumType.STRING)\r\n    @Column(nullable = false)\r\n    private StatusUser status;\r\n\r\n    @Enumerated(EnumType.STRING)\r\n    @Column(nullable = false)\r\n    private TaskPriority priority;\r\n\r\n    @Column(nullable = false)\r\n    private Integer timeTotalLearning;\r\n\r\n    @Column(nullable = false, updatable = false)\r\n    @CreatedDate\r\n    private OffsetDateTime createdAt;\r\n\r\n    @ManyToOne(fetch = FetchType.LAZY)\r\n    @JoinColumn(name = \"userId\", nullable = false)\r\n    private User userTask;\r\n\r\n    @ManyToOne\r\n    @JoinColumn(name = \"categoryId\")\r\n    private Category category;\r\n\r\n    @OneToMany(mappedBy = \"task\")\r\n    private Set<PomodoroSession> sessions;\r\n\r\n\r\n    @Override\r\n    public boolean equals(Object o) {\r\n        if (o == null || getClass() != o.getClass()) return false;\r\n        Task task = (Task) o;\r\n        return Objects.equals(id, task.id) && Objects.equals(name, task.name) && Objects.equals(description, task.description);\r\n    }\r\n\r\n    @Override\r\n    public int hashCode() {\r\n        return Objects.hash(id, name, description);\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public String getName() {\r\n        return name;\r\n    }\r\n\r\n    public void setName(String name) {\r\n        this.name = name;\r\n    }\r\n\r\n    public String getDescription() {\r\n        return description;\r\n    }\r\n\r\n    public void setDescription(String description) {\r\n        this.description = description;\r\n    }\r\n\r\n    public OffsetDateTime getStartDate() {\r\n        return startDate;\r\n    }\r\n\r\n    public void setStartDate(OffsetDateTime startDate) {\r\n        this.startDate = startDate;\r\n    }\r\n\r\n    public OffsetDateTime getEndDate() {\r\n        return endDate;\r\n    }\r\n\r\n    public void setEndDate(OffsetDateTime endDate) {\r\n        this.endDate = endDate;\r\n    }\r\n\r\n    public StatusUser getStatus() {\r\n        return status;\r\n    }\r\n\r\n    public void setStatus(StatusUser status) {\r\n        this.status = status;\r\n    }\r\n\r\n    public TaskPriority getPriority() {\r\n        return priority;\r\n    }\r\n\r\n    public void setPriority(TaskPriority priority) {\r\n        this.priority = priority;\r\n    }\r\n\r\n    public Integer getTimeTotalLearning() {\r\n        return timeTotalLearning;\r\n    }\r\n\r\n    public void setTimeTotalLearning(Integer timeTotalLearning) {\r\n        this.timeTotalLearning = timeTotalLearning;\r\n    }\r\n\r\n    public OffsetDateTime getCreatedAt() {\r\n        return createdAt;\r\n    }\r\n\r\n    public void setCreatedAt(OffsetDateTime createdAt) {\r\n        this.createdAt = createdAt;\r\n    }\r\n\r\n    public User getUserTask() {\r\n        return userTask;\r\n    }\r\n\r\n    public void setUserTask(User userTask) {\r\n        this.userTask = userTask;\r\n    }\r\n\r\n    public Category getCategory() {\r\n        return category;\r\n    }\r\n\r\n    public void setCategory(Category category) {\r\n        this.category = category;\r\n    }\r\n\r\n    @Override\r\n    public String toString() {\r\n        return \"Task{\" +\r\n                \"id=\" + id +\r\n                \", name='\" + name + '\\'' +\r\n                \", description='\" + description + '\\'' +\r\n                \", startDate=\" + startDate +\r\n                \", endDate=\" + endDate +\r\n                \", status=\" + status +\r\n                \", priority=\" + priority +\r\n                \", timeTotalLearning=\" + timeTotalLearning +\r\n                \", createdAt=\" + createdAt +\r\n                \", userTask=\" + userTask +\r\n                \", category=\" + category +\r\n                \", sessions=\" + sessions +\r\n                '}';\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/entity/Task.java b/src/main/java/com/pomostudy/entity/Task.java
+--- a/src/main/java/com/pomostudy/entity/Task.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/entity/Task.java	(date 1759839389433)
+@@ -1,5 +1,6 @@
+ package com.pomostudy.entity;
+ 
++import com.pomostudy.entity.base.UserOwned;
+ import com.pomostudy.enums.StatusUser;
+ import com.pomostudy.enums.TaskPriority;
+ import jakarta.persistence.*;
+@@ -13,7 +14,7 @@
+ 
+ @Entity
+ @EntityListeners(AuditingEntityListener.class)
+-public class Task {
++public class Task implements UserOwned {
+ 
+     @Id
+     @GeneratedValue(strategy = GenerationType.IDENTITY)
+@@ -47,7 +48,7 @@
+ 
+     @ManyToOne(fetch = FetchType.LAZY)
+     @JoinColumn(name = "userId", nullable = false)
+-    private User userTask;
++    private User user;
+ 
+     @ManyToOne
+     @JoinColumn(name = "categoryId")
+@@ -141,12 +142,8 @@
+         this.createdAt = createdAt;
+     }
+ 
+-    public User getUserTask() {
+-        return userTask;
+-    }
+-
+-    public void setUserTask(User userTask) {
+-        this.userTask = userTask;
++    public void setUser(User user) {
++        this.user = user;
+     }
+ 
+     public Category getCategory() {
+@@ -169,9 +166,14 @@
+                 ", priority=" + priority +
+                 ", timeTotalLearning=" + timeTotalLearning +
+                 ", createdAt=" + createdAt +
+-                ", userTask=" + userTask +
++                ", userTask=" + user +
+                 ", category=" + category +
+                 ", sessions=" + sessions +
+                 '}';
+     }
++
++    @Override
++    public User getUser() {
++        return user;
++    }
+ }
+Index: src/main/java/com/pomostudy/dto/category/CategoryRequestDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.dto.category;\r\n\r\nimport jakarta.validation.constraints.NotBlank;\r\nimport jakarta.validation.constraints.NotNull;\r\nimport jakarta.validation.constraints.Size;\r\n\r\npublic record CategoryRequestDTO(\r\n\r\n        @NotBlank(message = \"Name is required\")\r\n        @Size(min = 3, max = 100, message = \"Name must be between 3 and 100 charaacters\")\r\n        String name,\r\n\r\n        @NotBlank(message = \"Color is required\")\r\n        String color,\r\n\r\n        @NotBlank(message = \"Icon is required\")\r\n        String icon,\r\n\r\n        @NotNull(message = \"User id is required\")\r\n        Long userId) {\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/dto/category/CategoryRequestDTO.java b/src/main/java/com/pomostudy/dto/category/CategoryRequestDTO.java
+--- a/src/main/java/com/pomostudy/dto/category/CategoryRequestDTO.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/dto/category/CategoryRequestDTO.java	(date 1759669880699)
+@@ -14,9 +14,7 @@
+         String color,
+ 
+         @NotBlank(message = "Icon is required")
+-        String icon,
+-
+-        @NotNull(message = "User id is required")
+-        Long userId) {
++        String icon
++) {
+ 
+ }
+Index: src/main/java/com/pomostudy/entity/User.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.entity;\r\n\r\nimport com.pomostudy.enums.UserRole;\r\nimport jakarta.persistence.*;\r\nimport org.springframework.data.annotation.CreatedDate;\r\nimport org.springframework.data.annotation.LastModifiedDate;\r\nimport org.springframework.data.jpa.domain.support.AuditingEntityListener;\r\nimport org.springframework.security.core.GrantedAuthority;\r\nimport org.springframework.security.core.authority.SimpleGrantedAuthority;\r\nimport org.springframework.security.core.userdetails.UserDetails;\r\n\r\nimport java.time.OffsetDateTime;\r\nimport java.util.ArrayList;\r\nimport java.util.Collection;\r\nimport java.util.List;\r\n\r\n@Entity\r\n@Table(name = \"app_user\")\r\n@EntityListeners(AuditingEntityListener.class)\r\npublic class User implements UserDetails {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @Column(nullable = false)\r\n    private String name;\r\n\r\n    @Column(nullable = false, unique = true)\r\n    private String email;\r\n\r\n    @Column(nullable = false)\r\n    private String password;\r\n\r\n    @Enumerated(EnumType.STRING)\r\n    @Column(nullable = false)\r\n    private UserRole role;\r\n\r\n    @Column(nullable = false, updatable = false)\r\n    @CreatedDate\r\n    private OffsetDateTime createdAt;\r\n\r\n    @LastModifiedDate\r\n    private OffsetDateTime updatedAt;\r\n\r\n    @OneToMany(mappedBy = \"userTask\", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)\r\n    private List<Task> tasks = new ArrayList<>();\r\n\r\n    @OneToMany(mappedBy = \"userCategory\", fetch = FetchType.LAZY)\r\n    private List<Category> categories = new ArrayList<>();\r\n\r\n    @OneToMany(mappedBy = \"userGoal\", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)\r\n    private List<Goal> goal = new ArrayList<>();\r\n\r\n    public void addTask(Task task) {\r\n        tasks.add(task);\r\n        task.setUserTask(this); // mantém o relacionamento bidirecional consistente\r\n    }\r\n\r\n    public void removeTask(Task task) {\r\n        tasks.remove(task);\r\n        task.setUserTask(null);\r\n    }\r\n\r\n    @OneToOne(mappedBy = \"userPomoConfig\", cascade = CascadeType.ALL, fetch = FetchType.LAZY)\r\n    private PomodoroUserConfig pomodoroUserConfig;\r\n\r\n    // Getter e Setter\r\n    public PomodoroUserConfig getPomodoroConfiguration() {\r\n        return pomodoroUserConfig;\r\n    }\r\n\r\n    public void setPomodoroConfiguration(PomodoroUserConfig pomodoroConfiguration) {\r\n        this.pomodoroUserConfig = pomodoroConfiguration;\r\n    }\r\n\r\n    public User() {}\r\n\r\n    public User(String name, String email, String password, UserRole role) {\r\n        this.name = name;\r\n        this.email = email;\r\n        this.password =  password;\r\n        this.role = role;\r\n        this.createdAt = OffsetDateTime.now();\r\n    }\r\n\r\n    /* Setters e Getters */\r\n\r\n    public UserRole getRole() {\r\n        return role;\r\n    }\r\n\r\n    public void setRole(UserRole role) {\r\n        this.role = role;\r\n    }\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public String getName() {\r\n        return name;\r\n    }\r\n\r\n    public void setName(String name) {\r\n        this.name = name;\r\n    }\r\n\r\n    public String getEmail() {\r\n        return email;\r\n    }\r\n\r\n    public void setEmail(String email) {\r\n        this.email = email;\r\n    }\r\n\r\n    @Override\r\n    public Collection<? extends GrantedAuthority> getAuthorities() {\r\n        if (this.role == UserRole.ADMIN)\r\n            return List.of(new SimpleGrantedAuthority(\"ROLE_ADMIN\"), new SimpleGrantedAuthority(\"ROLE_USER\"));\r\n        else return List.of(new SimpleGrantedAuthority(\"ROLE_USER\"));\r\n    }\r\n\r\n    public String getPassword() {\r\n        return password;\r\n    }\r\n\r\n    @Override\r\n    public String getUsername() {\r\n        return email;\r\n    }\r\n\r\n    @Override\r\n    public boolean isAccountNonExpired() {\r\n        return UserDetails.super.isAccountNonExpired();\r\n    }\r\n\r\n    @Override\r\n    public boolean isAccountNonLocked() {\r\n        return UserDetails.super.isAccountNonLocked();\r\n    }\r\n\r\n    @Override\r\n    public boolean isCredentialsNonExpired() {\r\n        return UserDetails.super.isCredentialsNonExpired();\r\n    }\r\n\r\n    @Override\r\n    public boolean isEnabled() {\r\n        return UserDetails.super.isEnabled();\r\n    }\r\n\r\n    public void setPassword(String password) {\r\n        this.password = password;\r\n    }\r\n\r\n    public OffsetDateTime getCreatedAt() {\r\n        return createdAt;\r\n    }\r\n\r\n    public void setCreatedAt(OffsetDateTime createdAt) {\r\n        this.createdAt = createdAt;\r\n    }\r\n\r\n    public OffsetDateTime getUpdatedAt() {\r\n        return updatedAt;\r\n    }\r\n\r\n    public void setUpdatedAt(OffsetDateTime updatedAt) {\r\n        this.updatedAt = updatedAt;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/entity/User.java b/src/main/java/com/pomostudy/entity/User.java
+--- a/src/main/java/com/pomostudy/entity/User.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/entity/User.java	(date 1759839389429)
+@@ -13,11 +13,12 @@
+ import java.util.ArrayList;
+ import java.util.Collection;
+ import java.util.List;
++import java.util.stream.LongStream;
+ 
+ @Entity
+ @Table(name = "app_user")
+ @EntityListeners(AuditingEntityListener.class)
+-public class User implements UserDetails {
++public class User {
+ 
+     @Id
+     @GeneratedValue(strategy = GenerationType.IDENTITY)
+@@ -43,36 +44,30 @@
+     @LastModifiedDate
+     private OffsetDateTime updatedAt;
+ 
+-    @OneToMany(mappedBy = "userTask", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
++    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+     private List<Task> tasks = new ArrayList<>();
+ 
+-    @OneToMany(mappedBy = "userCategory", fetch = FetchType.LAZY)
++    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+     private List<Category> categories = new ArrayList<>();
+ 
+-    @OneToMany(mappedBy = "userGoal", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
++    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+     private List<Goal> goal = new ArrayList<>();
+ 
+     public void addTask(Task task) {
+         tasks.add(task);
+-        task.setUserTask(this); // mantém o relacionamento bidirecional consistente
++        task.setUser(this); // mantém o relacionamento bidirecional consistente
+     }
+ 
+     public void removeTask(Task task) {
+         tasks.remove(task);
+-        task.setUserTask(null);
++        task.setUser(null);
+     }
+ 
+     @OneToOne(mappedBy = "userPomoConfig", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+     private PomodoroUserConfig pomodoroUserConfig;
+ 
+-    // Getter e Setter
+-    public PomodoroUserConfig getPomodoroConfiguration() {
+-        return pomodoroUserConfig;
+-    }
+ 
+-    public void setPomodoroConfiguration(PomodoroUserConfig pomodoroConfiguration) {
+-        this.pomodoroUserConfig = pomodoroConfiguration;
+-    }
++    /*** Constructors **/
+ 
+     public User() {}
+ 
+@@ -84,7 +79,20 @@
+         this.createdAt = OffsetDateTime.now();
+     }
+ 
+-    /* Setters e Getters */
++
++    /*** GETTERS AND SETTERS **/
++
++    public PomodoroUserConfig getPomodoroConfiguration() {
++        return pomodoroUserConfig;
++    }
++
++    public void setPomodoroConfiguration(PomodoroUserConfig pomodoroConfiguration) {
++        this.pomodoroUserConfig = pomodoroConfiguration;
++    }
++
++    public List<Category> getCategories() {
++        return categories;
++    }
+ 
+     public UserRole getRole() {
+         return role;
+@@ -118,42 +126,10 @@
+         this.email = email;
+     }
+ 
+-    @Override
+-    public Collection<? extends GrantedAuthority> getAuthorities() {
+-        if (this.role == UserRole.ADMIN)
+-            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
+-        else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+-    }
+-
+     public String getPassword() {
+         return password;
+     }
+ 
+-    @Override
+-    public String getUsername() {
+-        return email;
+-    }
+-
+-    @Override
+-    public boolean isAccountNonExpired() {
+-        return UserDetails.super.isAccountNonExpired();
+-    }
+-
+-    @Override
+-    public boolean isAccountNonLocked() {
+-        return UserDetails.super.isAccountNonLocked();
+-    }
+-
+-    @Override
+-    public boolean isCredentialsNonExpired() {
+-        return UserDetails.super.isCredentialsNonExpired();
+-    }
+-
+-    @Override
+-    public boolean isEnabled() {
+-        return UserDetails.super.isEnabled();
+-    }
+-
+     public void setPassword(String password) {
+         this.password = password;
+     }
+@@ -173,4 +149,8 @@
+     public void setUpdatedAt(OffsetDateTime updatedAt) {
+         this.updatedAt = updatedAt;
+     }
++
++
++    /*** METHODS **/
++
+ }
+Index: src/main/java/com/pomostudy/dto/task/TaskResponseDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.dto.task;\r\n\r\nimport com.pomostudy.entity.Task;\r\nimport com.pomostudy.enums.StatusUser;\r\nimport com.pomostudy.enums.TaskPriority;\r\n\r\nimport java.time.OffsetDateTime;\r\n\r\npublic record TaskResponseDTO(\r\n        Long id,\r\n        String name,\r\n        String description,\r\n        OffsetDateTime startDate,\r\n        OffsetDateTime endDate,\r\n        StatusUser status,\r\n        TaskPriority priority,\r\n        Integer timeTotalLearning,\r\n        Long user_task,\r\n        Long categoryId) {\r\n\r\n    public TaskResponseDTO(Task task) {\r\n        this(\r\n                task.getId(),\r\n                task.getName(),\r\n                task.getDescription(),\r\n                task.getStartDate(),\r\n                task.getEndDate(),\r\n                task.getStatus(),\r\n                task.getPriority(),\r\n                task.getTimeTotalLearning(),\r\n                task.getUserTask().getId(),\r\n                task.getCategory().getId());\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/dto/task/TaskResponseDTO.java b/src/main/java/com/pomostudy/dto/task/TaskResponseDTO.java
+--- a/src/main/java/com/pomostudy/dto/task/TaskResponseDTO.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/dto/task/TaskResponseDTO.java	(date 1759839397396)
+@@ -28,7 +28,7 @@
+                 task.getStatus(),
+                 task.getPriority(),
+                 task.getTimeTotalLearning(),
+-                task.getUserTask().getId(),
++                task.getUser().getId(),
+                 task.getCategory().getId());
+     }
+ }
+Index: src/main/java/com/pomostudy/entity/Category.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.entity;\r\n\r\nimport jakarta.persistence.*;\r\nimport org.springframework.data.annotation.CreatedDate;\r\nimport org.springframework.data.jpa.domain.support.AuditingEntityListener;\r\n\r\nimport java.time.OffsetDateTime;\r\n\r\n@Entity\r\n@EntityListeners(AuditingEntityListener.class)\r\npublic class Category {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @Column(nullable = false)\r\n    private String name;\r\n\r\n    private String color;\r\n\r\n    private String icon;\r\n\r\n    @Column(nullable = false, updatable = false)\r\n    @CreatedDate\r\n    private OffsetDateTime createdAt;\r\n\r\n    @ManyToOne\r\n    @JoinColumn(name = \"user_id\", nullable = false)\r\n    private User userCategory;\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public String getName() {\r\n        return name;\r\n    }\r\n\r\n    public void setName(String name) {\r\n        this.name = name;\r\n    }\r\n\r\n    public String getColor() {\r\n        return color;\r\n    }\r\n\r\n    public void setColor(String color) {\r\n        this.color = color;\r\n    }\r\n\r\n    public String getIcon() {\r\n        return icon;\r\n    }\r\n\r\n    public void setIcon(String icon) {\r\n        this.icon = icon;\r\n    }\r\n\r\n    public User getUserCategory() {\r\n        return userCategory;\r\n    }\r\n\r\n    public void setUserCategory(User userCategory) {\r\n        this.userCategory = userCategory;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/entity/Category.java b/src/main/java/com/pomostudy/entity/Category.java
+--- a/src/main/java/com/pomostudy/entity/Category.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/entity/Category.java	(date 1759839246743)
+@@ -1,14 +1,16 @@
+ package com.pomostudy.entity;
+ 
++import com.pomostudy.entity.base.UserOwned;
+ import jakarta.persistence.*;
+ import org.springframework.data.annotation.CreatedDate;
+ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+ 
+ import java.time.OffsetDateTime;
++import java.util.Objects;
+ 
+ @Entity
+ @EntityListeners(AuditingEntityListener.class)
+-public class Category {
++public class Category  implements UserOwned {
+ 
+     @Id
+     @GeneratedValue(strategy = GenerationType.IDENTITY)
+@@ -25,9 +27,12 @@
+     @CreatedDate
+     private OffsetDateTime createdAt;
+ 
+-    @ManyToOne
++    @ManyToOne(fetch = FetchType.LAZY)
+     @JoinColumn(name = "user_id", nullable = false)
+-    private User userCategory;
++    private User user;
++
++
++    /*** GETTERS AND SETTERS **/
+ 
+     public void setId(Long id) {
+         this.id = id;
+@@ -60,11 +65,27 @@
+         this.icon = icon;
+     }
+ 
+-    public User getUserCategory() {
+-        return userCategory;
++    public void setUser(User user) {
++        this.user = user;
++    }
++
++    @Override
++    public User getUser() {
++        return user;
+     }
+ 
+-    public void setUserCategory(User userCategory) {
+-        this.userCategory = userCategory;
++    /*** METHODS **/
++
++    @Override
++    public String toString() {
++        return "Category{" +
++                "id=" + id +
++                ", name='" + name + '\'' +
++                ", color='" + color + '\'' +
++                ", icon='" + icon + '\'' +
++                ", createdAt=" + createdAt +
++                ", userCategory=" + user +
++                '}';
+     }
++
+ }
+Index: src/main/java/com/pomostudy/entity/Goal.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.entity;\r\n\r\nimport com.pomostudy.enums.GoalType;\r\nimport jakarta.persistence.*;\r\nimport org.springframework.data.annotation.CreatedDate;\r\nimport org.springframework.data.jpa.domain.support.AuditingEntityListener;\r\n\r\nimport java.time.OffsetDateTime;\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\n\r\n@Entity\r\n@EntityListeners(AuditingEntityListener.class)\r\npublic class Goal {\r\n\r\n    @Id\r\n    @GeneratedValue(strategy = GenerationType.IDENTITY)\r\n    private Long id;\r\n\r\n    @Column(nullable = false)\r\n    private String title;\r\n\r\n    private String description;\r\n\r\n    @Enumerated(EnumType.STRING)\r\n    @Column(nullable = false)\r\n    private GoalType type;\r\n\r\n    @Column(nullable = false)\r\n    private Integer goalValue;\r\n\r\n    @Column(nullable = false)\r\n    private Integer goalActual;\r\n\r\n    @Column(nullable = false, updatable = false)\r\n    @CreatedDate\r\n    private OffsetDateTime createdAt;\r\n\r\n    private OffsetDateTime endDate;\r\n\r\n    @Column(nullable = false)\r\n    private Boolean active;\r\n\r\n    @ManyToOne\r\n    @JoinColumn(name = \"userId\")\r\n    private User userGoal;\r\n\r\n    @OneToMany(mappedBy = \"goal\", cascade = CascadeType.ALL, fetch = FetchType.LAZY)\r\n    private List<GoalHistory> goalHistory = new ArrayList<>();\r\n\r\n    public String getTitle() {\r\n        return title;\r\n    }\r\n\r\n    public void setId(Long id) {\r\n        this.id = id;\r\n    }\r\n\r\n    public Long getId() {\r\n        return id;\r\n    }\r\n\r\n    public void setTitle(String title) {\r\n        this.title = title;\r\n    }\r\n\r\n    public String getDescription() {\r\n        return description;\r\n    }\r\n\r\n    public void setDescription(String description) {\r\n        this.description = description;\r\n    }\r\n\r\n    public GoalType getType() {\r\n        return type;\r\n    }\r\n\r\n    public void setType(GoalType type) {\r\n        this.type = type;\r\n    }\r\n\r\n    public Integer getGoalValue() {\r\n        return goalValue;\r\n    }\r\n\r\n    public void setGoalValue(Integer goalValue) {\r\n        this.goalValue = goalValue;\r\n    }\r\n\r\n    public Integer getGoalActual() {\r\n        return goalActual;\r\n    }\r\n\r\n    public void setGoalActual(Integer goalActual) {\r\n        this.goalActual = goalActual;\r\n    }\r\n\r\n    public OffsetDateTime getCreatedAt() {\r\n        return createdAt;\r\n    }\r\n\r\n    public void setCreatedAt(OffsetDateTime createdAt) {\r\n        this.createdAt = createdAt;\r\n    }\r\n\r\n    public OffsetDateTime getEndDate() {\r\n        return endDate;\r\n    }\r\n\r\n    public void setEndDate(OffsetDateTime endDate) {\r\n        this.endDate = endDate;\r\n    }\r\n\r\n    public Boolean getActive() {\r\n        return active;\r\n    }\r\n\r\n    public void setActive(Boolean active) {\r\n        this.active = active;\r\n    }\r\n\r\n    public User getUserGoal() {\r\n        return userGoal;\r\n    }\r\n\r\n    public void setUserGoal(User userGoal) {\r\n        this.userGoal = userGoal;\r\n    }\r\n\r\n    public List<GoalHistory> getGoalHistory() {\r\n        return goalHistory;\r\n    }\r\n\r\n    public void setGoalHistory(List<GoalHistory> goalHistory) {\r\n        this.goalHistory = goalHistory;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/entity/Goal.java b/src/main/java/com/pomostudy/entity/Goal.java
+--- a/src/main/java/com/pomostudy/entity/Goal.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/entity/Goal.java	(date 1759839292714)
+@@ -1,5 +1,6 @@
+ package com.pomostudy.entity;
+ 
++import com.pomostudy.entity.base.UserOwned;
+ import com.pomostudy.enums.GoalType;
+ import jakarta.persistence.*;
+ import org.springframework.data.annotation.CreatedDate;
+@@ -11,7 +12,7 @@
+ 
+ @Entity
+ @EntityListeners(AuditingEntityListener.class)
+-public class Goal {
++public class Goal implements UserOwned {
+ 
+     @Id
+     @GeneratedValue(strategy = GenerationType.IDENTITY)
+@@ -43,7 +44,7 @@
+ 
+     @ManyToOne
+     @JoinColumn(name = "userId")
+-    private User userGoal;
++    private User user;
+ 
+     @OneToMany(mappedBy = "goal", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+     private List<GoalHistory> goalHistory = new ArrayList<>();
+@@ -121,11 +122,11 @@
+     }
+ 
+     public User getUserGoal() {
+-        return userGoal;
++        return user;
+     }
+ 
+     public void setUserGoal(User userGoal) {
+-        this.userGoal = userGoal;
++        this.user = userGoal;
+     }
+ 
+     public List<GoalHistory> getGoalHistory() {
+@@ -135,4 +136,9 @@
+     public void setGoalHistory(List<GoalHistory> goalHistory) {
+         this.goalHistory = goalHistory;
+     }
++
++    @Override
++    public User getUser() {
++        return user;
++    }
+ }
+Index: src/main/java/com/pomostudy/service/AuthenticationService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/service/AuthenticationService.java b/src/main/java/com/pomostudy/service/AuthenticationService.java
+new file mode 100644
+--- /dev/null	(date 1759929204637)
++++ b/src/main/java/com/pomostudy/service/AuthenticationService.java	(date 1759929204637)
+@@ -0,0 +1,28 @@
++package com.pomostudy.service;
++
++import com.pomostudy.config.security.AuthenticatedUser;
++import com.pomostudy.entity.User;
++import com.pomostudy.exception.ResourceException;
++import com.pomostudy.repository.UserRepository;
++import org.springframework.security.core.userdetails.UserDetails;
++import org.springframework.security.core.userdetails.UserDetailsService;
++import org.springframework.security.core.userdetails.UsernameNotFoundException;
++import org.springframework.stereotype.Service;
++
++@Service
++public class AuthenticationService implements UserDetailsService {
++
++    private final UserRepository userRepository;
++
++    public AuthenticationService(UserRepository userRepository) {
++        this.userRepository = userRepository;
++    }
++
++    @Override
++    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
++
++        User user = userRepository.findUserByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Email not found" + email));
++
++        return new AuthenticatedUser(user);
++    }
++}
+Index: src/main/java/com/pomostudy/mapper/CategoryMapper.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.mapper;\r\n\r\nimport com.pomostudy.dto.category.CategoryRequestDTO;\r\nimport com.pomostudy.dto.category.CategoryResponseDTO;\r\nimport com.pomostudy.entity.Category;\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.exception.ResourceExceptionFactory;\r\nimport com.pomostudy.repository.CategoryRepository;\r\nimport com.pomostudy.repository.UserRepository;\r\nimport org.springframework.stereotype.Component;\r\n\r\nimport java.util.Optional;\r\n\r\n@Component\r\npublic class CategoryMapper {\r\n\r\n    UserRepository userRepository;\r\n    CategoryRepository categoryRepository;\r\n\r\n    public CategoryMapper(UserRepository userRepository, CategoryRepository categoryRepository) {\r\n        this.userRepository = userRepository;\r\n        this.categoryRepository = categoryRepository;\r\n    }\r\n\r\n    public CategoryResponseDTO toCategoryResponseDTO(Category category) {\r\n        return new CategoryResponseDTO(\r\n                category.getId(),\r\n                category.getName(),\r\n                category.getColor(),\r\n                category.getIcon()\r\n        );\r\n    }\r\n\r\n    public Category toCreateCategory(CategoryRequestDTO categoryRequestDTO) {\r\n\r\n        Category category = new Category();\r\n\r\n        Optional<User> user = userRepository.findById(categoryRequestDTO.userId());\r\n        if (user.isEmpty())\r\n            throw ResourceExceptionFactory.notFound(\"User\", categoryRequestDTO.userId());\r\n\r\n        category.setName(categoryRequestDTO.name());\r\n        category.setColor(categoryRequestDTO.color());\r\n        category.setIcon(categoryRequestDTO.icon());\r\n        category.setUserCategory(user.get());\r\n\r\n        return category;\r\n    }\r\n\r\n    public Category toUpdateCategory(CategoryRequestDTO categoryRequestDTO, Long id) {\r\n\r\n        Category category = categoryRepository.findById(id)\r\n                    .filter(c-> c.getUserCategory().getId().equals(categoryRequestDTO.userId()))\r\n                    .orElseThrow(() -> ResourceExceptionFactory.notFound(\"Category\", id));\r\n\r\n        Optional<User> user = userRepository.findById(categoryRequestDTO.userId());\r\n        if (user.isEmpty())\r\n            throw ResourceExceptionFactory.notFound(\"User\", categoryRequestDTO.userId());\r\n\r\n        category.setName(categoryRequestDTO.name());\r\n        category.setColor(categoryRequestDTO.color());\r\n        category.setIcon(categoryRequestDTO.icon());\r\n        category.setUserCategory(user.get());\r\n\r\n        return category;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/mapper/CategoryMapper.java b/src/main/java/com/pomostudy/mapper/CategoryMapper.java
+--- a/src/main/java/com/pomostudy/mapper/CategoryMapper.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/mapper/CategoryMapper.java	(date 1759839085942)
+@@ -31,36 +31,36 @@
+         );
+     }
+ 
+-    public Category toCreateCategory(CategoryRequestDTO categoryRequestDTO) {
++    public Category toCreateCategory(CategoryRequestDTO categoryRequestDTO, User authenticatedUser) {
+ 
+         Category category = new Category();
+ 
+-        Optional<User> user = userRepository.findById(categoryRequestDTO.userId());
++        Optional<User> user = userRepository.findById(authenticatedUser.getId());
+         if (user.isEmpty())
+-            throw ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId());
++            throw ResourceExceptionFactory.notFound("User", authenticatedUser.getId());
+ 
+         category.setName(categoryRequestDTO.name());
+         category.setColor(categoryRequestDTO.color());
+         category.setIcon(categoryRequestDTO.icon());
+-        category.setUserCategory(user.get());
++        category.setUser(authenticatedUser);
+ 
+         return category;
+     }
+ 
+-    public Category toUpdateCategory(CategoryRequestDTO categoryRequestDTO, Long id) {
++    public Category toUpdateCategory(CategoryRequestDTO categoryRequestDTO, User authenticatedUser, Long id) {
+ 
+         Category category = categoryRepository.findById(id)
+-                    .filter(c-> c.getUserCategory().getId().equals(categoryRequestDTO.userId()))
++                    .filter(c-> c.getUser().getId().equals(authenticatedUser.getId()))
+                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Category", id));
+ 
+-        Optional<User> user = userRepository.findById(categoryRequestDTO.userId());
++        Optional<User> user = userRepository.findById(authenticatedUser.getId());
+         if (user.isEmpty())
+-            throw ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId());
++            throw ResourceExceptionFactory.notFound("User", authenticatedUser.getId());
+ 
+         category.setName(categoryRequestDTO.name());
+         category.setColor(categoryRequestDTO.color());
+         category.setIcon(categoryRequestDTO.icon());
+-        category.setUserCategory(user.get());
++        category.setUser(user.get());
+ 
+         return category;
+     }
+Index: src/main/java/com/pomostudy/mapper/TaskMapper.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.mapper;\r\n\r\nimport com.pomostudy.dto.task.TaskRequestDTO;\r\nimport com.pomostudy.dto.task.TaskResponseDTO;\r\nimport com.pomostudy.entity.Category;\r\nimport com.pomostudy.entity.Task;\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.exception.ResourceExceptionFactory;\r\nimport com.pomostudy.repository.CategoryRepository;\r\nimport com.pomostudy.repository.TaskRepository;\r\nimport com.pomostudy.repository.UserRepository;\r\nimport org.springframework.stereotype.Component;\r\n\r\nimport java.util.Optional;\r\n\r\n@Component\r\npublic class TaskMapper {\r\n\r\n    UserRepository userRepository;\r\n    CategoryRepository categoryRepository;\r\n    TaskRepository taskRepository;\r\n\r\n    public TaskMapper(UserRepository userRepository, CategoryRepository categoryRepository,\r\n            TaskRepository taskRepository) {\r\n        this.userRepository = userRepository;\r\n        this.categoryRepository = categoryRepository;\r\n        this.taskRepository = taskRepository;\r\n    }\r\n\r\n    public TaskResponseDTO toTaskResponseDTO(Task task) {\r\n       return new TaskResponseDTO(\r\n                task.getId(),\r\n                task.getName(),\r\n                task.getDescription(),\r\n                task.getStartDate(),\r\n                task.getEndDate(),\r\n                task.getStatus(),\r\n                task.getPriority(),\r\n                task.getTimeTotalLearning(),\r\n                task.getUserTask().getId(),\r\n                task.getCategory().getId()\r\n        );\r\n    }\r\n\r\n    public Task toCreateTask(TaskRequestDTO taskRequestDTO) {\r\n\r\n        Task task = new Task();\r\n\r\n        Optional<User> user = userRepository.findById(taskRequestDTO.user_task());\r\n        if (user.isEmpty())\r\n            throw ResourceExceptionFactory.notFound(\"User\", taskRequestDTO.user_task());\r\n\r\n        Optional<Category> category = categoryRepository.findById(taskRequestDTO.categoryId());\r\n        if (category.isEmpty())\r\n            throw ResourceExceptionFactory.notFound(\"Category\", taskRequestDTO.categoryId());\r\n\r\n        task.setName(taskRequestDTO.name());\r\n        task.setDescription(taskRequestDTO.description());\r\n        task.setStartDate(taskRequestDTO.startDate());\r\n        task.setEndDate(taskRequestDTO.endDate());\r\n        task.setStatus(taskRequestDTO.status());\r\n        task.setPriority(taskRequestDTO.priority());\r\n        task.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());\r\n        task.setUserTask(user.get());\r\n        task.setCategory(category.get());\r\n\r\n        return task;\r\n    }\r\n\r\n    public Task toUpdateTask(TaskRequestDTO taskRequestDTO, Long id) {\r\n\r\n        Task task = taskRepository.findById(id)\r\n                    .filter(t -> t.getUserTask().getId().equals(taskRequestDTO.user_task()))\r\n                    .orElseThrow(() -> ResourceExceptionFactory.notFound(\"Task\", id));\r\n\r\n        Optional<Category> category = categoryRepository.findById(taskRequestDTO.categoryId());\r\n        if (category.isEmpty())\r\n            throw ResourceExceptionFactory.notFound(\"Category\", taskRequestDTO.categoryId());\r\n\r\n        task.setName(taskRequestDTO.name());\r\n        task.setDescription(taskRequestDTO.description());\r\n        task.setStartDate(taskRequestDTO.startDate());\r\n        task.setEndDate(taskRequestDTO.endDate());\r\n        task.setStatus(taskRequestDTO.status());\r\n        task.setPriority(taskRequestDTO.priority());\r\n        task.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());\r\n        task.setCategory(category.get());\r\n\r\n        return task;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/mapper/TaskMapper.java b/src/main/java/com/pomostudy/mapper/TaskMapper.java
+--- a/src/main/java/com/pomostudy/mapper/TaskMapper.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/mapper/TaskMapper.java	(date 1759839412702)
+@@ -37,7 +37,7 @@
+                 task.getStatus(),
+                 task.getPriority(),
+                 task.getTimeTotalLearning(),
+-                task.getUserTask().getId(),
++                task.getUser().getId(),
+                 task.getCategory().getId()
+         );
+     }
+@@ -61,7 +61,7 @@
+         task.setStatus(taskRequestDTO.status());
+         task.setPriority(taskRequestDTO.priority());
+         task.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
+-        task.setUserTask(user.get());
++        task.setUser(user.get());
+         task.setCategory(category.get());
+ 
+         return task;
+@@ -70,7 +70,7 @@
+     public Task toUpdateTask(TaskRequestDTO taskRequestDTO, Long id) {
+ 
+         Task task = taskRepository.findById(id)
+-                    .filter(t -> t.getUserTask().getId().equals(taskRequestDTO.user_task()))
++                    .filter(t -> t.getUser().getId().equals(taskRequestDTO.user_task()))
+                     .orElseThrow(() -> ResourceExceptionFactory.notFound("Task", id));
+ 
+         Optional<Category> category = categoryRepository.findById(taskRequestDTO.categoryId());
+Index: src/main/java/com/pomostudy/mapper/UserMapper.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.mapper;\r\n\r\nimport com.pomostudy.dto.user.UserCreateRequestDTO;\r\nimport com.pomostudy.dto.user.UserResponseDTO;\r\nimport com.pomostudy.dto.user.UserUpdateRequestDTO;\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.enums.UserRole;\r\nimport com.pomostudy.exception.ResourceException;\r\nimport com.pomostudy.exception.ResourceExceptionFactory;\r\nimport com.pomostudy.repository.UserRepository;\r\nimport org.springframework.security.core.userdetails.UserDetails;\r\nimport org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;\r\nimport org.springframework.stereotype.Component;\r\n\r\nimport java.time.OffsetDateTime;\r\nimport java.util.Optional;\r\n\r\n@Component\r\npublic class UserMapper {\r\n\r\n    private final UserRepository userRepository;\r\n\r\n    public UserMapper(UserRepository userRepository) {\r\n        this.userRepository = userRepository;\r\n    }\r\n\r\n    public UserResponseDTO toUserResponseDTO(User user) {\r\n        return new UserResponseDTO (\r\n                user.getId(),\r\n                user.getName(),\r\n                user.getEmail()\r\n        );\r\n    }\r\n\r\n    public User toCreateUser(UserCreateRequestDTO userCreateRequestDTO) {\r\n\r\n            UserDetails userFound = userRepository.findUserByEmail(userCreateRequestDTO.getEmail());\r\n            Optional.ofNullable(userFound)\r\n                    .ifPresent(userDetails -> {\r\n                        throw new ResourceException(\r\n                                \"\",\r\n                                \"\",\r\n                                \"EMAIL DUPLICATED\",\r\n                                \"Email Already in use\"\r\n                        );\r\n                    });\r\n\r\n            String encryptedPassword = new BCryptPasswordEncoder().encode(userCreateRequestDTO.password());\r\n\r\n            return new User(\r\n                    userCreateRequestDTO.name(),\r\n                    userCreateRequestDTO.email(),\r\n                    encryptedPassword,\r\n                    UserRole.USER\r\n            );\r\n    }\r\n\r\n    public User toUpdateUser(UserUpdateRequestDTO userUpdateRequestDTO, Long id) {\r\n\r\n        User user = userRepository.findById(id)\r\n                .orElseThrow(() -> ResourceExceptionFactory.notFound(\"User\", id));\r\n\r\n        if (userUpdateRequestDTO.getName() != null) {\r\n            user.setName(userUpdateRequestDTO.getName());\r\n        }\r\n\r\n        if (userUpdateRequestDTO.getPassword() != null) {\r\n            String encryptedPassword = new BCryptPasswordEncoder().encode(user.getPassword());\r\n            user.setPassword(encryptedPassword);\r\n        }\r\n\r\n        user.setUpdatedAt(OffsetDateTime.now());\r\n\r\n        return user;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/mapper/UserMapper.java b/src/main/java/com/pomostudy/mapper/UserMapper.java
+--- a/src/main/java/com/pomostudy/mapper/UserMapper.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/mapper/UserMapper.java	(date 1759758886980)
+@@ -34,16 +34,7 @@
+ 
+     public User toCreateUser(UserCreateRequestDTO userCreateRequestDTO) {
+ 
+-            UserDetails userFound = userRepository.findUserByEmail(userCreateRequestDTO.getEmail());
+-            Optional.ofNullable(userFound)
+-                    .ifPresent(userDetails -> {
+-                        throw new ResourceException(
+-                                "",
+-                                "",
+-                                "EMAIL DUPLICATED",
+-                                "Email Already in use"
+-                        );
+-                    });
++            userRepository.findUserByEmail(userCreateRequestDTO.getEmail()).orElseThrow(() -> new ResourceException("","","EMAIL DUPLICATED","Email Already in use"));
+ 
+             String encryptedPassword = new BCryptPasswordEncoder().encode(userCreateRequestDTO.password());
+ 
+Index: src/test/java/com/pomostudy/service/AuthorizationServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.service;\r\n\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.enums.UserRole;\r\nimport com.pomostudy.repository.UserRepository;\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.DisplayName;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.junit.jupiter.api.extension.ExtendWith;\r\nimport org.mockito.InjectMocks;\r\nimport org.mockito.Mock;\r\nimport org.mockito.junit.jupiter.MockitoExtension;\r\nimport org.springframework.security.core.userdetails.UserDetails;\r\nimport org.springframework.security.core.userdetails.UsernameNotFoundException;\r\n\r\nimport static org.junit.jupiter.api.Assertions.*;\r\nimport static org.mockito.Mockito.*;\r\n\r\n@ExtendWith(MockitoExtension.class)\r\nclass AuthorizationServiceTest {\r\n\r\n    @Mock\r\n    private UserRepository userRepository;\r\n\r\n    @InjectMocks\r\n    private AuthorizationService authorizationService;\r\n\r\n    private User user;\r\n\r\n    @BeforeEach\r\n    void setUp() {\r\n       user = new User(\r\n                \"Test\",\r\n                \"test@test.com\",\r\n                \"Abc@abc\",\r\n                UserRole.USER\r\n        );\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should return UserDetails when user is found for email\")\r\n    void shouldReturnUserDetailsWhenUserIsFoundForEmail() {\r\n        String email = \"test@test.com\";\r\n\r\n        when(userRepository.findUserByEmail(email)).thenReturn(this.user);\r\n\r\n        UserDetails userDetails = authorizationService.loadUserByUsername(email);\r\n\r\n        assertNotNull(userDetails, \"UserDetails should not be null\");\r\n        assertEquals(email, userDetails.getUsername(), \"The username should be the same as email\");\r\n\r\n        verify(userRepository, times(1)).findUserByEmail(email);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be throw UsernameNotFoundException when user is not found\")\r\n    void shouldThrowUsernameNotFoundExceptionWhenUserIsNotFound() {\r\n        String notExistingEmail = \"abc@abc.com\";\r\n\r\n        when(userRepository.findUserByEmail(notExistingEmail)).thenThrow(UsernameNotFoundException.class);\r\n\r\n        assertThrows(UsernameNotFoundException.class, () -> authorizationService.loadUserByUsername(notExistingEmail));\r\n\r\n        verify(userRepository, times(1)).findUserByEmail(notExistingEmail);\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/pomostudy/service/AuthorizationServiceTest.java b/src/test/java/com/pomostudy/service/AuthorizationServiceTest.java
+--- a/src/test/java/com/pomostudy/service/AuthorizationServiceTest.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/test/java/com/pomostudy/service/AuthorizationServiceTest.java	(date 1759929377255)
+@@ -1,66 +1,73 @@
+-package com.pomostudy.service;
+-
+-import com.pomostudy.entity.User;
+-import com.pomostudy.enums.UserRole;
+-import com.pomostudy.repository.UserRepository;
+-import org.junit.jupiter.api.BeforeEach;
+-import org.junit.jupiter.api.DisplayName;
+-import org.junit.jupiter.api.Test;
+-import org.junit.jupiter.api.extension.ExtendWith;
+-import org.mockito.InjectMocks;
+-import org.mockito.Mock;
+-import org.mockito.junit.jupiter.MockitoExtension;
+-import org.springframework.security.core.userdetails.UserDetails;
+-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+-
+-import static org.junit.jupiter.api.Assertions.*;
+-import static org.mockito.Mockito.*;
+-
+-@ExtendWith(MockitoExtension.class)
+-class AuthorizationServiceTest {
+-
+-    @Mock
+-    private UserRepository userRepository;
+-
+-    @InjectMocks
+-    private AuthorizationService authorizationService;
+-
+-    private User user;
+-
+-    @BeforeEach
+-    void setUp() {
+-       user = new User(
+-                "Test",
+-                "test@test.com",
+-                "Abc@abc",
+-                UserRole.USER
+-        );
+-    }
+-
+-    @Test
+-    @DisplayName("Should return UserDetails when user is found for email")
+-    void shouldReturnUserDetailsWhenUserIsFoundForEmail() {
+-        String email = "test@test.com";
+-
+-        when(userRepository.findUserByEmail(email)).thenReturn(this.user);
+-
+-        UserDetails userDetails = authorizationService.loadUserByUsername(email);
+-
+-        assertNotNull(userDetails, "UserDetails should not be null");
+-        assertEquals(email, userDetails.getUsername(), "The username should be the same as email");
+-
+-        verify(userRepository, times(1)).findUserByEmail(email);
+-    }
+-
+-    @Test
+-    @DisplayName("Should be throw UsernameNotFoundException when user is not found")
+-    void shouldThrowUsernameNotFoundExceptionWhenUserIsNotFound() {
+-        String notExistingEmail = "abc@abc.com";
+-
+-        when(userRepository.findUserByEmail(notExistingEmail)).thenThrow(UsernameNotFoundException.class);
+-
+-        assertThrows(UsernameNotFoundException.class, () -> authorizationService.loadUserByUsername(notExistingEmail));
+-
+-        verify(userRepository, times(1)).findUserByEmail(notExistingEmail);
+-    }
+-}
+\ No newline at end of file
++//package com.pomostudy.service;
++//
++//import com.pomostudy.entity.User;
++//import com.pomostudy.enums.UserRole;
++//import com.pomostudy.exception.ResourceException;
++//import com.pomostudy.repository.UserRepository;
++//import org.junit.jupiter.api.BeforeEach;
++//import org.junit.jupiter.api.DisplayName;
++//import org.junit.jupiter.api.Test;
++//import org.junit.jupiter.api.extension.ExtendWith;
++//import org.mockito.InjectMocks;
++//import org.mockito.Mock;
++//import org.mockito.junit.jupiter.MockitoExtension;
++//import org.springframework.security.core.userdetails.UserDetails;
++//
++//import java.util.Optional;
++//
++//import static org.junit.jupiter.api.Assertions.*;
++//import static org.mockito.Mockito.*;
++//
++//@ExtendWith(MockitoExtension.class)
++//class AuthorizationServiceTest {
++//
++//    @Mock
++//    private UserRepository userRepository;
++//
++//    @Mock
++//    private AuthenticationService authenticationService;
++//
++//    @InjectMocks
++//    private AuthorizationService authorizationService;
++//
++//    private User user;
++//
++//
++//    @BeforeEach
++//    void setUp() {
++//       user = new User(
++//                "Test",
++//                "test@test.com",
++//                "Abc@abc",
++//                UserRole.USER
++//        );
++//
++//    }
++//
++//    @Test
++//    @DisplayName("Should return UserDetails when user is found for email")
++//    void shouldReturnUserDetailsWhenUserIsFoundForEmail() {
++//        String email = "test@test.com";
++//
++//        when(userRepository.findUserByEmail(email)).thenReturn(Optional.ofNullable(this.user));
++//
++//        UserDetails userDetails = authenticationService.loadUserByUsername(email);
++//
++//        assertNotNull(userDetails, "UserDetails should not be null");
++//        assertEquals(email, userDetails.getUsername(), "The username should be the same as email");
++//
++//        verify(userRepository, times(1)).findUserByEmail(email);
++//    }
++//
++//    @Test
++//    @DisplayName("Should be throw ResourceException when user is not found")
++//    void shouldThrowUsernameNotFoundExceptionWhenUserIsNotFound() {
++//        String notExistingEmail = "abc@abc.com";
++//
++//        when(userRepository.findUserByEmail(notExistingEmail)).thenThrow(ResourceException.class);
++//
++//        assertThrows(ResourceException.class, () -> authenticationService.loadUserByUsername(notExistingEmail));
++//
++//        verify(userRepository, times(1)).findUserByEmail(notExistingEmail);
++//    }
++//}
+\ No newline at end of file
+Index: src/test/java/com/pomostudy/service/CategoryServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.service;\r\n\r\nimport com.pomostudy.mapper.CategoryMapper;\r\nimport com.pomostudy.dto.category.CategoryRequestDTO;\r\nimport com.pomostudy.dto.category.CategoryResponseDTO;\r\nimport com.pomostudy.entity.Category;\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.exception.ResourceException;\r\nimport com.pomostudy.exception.ResourceExceptionFactory;\r\nimport com.pomostudy.repository.CategoryRepository;\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.DisplayName;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.junit.jupiter.api.extension.ExtendWith;\r\nimport org.mockito.InjectMocks;\r\nimport org.mockito.Mock;\r\nimport org.mockito.junit.jupiter.MockitoExtension;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.PageImpl;\r\nimport org.springframework.data.domain.PageRequest;\r\nimport org.springframework.data.domain.Pageable;\r\n\r\nimport java.util.Collections;\r\nimport java.util.List;\r\nimport java.util.Optional;\r\n\r\nimport static org.junit.jupiter.api.Assertions.*;\r\nimport static org.mockito.ArgumentMatchers.any;\r\nimport static org.mockito.Mockito.*;\r\n\r\n@ExtendWith(MockitoExtension.class)\r\nclass CategoryServiceTest {\r\n\r\n    @Mock\r\n    private CategoryRepository categoryRepository;\r\n\r\n    @Mock\r\n    private CategoryMapper categoryMapper;\r\n\r\n    @InjectMocks\r\n    private CategoryService categoryService;\r\n\r\n    private CategoryRequestDTO categoryRequestDTO;\r\n    private CategoryResponseDTO categoryResponseDTO;\r\n    private Category category;\r\n\r\n    @BeforeEach\r\n    void setUp() {\r\n\r\n        User user = new User();\r\n        user.setId(1L);\r\n        user.setName(\"test\");\r\n        user.setEmail(\"test@example.com\");\r\n\r\n        category = new Category();\r\n        category.setId(1L);\r\n        category.setName(\"testCategory\");\r\n        category.setColor(\"#fff\");\r\n        category.setIcon(\"test.icon\");\r\n        category.setUserCategory(user);\r\n\r\n        categoryRequestDTO = new CategoryRequestDTO(\r\n                \"testCategory\",\r\n                \"#fff\",\r\n                \"test.icon\",\r\n                user.getId()\r\n        );\r\n\r\n        categoryResponseDTO = new CategoryResponseDTO(\r\n                1L,\r\n                \"testCategory\",\r\n                \"#fff\",\r\n                \"test.icon\"\r\n        );\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should save Category with success in the db\")\r\n    void shouldSaveCategorySuccessfully() {\r\n\r\n        when(categoryMapper.toCreateCategory(any(CategoryRequestDTO.class))).thenReturn(category);\r\n        when(categoryRepository.save(any(Category.class))).thenReturn(category);\r\n        when(categoryMapper.toCategoryResponseDTO(any(Category.class))).thenReturn(categoryResponseDTO);\r\n\r\n        CategoryResponseDTO result = categoryService.save(categoryRequestDTO);\r\n\r\n        assertNotNull(result);\r\n        assertEquals(1, result.id());\r\n        assertEquals(\"testCategory\", result.name());\r\n        assertEquals(\"#fff\", result.color());\r\n        assertEquals(\"test.icon\", result.icon());\r\n\r\n        verify(categoryMapper, times(1)).toCreateCategory(any(CategoryRequestDTO.class));\r\n        verify(categoryRepository, times(1)).save(any(Category.class));\r\n        verify(categoryMapper, times(1)).toCategoryResponseDTO(any(Category.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should throw exception when user is not found\")\r\n    void shouldThrowExceptionWhenUserNotFound() {\r\n\r\n        when(categoryMapper.toCreateCategory(any(CategoryRequestDTO.class))).thenThrow(ResourceExceptionFactory.notFound(\"User\", categoryRequestDTO.userId()));\r\n\r\n        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.save(categoryRequestDTO));\r\n        assertEquals(\"User with id 1 not found.\", error.getMessage());\r\n\r\n        verify(categoryMapper, times(1)).toCreateCategory(categoryRequestDTO);\r\n        verify(categoryRepository, never()).save(any(Category.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should edit category successfully in the db\")\r\n    void shouldEditCategorySuccessfully() {\r\n        Long categoryId = 1L;\r\n        when(categoryMapper.toUpdateCategory(categoryRequestDTO, categoryId)).thenReturn(category);\r\n        when(categoryRepository.save(any(Category.class))).thenReturn(category);\r\n        when(categoryMapper.toCategoryResponseDTO(any(Category.class))).thenReturn(categoryResponseDTO);\r\n\r\n        CategoryResponseDTO result = categoryService.edit(categoryRequestDTO, categoryId);\r\n\r\n        assertNotNull(result);\r\n        assertEquals(\"testCategory\", result.name());\r\n        assertEquals(\"#fff\", result.color());\r\n        assertEquals(\"test.icon\", result.icon());\r\n\r\n        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, categoryId);\r\n        verify(categoryRepository, times(1)).save(category);\r\n        verify(categoryMapper, times(1)).toCategoryResponseDTO(category);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should throw exception when user is not belong to category\")\r\n    void shouldThrowExceptionWhenUserNotBelongToCategory() {\r\n\r\n        Long categoryId = 1L;\r\n        when(categoryMapper.toUpdateCategory(categoryRequestDTO, categoryId)).thenThrow(ResourceExceptionFactory.notFound(\"Category\", categoryRequestDTO.userId()));\r\n\r\n        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.edit(categoryRequestDTO, categoryId));\r\n\r\n        assertEquals(\"Category with id 1 not found.\", error.getMessage());\r\n\r\n        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, categoryId);\r\n        verify(categoryRepository, never()).save(any(Category.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should throw exception when category does not found\")\r\n    void shouldThrowExceptionWhenCategoryNotFound() {\r\n\r\n        Long categoryId = 1L;\r\n        when(categoryMapper.toUpdateCategory(categoryRequestDTO, categoryId)).thenThrow(ResourceExceptionFactory.notFound(\"Category\", categoryId));\r\n\r\n        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.edit(categoryRequestDTO, categoryId));\r\n\r\n        assertEquals(\"Category with id 1 not found.\", error.getMessage());\r\n\r\n        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, categoryId);\r\n        verify(categoryRepository, never()).save(any(Category.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be pass correct pagination parameters to service and return 200 OK\")\r\n    void shouldFindAllCategoriesDBWithStatus200() {\r\n\r\n        List<Category> categoryResponse = Collections.singletonList(category);\r\n        Pageable pageable = PageRequest.of(0,10);\r\n\r\n        when(categoryRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(categoryResponse));\r\n        when(categoryMapper.toCategoryResponseDTO(category)).thenReturn(categoryResponseDTO);\r\n\r\n        Page<CategoryResponseDTO> result = categoryService.findAll(pageable);\r\n\r\n        assertFalse(result.isEmpty());\r\n        assertEquals(1, result.getContent().size());\r\n        assertEquals(categoryResponseDTO,result.getContent().getFirst());\r\n        assertEquals(categoryRequestDTO.name(), result.getContent().getFirst().name());\r\n\r\n        verify(categoryRepository, times(1)).findAll(any(Pageable.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should find the category from id when the category exist in the db\")\r\n    void shouldFindCategoryFromIdWhenCategoryExistDB() {\r\n        Long categoryId = 1L;\r\n        when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));\r\n\r\n        Optional<CategoryResponseDTO> result = Optional.ofNullable(categoryService.findById(categoryId));\r\n\r\n        assertTrue(result.isPresent());\r\n        assertEquals(categoryResponseDTO, result.get());\r\n\r\n        verify(categoryRepository, times(1)).findById(categoryId);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should get Exception when do not find category from id\")\r\n    void shouldGetExceptionWhenNotFindCategoryFromId() {\r\n        Long categoryId = 99L;\r\n        when(categoryRepository.findById(categoryId)).thenThrow(ResourceExceptionFactory.notFound(\"Category\", categoryId));\r\n\r\n        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.findById(categoryId));\r\n\r\n        assertEquals(\"Category with id 99 not found.\", error.getMessage());\r\n\r\n        verify(categoryRepository, times(1)).findById(categoryId);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should delete category succefully from db\")\r\n    void shouldDeleteTaskSuccessfullyDB() {\r\n        Long categoryId = 1L;\r\n        when(categoryRepository.findById(categoryId)).thenReturn(Optional.ofNullable(category));\r\n        doNothing().when(categoryRepository).deleteById(categoryId);\r\n\r\n        categoryService.delete(categoryId);\r\n\r\n        verify(categoryRepository, times(1)).deleteById(categoryId);\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/pomostudy/service/CategoryServiceTest.java b/src/test/java/com/pomostudy/service/CategoryServiceTest.java
+--- a/src/test/java/com/pomostudy/service/CategoryServiceTest.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/test/java/com/pomostudy/service/CategoryServiceTest.java	(date 1759927871318)
+@@ -1,5 +1,6 @@
+ package com.pomostudy.service;
+ 
++import com.pomostudy.config.security.AuthenticatedUser;
+ import com.pomostudy.mapper.CategoryMapper;
+ import com.pomostudy.dto.category.CategoryRequestDTO;
+ import com.pomostudy.dto.category.CategoryResponseDTO;
+@@ -37,17 +38,25 @@
+     @Mock
+     private CategoryMapper categoryMapper;
+ 
++    @Mock
++    private AuthenticatedUser authenticatedUser;
++
++    @Mock
++    private AuthorizationService authorizationService;
++
+     @InjectMocks
+     private CategoryService categoryService;
+ 
+     private CategoryRequestDTO categoryRequestDTO;
+     private CategoryResponseDTO categoryResponseDTO;
+     private Category category;
++    private User user;
++
+ 
+     @BeforeEach
+     void setUp() {
+ 
+-        User user = new User();
++        user = new User();
+         user.setId(1L);
+         user.setName("test");
+         user.setEmail("test@example.com");
+@@ -57,13 +66,12 @@
+         category.setName("testCategory");
+         category.setColor("#fff");
+         category.setIcon("test.icon");
+-        category.setUserCategory(user);
++        category.setUser(user);
+ 
+         categoryRequestDTO = new CategoryRequestDTO(
+                 "testCategory",
+                 "#fff",
+-                "test.icon",
+-                user.getId()
++                "test.icon"
+         );
+ 
+         categoryResponseDTO = new CategoryResponseDTO(
+@@ -78,11 +86,11 @@
+     @DisplayName("Should save Category with success in the db")
+     void shouldSaveCategorySuccessfully() {
+ 
+-        when(categoryMapper.toCreateCategory(any(CategoryRequestDTO.class))).thenReturn(category);
++        when(categoryMapper.toCreateCategory(any(CategoryRequestDTO.class), any(User.class))).thenReturn(category);
+         when(categoryRepository.save(any(Category.class))).thenReturn(category);
+         when(categoryMapper.toCategoryResponseDTO(any(Category.class))).thenReturn(categoryResponseDTO);
+ 
+-        CategoryResponseDTO result = categoryService.save(categoryRequestDTO);
++        CategoryResponseDTO result = categoryService.save(categoryRequestDTO, user);
+ 
+         assertNotNull(result);
+         assertEquals(1, result.id());
+@@ -90,7 +98,7 @@
+         assertEquals("#fff", result.color());
+         assertEquals("test.icon", result.icon());
+ 
+-        verify(categoryMapper, times(1)).toCreateCategory(any(CategoryRequestDTO.class));
++        verify(categoryMapper, times(1)).toCreateCategory(any(CategoryRequestDTO.class), any(User.class));
+         verify(categoryRepository, times(1)).save(any(Category.class));
+         verify(categoryMapper, times(1)).toCategoryResponseDTO(any(Category.class));
+     }
+@@ -99,12 +107,12 @@
+     @DisplayName("Should throw exception when user is not found")
+     void shouldThrowExceptionWhenUserNotFound() {
+ 
+-        when(categoryMapper.toCreateCategory(any(CategoryRequestDTO.class))).thenThrow(ResourceExceptionFactory.notFound("User", categoryRequestDTO.userId()));
++        when(categoryMapper.toCreateCategory(any(CategoryRequestDTO.class), any(User.class))).thenThrow(ResourceExceptionFactory.notFound("User", user.getId()));
+ 
+-        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.save(categoryRequestDTO));
++        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.save(categoryRequestDTO, user));
+         assertEquals("User with id 1 not found.", error.getMessage());
+ 
+-        verify(categoryMapper, times(1)).toCreateCategory(categoryRequestDTO);
++        verify(categoryMapper, times(1)).toCreateCategory(categoryRequestDTO, user);
+         verify(categoryRepository, never()).save(any(Category.class));
+     }
+ 
+@@ -112,18 +120,20 @@
+     @DisplayName("Should edit category successfully in the db")
+     void shouldEditCategorySuccessfully() {
+         Long categoryId = 1L;
+-        when(categoryMapper.toUpdateCategory(categoryRequestDTO, categoryId)).thenReturn(category);
++        when(authenticatedUser.getUser()).thenReturn(user);
++        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
++        when(categoryMapper.toUpdateCategory(categoryRequestDTO, user, categoryId)).thenReturn(category);
+         when(categoryRepository.save(any(Category.class))).thenReturn(category);
+         when(categoryMapper.toCategoryResponseDTO(any(Category.class))).thenReturn(categoryResponseDTO);
+ 
+-        CategoryResponseDTO result = categoryService.edit(categoryRequestDTO, categoryId);
++        CategoryResponseDTO result = categoryService.edit(categoryRequestDTO, authenticatedUser, categoryId);
+ 
+         assertNotNull(result);
+         assertEquals("testCategory", result.name());
+         assertEquals("#fff", result.color());
+         assertEquals("test.icon", result.icon());
+ 
+-        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, categoryId);
++        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, user, categoryId);
+         verify(categoryRepository, times(1)).save(category);
+         verify(categoryMapper, times(1)).toCategoryResponseDTO(category);
+     }
+@@ -133,13 +143,15 @@
+     void shouldThrowExceptionWhenUserNotBelongToCategory() {
+ 
+         Long categoryId = 1L;
+-        when(categoryMapper.toUpdateCategory(categoryRequestDTO, categoryId)).thenThrow(ResourceExceptionFactory.notFound("Category", categoryRequestDTO.userId()));
++        when(authenticatedUser.getUser()).thenReturn(user);
++        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
++        when(categoryMapper.toUpdateCategory(categoryRequestDTO, user, categoryId)).thenThrow(ResourceExceptionFactory.notFound("Category", user.getId()));
+ 
+-        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.edit(categoryRequestDTO, categoryId));
++        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.edit(categoryRequestDTO, authenticatedUser, categoryId));
+ 
+         assertEquals("Category with id 1 not found.", error.getMessage());
+ 
+-        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, categoryId);
++        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, user, categoryId);
+         verify(categoryRepository, never()).save(any(Category.class));
+     }
+ 
+@@ -148,43 +160,74 @@
+     void shouldThrowExceptionWhenCategoryNotFound() {
+ 
+         Long categoryId = 1L;
+-        when(categoryMapper.toUpdateCategory(categoryRequestDTO, categoryId)).thenThrow(ResourceExceptionFactory.notFound("Category", categoryId));
++        when(authenticatedUser.getUser()).thenReturn(user);
++        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
++        when(categoryMapper.toUpdateCategory(categoryRequestDTO, user, categoryId)).thenThrow(ResourceExceptionFactory.notFound("Category", categoryId));
+ 
+-        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.edit(categoryRequestDTO, categoryId));
++        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.edit(categoryRequestDTO, authenticatedUser, categoryId));
+ 
+         assertEquals("Category with id 1 not found.", error.getMessage());
+ 
+-        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, categoryId);
++        verify(categoryMapper, times(1)).toUpdateCategory(categoryRequestDTO, user, categoryId);
+         verify(categoryRepository, never()).save(any(Category.class));
+     }
+ 
+     @Test
+-    @DisplayName("Should be pass correct pagination parameters to service and return 200 OK")
++    @DisplayName("Should find all categories for an ADMIN user and return 200 OK")
++    void shouldFindAllCategoriesForAdmin() {
++
++        List<Category> categoryResponse = Collections.singletonList(category);
++        Pageable pageable = PageRequest.of(0, 10);
++
++
++        when(authenticatedUser.isAdmin()).thenReturn(true);
++
++        when(categoryRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(categoryResponse));
++        when(categoryMapper.toCategoryResponseDTO(category)).thenReturn(categoryResponseDTO);
++
++
++        Page<CategoryResponseDTO> result = categoryService.findAll(pageable, authenticatedUser);
++
++
++        assertFalse(result.isEmpty());
++        assertEquals(1, result.getContent().size());
++        verify(categoryRepository, times(1)).findAll(any(Pageable.class));
++        verify(categoryRepository, never()).findByUser(any(), any());
++    }
++
++    @Test
++    @DisplayName("Should find categories for a NON-ADMIN user and return 200 OK")
+     void shouldFindAllCategoriesDBWithStatus200() {
+ 
+         List<Category> categoryResponse = Collections.singletonList(category);
+         Pageable pageable = PageRequest.of(0,10);
+ 
+-        when(categoryRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(categoryResponse));
++        when(authenticatedUser.isAdmin()).thenReturn(false);
++        when(authenticatedUser.getUser()).thenReturn(user);
++
++        when(categoryRepository.findByUser(user, pageable)).thenReturn(new PageImpl<>(categoryResponse));
+         when(categoryMapper.toCategoryResponseDTO(category)).thenReturn(categoryResponseDTO);
+ 
+-        Page<CategoryResponseDTO> result = categoryService.findAll(pageable);
++        Page<CategoryResponseDTO> result = categoryService.findAll(pageable, authenticatedUser);
+ 
+         assertFalse(result.isEmpty());
+         assertEquals(1, result.getContent().size());
+         assertEquals(categoryResponseDTO,result.getContent().getFirst());
+         assertEquals(categoryRequestDTO.name(), result.getContent().getFirst().name());
+ 
+-        verify(categoryRepository, times(1)).findAll(any(Pageable.class));
++        verify(categoryRepository, never()).findAll(pageable);
++        verify(categoryRepository, times(1)).findByUser(user, pageable);
+     }
+ 
+     @Test
+     @DisplayName("Should find the category from id when the category exist in the db")
+     void shouldFindCategoryFromIdWhenCategoryExistDB() {
+         Long categoryId = 1L;
++        when(authenticatedUser.getUser()).thenReturn(user);
++        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
+         when(categoryRepository.findById(categoryId)).thenReturn(Optional.of(category));
+ 
+-        Optional<CategoryResponseDTO> result = Optional.ofNullable(categoryService.findById(categoryId));
++        Optional<CategoryResponseDTO> result = Optional.ofNullable(categoryService.findById(categoryId, authenticatedUser));
+ 
+         assertTrue(result.isPresent());
+         assertEquals(categoryResponseDTO, result.get());
+@@ -196,9 +239,11 @@
+     @DisplayName("Should get Exception when do not find category from id")
+     void shouldGetExceptionWhenNotFindCategoryFromId() {
+         Long categoryId = 99L;
++        when(authenticatedUser.getUser()).thenReturn(user);
++        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
+         when(categoryRepository.findById(categoryId)).thenThrow(ResourceExceptionFactory.notFound("Category", categoryId));
+ 
+-        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.findById(categoryId));
++        ResourceException error = assertThrows(ResourceException.class, () -> categoryService.findById(categoryId, authenticatedUser));
+ 
+         assertEquals("Category with id 99 not found.", error.getMessage());
+ 
+@@ -209,10 +254,12 @@
+     @DisplayName("Should delete category succefully from db")
+     void shouldDeleteTaskSuccessfullyDB() {
+         Long categoryId = 1L;
++        when(authenticatedUser.getUser()).thenReturn(user);
++        when(authorizationService.isOwner(Category.class, categoryId, user.getId())).thenReturn(true);
+         when(categoryRepository.findById(categoryId)).thenReturn(Optional.ofNullable(category));
+         doNothing().when(categoryRepository).deleteById(categoryId);
+ 
+-        categoryService.delete(categoryId);
++        categoryService.delete(categoryId, authenticatedUser);
+ 
+         verify(categoryRepository, times(1)).deleteById(categoryId);
+     }
+Index: src/test/java/com/pomostudy/service/AuthenticationServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/pomostudy/service/AuthenticationServiceTest.java b/src/test/java/com/pomostudy/service/AuthenticationServiceTest.java
+new file mode 100644
+--- /dev/null	(date 1759929501256)
++++ b/src/test/java/com/pomostudy/service/AuthenticationServiceTest.java	(date 1759929501256)
+@@ -0,0 +1,71 @@
++package com.pomostudy.service;
++
++import com.pomostudy.entity.User;
++import com.pomostudy.enums.UserRole;
++import com.pomostudy.exception.ResourceException;
++import com.pomostudy.repository.UserRepository;
++import org.junit.jupiter.api.BeforeEach;
++import org.junit.jupiter.api.DisplayName;
++import org.junit.jupiter.api.Test;
++import org.junit.jupiter.api.extension.ExtendWith;
++import org.mockito.InjectMocks;
++import org.mockito.Mock;
++import org.mockito.junit.jupiter.MockitoExtension;
++import org.springframework.security.core.userdetails.UserDetails;
++import org.springframework.security.core.userdetails.UsernameNotFoundException;
++
++import java.util.Optional;
++
++import static org.junit.jupiter.api.Assertions.*;
++import static org.mockito.Mockito.*;
++
++@ExtendWith(MockitoExtension.class)
++class AuthenticationServiceTest {
++
++    @Mock
++    private UserRepository userRepository;
++
++    @InjectMocks
++    private AuthenticationService authenticationService;
++
++    private User user;
++
++
++    @BeforeEach
++    void setUp() {
++       user = new User(
++                "Test",
++                "test@test.com",
++                "Abc@abc",
++                UserRole.USER
++        );
++
++    }
++
++    @Test
++    @DisplayName("Should return UserDetails when user is found for email")
++    void shouldReturnUserDetailsWhenUserIsFoundForEmail() {
++        String email = "test@test.com";
++
++        when(userRepository.findUserByEmail(email)).thenReturn(Optional.ofNullable(this.user));
++
++        UserDetails userDetails = authenticationService.loadUserByUsername(email);
++
++        assertNotNull(userDetails, "UserDetails should not be null");
++        assertEquals(email, userDetails.getUsername(), "The username should be the same as email");
++
++        verify(userRepository, times(1)).findUserByEmail(email);
++    }
++
++    @Test
++    @DisplayName("Should be throw ResourceException when user is not found")
++    void shouldThrowUsernameNotFoundExceptionWhenUserIsNotFound() {
++        String notExistingEmail = "abc@abc.com";
++
++        when(userRepository.findUserByEmail(notExistingEmail)).thenThrow(UsernameNotFoundException.class);
++
++        assertThrows(UsernameNotFoundException.class, () -> authenticationService.loadUserByUsername(notExistingEmail));
++
++        verify(userRepository, times(1)).findUserByEmail(notExistingEmail);
++    }
++}
+\ No newline at end of file
+Index: src/main/java/com/pomostudy/service/AuthorizationService.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.service;\r\n\r\nimport com.pomostudy.repository.UserRepository;\r\nimport org.springframework.security.core.userdetails.UserDetails;\r\nimport org.springframework.security.core.userdetails.UserDetailsService;\r\nimport org.springframework.security.core.userdetails.UsernameNotFoundException;\r\nimport org.springframework.stereotype.Service;\r\n\r\n@Service\r\npublic class AuthorizationService implements UserDetailsService {\r\n\r\n    UserRepository userRepository;\r\n\r\n    public AuthorizationService(UserRepository userRepository) {\r\n        this.userRepository = userRepository;\r\n    }\r\n\r\n    @Override\r\n    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {\r\n        UserDetails user = userRepository.findUserByEmail(email);\r\n\r\n        if (user == null)\r\n            throw new UsernameNotFoundException(\"Email not found\" + email);\r\n\r\n        return user;\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/service/AuthorizationService.java b/src/main/java/com/pomostudy/service/AuthorizationService.java
+--- a/src/main/java/com/pomostudy/service/AuthorizationService.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/service/AuthorizationService.java	(date 1759796547331)
+@@ -1,27 +1,19 @@
+ package com.pomostudy.service;
+ 
+-import com.pomostudy.repository.UserRepository;
+-import org.springframework.security.core.userdetails.UserDetails;
+-import org.springframework.security.core.userdetails.UserDetailsService;
+-import org.springframework.security.core.userdetails.UsernameNotFoundException;
++import com.pomostudy.entity.base.UserOwned;
++import com.pomostudy.repository.AuthorizationRepository;
+ import org.springframework.stereotype.Service;
+ 
+ @Service
+-public class AuthorizationService implements UserDetailsService {
++public class AuthorizationService {
+ 
+-    UserRepository userRepository;
++    private final AuthorizationRepository authorizationRepository;
+ 
+-    public AuthorizationService(UserRepository userRepository) {
+-        this.userRepository = userRepository;
++    public AuthorizationService(AuthorizationRepository authorizationRepository) {
++        this.authorizationRepository = authorizationRepository;
+     }
+ 
+-    @Override
+-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+-        UserDetails user = userRepository.findUserByEmail(email);
+-
+-        if (user == null)
+-            throw new UsernameNotFoundException("Email not found" + email);
+-
+-        return user;
++    public <T extends UserOwned> boolean isOwner(Class<T> entityClass, Long entityId, Long userId) {
++        return authorizationRepository.isOwner(entityClass, entityId, userId);
+     }
+ }
+Index: src/main/java/com/pomostudy/repository/CategoryRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.repository;\r\n\r\nimport com.pomostudy.entity.Category;\r\nimport org.springframework.data.jpa.repository.JpaRepository;\r\nimport org.springframework.stereotype.Repository;\r\n\r\n@Repository\r\npublic interface CategoryRepository extends JpaRepository<Category, Long> {\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/repository/CategoryRepository.java b/src/main/java/com/pomostudy/repository/CategoryRepository.java
+--- a/src/main/java/com/pomostudy/repository/CategoryRepository.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/main/java/com/pomostudy/repository/CategoryRepository.java	(date 1759841248645)
+@@ -1,9 +1,17 @@
+ package com.pomostudy.repository;
+ 
++import com.pomostudy.config.security.AuthenticatedUser;
+ import com.pomostudy.entity.Category;
++import com.pomostudy.entity.User;
++import org.springframework.data.domain.Page;
++import org.springframework.data.domain.Pageable;
+ import org.springframework.data.jpa.repository.JpaRepository;
+ import org.springframework.stereotype.Repository;
+ 
++
++
+ @Repository
+ public interface CategoryRepository extends JpaRepository<Category, Long> {
++
++    Page<Category> findByUser(User user, Pageable pageable);
+ }
+Index: src/main/java/com/pomostudy/dto/PaginationDTO.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/dto/PaginationDTO.java b/src/main/java/com/pomostudy/dto/PaginationDTO.java
+new file mode 100644
+--- /dev/null	(date 1759770939639)
++++ b/src/main/java/com/pomostudy/dto/PaginationDTO.java	(date 1759770939639)
+@@ -0,0 +1,42 @@
++package com.pomostudy.dto;
++
++import org.springframework.data.domain.Page;
++
++import java.util.List;
++
++public class PaginationDTO<T> {
++
++    private final List<T> content;
++    private final int totalPages;
++    private final long totalElements;
++    private final int pageNumber;
++    private final int pageSize;
++
++    public PaginationDTO(Page<T> page) {
++        this.content = page.getContent();
++        this.totalPages = page.getTotalPages();
++        this.totalElements = page.getTotalElements();
++        this.pageNumber = page.getNumber();
++        this.pageSize = page.getSize();
++    }
++
++    public List<T> getContent() {
++        return content;
++    }
++
++    public int getTotalPages() {
++        return totalPages;
++    }
++
++    public long getTotalElements() {
++        return totalElements;
++    }
++
++    public int getPageNumber() {
++        return pageNumber;
++    }
++
++    public int getPageSize() {
++        return pageSize;
++    }
++}
+Index: src/main/java/com/pomostudy/repository/AuthorizationRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/repository/AuthorizationRepository.java b/src/main/java/com/pomostudy/repository/AuthorizationRepository.java
+new file mode 100644
+--- /dev/null	(date 1759798595178)
++++ b/src/main/java/com/pomostudy/repository/AuthorizationRepository.java	(date 1759798595178)
+@@ -0,0 +1,29 @@
++package com.pomostudy.repository;
++
++import com.pomostudy.entity.base.UserOwned;
++import jakarta.persistence.EntityManager;
++import jakarta.persistence.PersistenceContext;
++import jakarta.persistence.TypedQuery;
++import org.springframework.stereotype.Repository;
++
++@Repository
++public class AuthorizationRepository {
++
++    @PersistenceContext
++    private EntityManager entityManager;
++
++    public <T extends UserOwned> boolean isOwner(Class<T> entityClass, Long entityId, Long userId) {
++        if ( entityId == null || userId == null ) {
++            return false;
++        }
++
++        // Generic JPQL that uses entity class name dynamically
++        String jpql = "SELECT COUNT(e) > 0 FROM " + entityClass.getSimpleName() + " e WHERE e.id = :entityId AND e.user.id = :userId";
++
++        TypedQuery<Boolean> query = entityManager.createQuery(jpql, Boolean.class);
++        query.setParameter("entityId", entityId);
++        query.setParameter("userId", userId);
++
++        return query.getSingleResult();
++    }
++}
+Index: src/test/java/com/pomostudy/controller/TaskControllerTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.controller;\r\n\r\nimport com.fasterxml.jackson.databind.ObjectMapper;\r\nimport com.pomostudy.config.security.SecurityConfigurations;\r\nimport com.pomostudy.dto.task.TaskRequestDTO;\r\nimport com.pomostudy.dto.task.TaskResponseDTO;\r\nimport com.pomostudy.entity.Category;\r\nimport com.pomostudy.entity.Task;\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.enums.StatusUser;\r\nimport com.pomostudy.enums.TaskPriority;\r\nimport com.pomostudy.enums.UserRole;\r\nimport com.pomostudy.exception.ResourceExceptionFactory;\r\nimport com.pomostudy.repository.UserRepository;\r\nimport com.pomostudy.service.TaskService;\r\nimport com.pomostudy.service.TokenService;\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.DisplayName;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\r\nimport org.springframework.boot.test.mock.mockito.MockBean;\r\nimport org.springframework.context.annotation.Import;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.PageImpl;\r\nimport org.springframework.data.domain.PageRequest;\r\nimport org.springframework.data.domain.Pageable;\r\nimport org.springframework.http.MediaType;\r\nimport org.springframework.security.test.context.support.WithMockUser;\r\nimport org.springframework.test.context.ActiveProfiles;\r\nimport org.springframework.test.web.servlet.MockMvc;\r\n\r\nimport java.time.OffsetDateTime;\r\nimport java.util.List;\r\nimport java.util.Optional;\r\n\r\nimport static org.hamcrest.Matchers.containsString;\r\nimport static org.hamcrest.Matchers.hasSize;\r\nimport static org.mockito.ArgumentMatchers.any;\r\nimport static org.mockito.ArgumentMatchers.anyLong;\r\nimport static org.mockito.Mockito.*;\r\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;\r\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;\r\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;\r\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;\r\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;\r\nimport static org.hamcrest.CoreMatchers.is;\r\n\r\n\r\n@WebMvcTest(TaskController.class)\r\n@Import(SecurityConfigurations.class)\r\n@ActiveProfiles(\"test\")\r\n@WithMockUser(roles = \"USER\")\r\nclass TaskControllerTest {\r\n\r\n    @Autowired\r\n    private MockMvc mockMvc;\r\n\r\n    @Autowired\r\n    private ObjectMapper objectMapper;\r\n\r\n    @MockBean\r\n    private TaskService taskService;\r\n\r\n    @MockBean\r\n    private UserRepository userRepository;\r\n\r\n    @MockBean\r\n    private TokenService tokenService;\r\n\r\n    private TaskRequestDTO taskRequestDTO;\r\n    private TaskResponseDTO taskResponseDTO;\r\n    private Task task;\r\n    private User user;\r\n    private Category category;\r\n    private final Long taskID = 1L;\r\n\r\n    OffsetDateTime startDate = OffsetDateTime.now().plusDays(1L);\r\n    OffsetDateTime endDate = OffsetDateTime.now().plusDays(4L);\r\n\r\n    @BeforeEach\r\n    void setUp() {\r\n        taskRequestDTO = new TaskRequestDTO(\r\n                \"testTask\",\r\n                \"loremipsumloremipsumloremipsum\",\r\n                startDate,\r\n                endDate,\r\n                StatusUser.IN_PROGRESS,\r\n                TaskPriority.MEDIUM,\r\n                30,\r\n                1L,\r\n                1L);\r\n        taskResponseDTO = new TaskResponseDTO(\r\n                1L,\r\n                \"testTask\",\r\n                \"loremipsumloremipsumloremipsum\",\r\n                startDate,\r\n                endDate,\r\n                StatusUser.IN_PROGRESS,\r\n                TaskPriority.MEDIUM,\r\n                30,\r\n                1L,\r\n                1L);\r\n\r\n        user = new User();\r\n        user.setId(1L);\r\n        user.setName(\"test\");\r\n        user.setEmail(\"test@example.com\");\r\n        user.setRole(UserRole.ADMIN);\r\n\r\n        category = new Category();\r\n        category.setName(\"categoryTest\");\r\n        category.setColor(\"#FFF\");\r\n        category.setIcon(\"test.icon\");\r\n        category.setUserCategory(user);\r\n\r\n        task = new Task();\r\n        task.setId(1L);\r\n        task.setName(\"testTask\");\r\n        task.setDescription(\"loremipsumloremipsumloremipsum\");\r\n        task.setStartDate(startDate);\r\n        task.setEndDate(endDate);\r\n        task.setStatus(StatusUser.IN_PROGRESS);\r\n        task.setPriority(TaskPriority.MEDIUM);\r\n        task.setTimeTotalLearning(30);\r\n        task.setUserTask(user);\r\n        task.setCategory(category);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be create task and return status 201 created\")\r\n    void shouldCreateTaskReturnStatus201() throws Exception {\r\n\r\n        when(taskService.save(any(TaskRequestDTO.class))).thenReturn(taskResponseDTO);\r\n\r\n        mockMvc.perform(post(\"/api/task\")\r\n                .contentType(MediaType.APPLICATION_JSON)\r\n                .content(objectMapper.writeValueAsString(taskRequestDTO)))\r\n                .andExpect(status().isCreated())\r\n                .andExpect(header().string(\"Location\", containsString(\"api/task/1\")))\r\n                .andExpect(jsonPath(\"$.id\", is(1)))\r\n                .andExpect(jsonPath(\"$.name\", is(\"testTask\")));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be return 400 Bad request when create a new task with invalid data\")\r\n    void shouldBeReturn400BadRequestWhenCreateNewTaskWithInvalidData() throws Exception {\r\n\r\n        TaskRequestDTO invalidTaskRequestDTO = new TaskRequestDTO(\r\n                null,\r\n                \"loremipsumloremipsumloremipsum\",\r\n                startDate,\r\n                endDate,\r\n                StatusUser.IN_PROGRESS,\r\n                TaskPriority.MEDIUM,\r\n                30,\r\n                1L,\r\n                1L);\r\n\r\n        mockMvc.perform(post(\"/api/task\")\r\n                .contentType(MediaType.APPLICATION_JSON)\r\n                .content(objectMapper.writeValueAsString(invalidTaskRequestDTO)))\r\n                .andExpect(status().isBadRequest());\r\n\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be edit task and return status 200 ok\")\r\n    void shouldEditTaskAndReturnStatus200OK() throws Exception {\r\n\r\n        when(taskService.edit(any(TaskRequestDTO.class), anyLong())).thenReturn(taskResponseDTO);\r\n\r\n        mockMvc.perform(put(\"/api/task/{id}\", taskID)\r\n                .contentType(MediaType.APPLICATION_JSON)\r\n                .content(objectMapper.writeValueAsString(taskRequestDTO)))\r\n                .andExpect(status().isOk())\r\n                .andExpect(jsonPath(\"$.id\").value(1L))\r\n                .andExpect(jsonPath(\"$.name\").value(\"testTask\"));\r\n\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be return 404 Not Found for try edit non-existent task\")\r\n    void shouldReturn404TryEditNonExistentTask() throws Exception {\r\n\r\n        when(taskService.edit(any(TaskRequestDTO.class), anyLong()))\r\n                .thenThrow(ResourceExceptionFactory.notFound(\"Task\", taskID));\r\n\r\n        mockMvc.perform(put(\"/api/task/{id}\", taskID)\r\n                .contentType(MediaType.APPLICATION_JSON)\r\n                .content(objectMapper.writeValueAsString(taskRequestDTO)))\r\n                .andExpect(status().isNotFound());\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be return all Tasks with status 200 OK\")\r\n    void shouldReturnAllTasksWithStatus200() throws Exception {\r\n\r\n        Pageable pageable = PageRequest.of(0,10);\r\n        Page<TaskResponseDTO> taskPage = new PageImpl<>(List.of(taskResponseDTO), pageable, 1);\r\n\r\n        when(taskService.findAll(any(Pageable.class))).thenReturn(taskPage);\r\n\r\n        mockMvc.perform(get(\"/api/task?page=0&size=10&sort=id,asc\"))\r\n                .andExpect(status().isOk())\r\n                .andExpect(jsonPath(\"$.content\", hasSize(1)))\r\n                .andExpect(jsonPath(\"$.content[0].name\", is(\"testTask\")))\r\n                .andExpect(jsonPath(\"$.totalPages\", is(1)))\r\n                .andExpect(jsonPath(\"$.totalElements\", is(1)));\r\n\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be found one task for the id and return 200 OK\")\r\n    void shouldFoundTaskForTheIdReturn200() throws Exception {\r\n\r\n        when(taskService.findById(anyLong())).thenReturn(taskResponseDTO);\r\n\r\n        mockMvc.perform(get(\"/api/task/{id}\", taskID))\r\n                .andExpect(status().isOk())\r\n                .andExpect(jsonPath(\"$.name\").value(\"testTask\"))\r\n                .andExpect(jsonPath(\"$.description\").value(\"loremipsumloremipsumloremipsum\"));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be delete with success and return status 204 No Content\")\r\n    void shouldBeDeleteWithSuccessReturnStatus204() throws Exception {\r\n\r\n        when(taskService.findById(anyLong())).thenReturn(taskResponseDTO);\r\n        doNothing().when(taskService).delete(anyLong());\r\n\r\n        mockMvc.perform(delete(\"/api/task/{id}\", taskID))\r\n                .andExpect(status().isNoContent());\r\n\r\n        verify(taskService, times(1)).delete(anyLong());\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/pomostudy/controller/TaskControllerTest.java b/src/test/java/com/pomostudy/controller/TaskControllerTest.java
+--- a/src/test/java/com/pomostudy/controller/TaskControllerTest.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/test/java/com/pomostudy/controller/TaskControllerTest.java	(date 1759850470821)
+@@ -112,7 +112,7 @@
+         category.setName("categoryTest");
+         category.setColor("#FFF");
+         category.setIcon("test.icon");
+-        category.setUserCategory(user);
++        category.setUser(user);
+ 
+         task = new Task();
+         task.setId(1L);
+@@ -123,7 +123,7 @@
+         task.setStatus(StatusUser.IN_PROGRESS);
+         task.setPriority(TaskPriority.MEDIUM);
+         task.setTimeTotalLearning(30);
+-        task.setUserTask(user);
++        task.setUser(user);
+         task.setCategory(category);
+     }
+ 
+Index: src/test/java/com/pomostudy/service/TaskServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.service;\r\n\r\nimport com.pomostudy.mapper.TaskMapper;\r\nimport com.pomostudy.dto.task.TaskRequestDTO;\r\nimport com.pomostudy.dto.task.TaskResponseDTO;\r\nimport com.pomostudy.entity.Category;\r\nimport com.pomostudy.entity.Task;\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.enums.StatusUser;\r\nimport com.pomostudy.enums.TaskPriority;\r\nimport com.pomostudy.exception.ResourceException;\r\nimport com.pomostudy.exception.ResourceExceptionFactory;\r\nimport com.pomostudy.repository.TaskRepository;\r\nimport com.pomostudy.repository.UserRepository;\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.DisplayName;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.junit.jupiter.api.extension.ExtendWith;\r\nimport org.mockito.InjectMocks;\r\nimport org.mockito.Mock;\r\nimport org.mockito.junit.jupiter.MockitoExtension;\r\nimport org.springframework.data.domain.Page;\r\nimport org.springframework.data.domain.PageImpl;\r\nimport org.springframework.data.domain.PageRequest;\r\nimport org.springframework.data.domain.Pageable;\r\n\r\nimport java.time.OffsetDateTime;\r\nimport java.util.Collections;\r\nimport java.util.List;\r\nimport java.util.Optional;\r\n\r\nimport static org.junit.jupiter.api.Assertions.*;\r\nimport static org.mockito.ArgumentMatchers.any;\r\nimport static org.mockito.ArgumentMatchers.eq;\r\nimport static org.mockito.Mockito.*;\r\n\r\n@ExtendWith(MockitoExtension.class)\r\nclass TaskServiceTest {\r\n\r\n    @Mock\r\n    private TaskRepository taskRepository;\r\n\r\n    @Mock\r\n    private UserRepository userRepository;\r\n\r\n    @Mock\r\n    private TaskMapper taskMapper;\r\n\r\n    @InjectMocks\r\n    private TaskService taskService;\r\n\r\n\r\n    private TaskRequestDTO taskRequestDTO;\r\n    private TaskResponseDTO taskResponseDTO;\r\n    private Task task;\r\n\r\n    OffsetDateTime startDate = OffsetDateTime.now().plusDays(1L);\r\n    OffsetDateTime endDate = OffsetDateTime.now().plusDays(4L);\r\n\r\n    @BeforeEach\r\n    void setUp() {\r\n\r\n        User user = new User();\r\n        user.setId(1L);\r\n        user.setName(\"test\");\r\n        user.setEmail(\"test@example.com\");\r\n\r\n        Category category = new Category();\r\n        category.setName(\"categoryTest\");\r\n        category.setColor(\"#FFF\");\r\n        category.setIcon(\"test.icon\");\r\n        category.setUserCategory(user);\r\n\r\n        task = new Task();\r\n        task.setId(1L);\r\n        task.setName(\"testTask\");\r\n        task.setDescription(\"loremipsumloremipsumloremipsum\");\r\n        task.setStartDate(startDate);\r\n        task.setEndDate(endDate);\r\n        task.setStatus(StatusUser.IN_PROGRESS);\r\n        task.setPriority(TaskPriority.MEDIUM);\r\n        task.setTimeTotalLearning(30);\r\n        task.setUserTask(user);\r\n        task.setCategory(category);\r\n\r\n        taskRequestDTO = new TaskRequestDTO(\r\n                \"testTask\",\r\n                \"loremipsumloremipsumloremipsum\",\r\n                startDate,\r\n                endDate,\r\n                StatusUser.IN_PROGRESS,\r\n                TaskPriority.MEDIUM,\r\n                30,\r\n                1L,\r\n                1L);\r\n        taskResponseDTO = new TaskResponseDTO(1L, \"testTask\", \"loremipsumloremipsumloremipsum\", startDate, endDate, StatusUser.IN_PROGRESS, TaskPriority.MEDIUM, 30, 1L, 1L);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should save Task with success in the db\")\r\n    void shouldSaveTaskSuccessfully() {\r\n\r\n        when(taskMapper.toCreateTask(any(TaskRequestDTO.class))).thenReturn(task);\r\n        when(taskRepository.save(any(Task.class))).thenReturn(task);\r\n        when(taskMapper.toTaskResponseDTO(any(Task.class))).thenReturn(taskResponseDTO);\r\n\r\n        TaskResponseDTO result = taskService.save(taskRequestDTO);\r\n\r\n        assertNotNull(result);\r\n        assertEquals(\"testTask\", result.name());\r\n        assertEquals(\"loremipsumloremipsumloremipsum\", result.description());\r\n        assertEquals(startDate, result.startDate());\r\n        assertEquals(endDate, result.endDate());\r\n        assertEquals(StatusUser.IN_PROGRESS, result.status());\r\n        assertEquals(TaskPriority.MEDIUM, result.priority());\r\n        assertEquals(30, result.timeTotalLearning());\r\n        assertEquals(1L, result.user_task());\r\n        assertEquals(1L, result.categoryId());\r\n\r\n        verify(taskMapper, times(1)).toCreateTask(any(TaskRequestDTO.class));\r\n        verify(taskRepository, times(1)).save(any(Task.class));\r\n        verify(taskMapper, times(1)).toTaskResponseDTO(any(Task.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should throw exception when user is not found\")\r\n    void shouldThrowExceptionWhenUserNotFound() {\r\n\r\n        when(taskMapper.toCreateTask(any(TaskRequestDTO.class))).thenThrow(ResourceExceptionFactory.notFound(\"User\", taskRequestDTO.user_task()));\r\n\r\n        ResourceException error = assertThrows(ResourceException.class, () -> taskService.save(taskRequestDTO));\r\n        assertEquals(\"User with id 1 not found.\", error.getMessage());\r\n\r\n        verify(taskMapper, times(1)).toCreateTask(taskRequestDTO);\r\n        verify(taskRepository, never()).save(any(Task.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should edit task successfully in the db\")\r\n    void shouldEditTaskSuccessfully() {\r\n        Long taskId = 1L;\r\n        when(taskMapper.toUpdateTask(taskRequestDTO, taskId)).thenReturn(task);\r\n        when(taskRepository.save(any(Task.class))).thenReturn(task);\r\n        when(taskMapper.toTaskResponseDTO(any(Task.class))).thenReturn(taskResponseDTO);\r\n\r\n        TaskResponseDTO result = taskService.edit(taskRequestDTO, taskId);\r\n\r\n        assertNotNull(result);\r\n        assertEquals(\"testTask\", result.name());\r\n        assertEquals(\"loremipsumloremipsumloremipsum\", result.description());\r\n        assertEquals(startDate, result.startDate());\r\n        assertEquals(endDate, result.endDate());\r\n        assertEquals(StatusUser.IN_PROGRESS, result.status());\r\n        assertEquals(TaskPriority.MEDIUM, result.priority());\r\n        assertEquals(30, result.timeTotalLearning());\r\n        assertEquals(1L, result.user_task());\r\n        assertEquals(1L, result.categoryId());\r\n\r\n        verify(taskMapper, times(1)).toUpdateTask(taskRequestDTO, taskId);\r\n        verify(taskRepository, times(1)).save(task);\r\n        verify(taskMapper, times(1)).toTaskResponseDTO(task);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should throw exception when user is not belong to task\")\r\n    void shouldThrowExceptionWhenUserNotBelongToTask() {\r\n\r\n        Long taskId = 1L;\r\n        when(taskMapper.toUpdateTask(taskRequestDTO, taskId)).thenThrow(ResourceExceptionFactory.notFound(\"Task\", taskRequestDTO.user_task()));\r\n\r\n        ResourceException error = assertThrows(ResourceException.class, () -> taskService.edit(taskRequestDTO, taskId));\r\n\r\n        assertEquals(\"Task with id 1 not found.\", error.getMessage());\r\n\r\n        verify(taskMapper, times(1)).toUpdateTask(taskRequestDTO, taskId);\r\n        verify(taskRepository, never()).save(any(Task.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should throw exception when category does not found\")\r\n    void shouldThrowExceptionWhenCategoryNotFound() {\r\n\r\n        Long taskId = 1L;\r\n        when(taskMapper.toUpdateTask(taskRequestDTO, taskId)).thenThrow(ResourceExceptionFactory.notFound(\"Category\", taskRequestDTO.categoryId()));\r\n\r\n        ResourceException error = assertThrows(ResourceException.class, () -> taskService.edit(taskRequestDTO, taskId));\r\n\r\n        assertEquals(\"Category with id 1 not found.\", error.getMessage());\r\n\r\n        verify(taskMapper, times(1)).toUpdateTask(taskRequestDTO, taskId);\r\n        verify(taskRepository, never()).save(any(Task.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should be pass correct pagination parameters to service and return 200 OK\")\r\n    void shouldFindAllTasksDBWithStatus200() {\r\n\r\n        List<Task> taskResponse = Collections.singletonList(task);\r\n        Pageable pageable = PageRequest.of(0,10);\r\n\r\n        when(taskRepository.findAll(any(Pageable.class))).thenReturn(new PageImpl<>(taskResponse));\r\n        when(taskMapper.toTaskResponseDTO(task)).thenReturn(taskResponseDTO);\r\n\r\n        Page<TaskResponseDTO> result = taskService.findAll(pageable);\r\n\r\n        assertFalse(result.isEmpty());\r\n        assertEquals(1, result.getContent().size());\r\n        assertEquals(taskResponseDTO,result.getContent().getFirst());\r\n        assertEquals(taskRequestDTO.name(), result.getContent().getFirst().name());\r\n\r\n        verify(taskRepository, times(1)).findAll(any(Pageable.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should find the task from id when the task exist in the db\")\r\n    void shouldFindUserFromIdWhenUserExistDB() {\r\n        Long taskId = 1L;\r\n        when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));\r\n        when(taskMapper.toTaskResponseDTO(task)).thenReturn(taskResponseDTO);\r\n\r\n        Optional<TaskResponseDTO> result = Optional.ofNullable(taskService.findById(taskId));\r\n\r\n        assertTrue(result.isPresent());\r\n        assertEquals(taskResponseDTO, result.get());\r\n\r\n        verify(taskRepository, times(1)).findById(taskId);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should get Exception when do not find task from id\")\r\n    void shouldGetExceptionWhenNotFindTaskFromId() {\r\n        Long taskId = 99L;\r\n        when(taskRepository.findById(taskId)).thenThrow(ResourceExceptionFactory.notFound(\"Task\", taskId));\r\n\r\n        ResourceException error = assertThrows(ResourceException.class, () -> taskService.findById(taskId));\r\n\r\n        assertEquals(\"Task with id 99 not found.\", error.getMessage());\r\n\r\n        verify(taskRepository, times(1)).findById(taskId);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should delete task succefully from db\")\r\n    void shouldDeleteTaskSuccessfullyDB() {\r\n        Long taskId = 1L;\r\n        when(taskRepository.findById(taskId)).thenReturn(Optional.ofNullable(task));\r\n        doNothing().when(taskRepository).deleteById(taskId);\r\n\r\n        taskService.delete(taskId);\r\n\r\n        verify(taskRepository, times(1)).deleteById(taskId);\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/pomostudy/service/TaskServiceTest.java b/src/test/java/com/pomostudy/service/TaskServiceTest.java
+--- a/src/test/java/com/pomostudy/service/TaskServiceTest.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/test/java/com/pomostudy/service/TaskServiceTest.java	(date 1759850459034)
+@@ -69,7 +69,7 @@
+         category.setName("categoryTest");
+         category.setColor("#FFF");
+         category.setIcon("test.icon");
+-        category.setUserCategory(user);
++        category.setUser(user);
+ 
+         task = new Task();
+         task.setId(1L);
+@@ -80,7 +80,7 @@
+         task.setStatus(StatusUser.IN_PROGRESS);
+         task.setPriority(TaskPriority.MEDIUM);
+         task.setTimeTotalLearning(30);
+-        task.setUserTask(user);
++        task.setUser(user);
+         task.setCategory(category);
+ 
+         taskRequestDTO = new TaskRequestDTO(
+Index: src/test/java/com/pomostudy/service/UserServiceTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.service;\r\n\r\nimport com.pomostudy.dto.user.UserCreateRequestDTO;\r\nimport com.pomostudy.mapper.UserMapper;\r\nimport com.pomostudy.dto.user.UserResponseDTO;\r\nimport com.pomostudy.dto.user.UserUpdateRequestDTO;\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.exception.ResourceException;\r\nimport com.pomostudy.exception.ResourceExceptionFactory;\r\nimport com.pomostudy.repository.UserRepository;\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.DisplayName;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.junit.jupiter.api.extension.ExtendWith;\r\nimport org.mockito.InjectMocks;\r\nimport org.mockito.Mock;\r\nimport org.mockito.junit.jupiter.MockitoExtension;\r\nimport org.springframework.dao.DataIntegrityViolationException;\r\n\r\nimport java.util.Collections;\r\nimport java.util.List;\r\nimport java.util.Optional;\r\n\r\nimport static org.junit.jupiter.api.Assertions.*;\r\nimport static org.mockito.Mockito.*;\r\n\r\n@ExtendWith(MockitoExtension.class)\r\nclass UserServiceTest {\r\n\r\n    @Mock\r\n    private UserRepository userRepository;\r\n\r\n    @Mock\r\n    private UserMapper userMapper;\r\n\r\n    @InjectMocks\r\n    private UserService userService;\r\n\r\n    private UserCreateRequestDTO userCreateRequestDTO;\r\n    private UserUpdateRequestDTO userUpdateRequestDTO;\r\n    private UserResponseDTO userResponseDTO;\r\n    private User user;\r\n\r\n    @BeforeEach\r\n    void setUp() {\r\n        userCreateRequestDTO = new UserCreateRequestDTO(\"testuser\", \"test@example.com\", \"password123\");\r\n        userUpdateRequestDTO = new UserUpdateRequestDTO(\"testuser\", \"password123\");\r\n        userResponseDTO = new UserResponseDTO(1L,\"testuser\", \"test@example.com\");\r\n        user = new User();\r\n        user.setName(\"testuser\");\r\n        user.setEmail(\"test@example.com\");\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should save user with success in the db\")\r\n    void shouldSaveUserSuccessfully() {\r\n\r\n        when(userMapper.toCreateUser(any(UserCreateRequestDTO.class))).thenReturn(user);\r\n        when(userRepository.save(any(User.class))).thenReturn(user);\r\n        when(userMapper.toUserResponseDTO(any(User.class))).thenReturn(userResponseDTO);\r\n\r\n        UserResponseDTO result = userService.save(userCreateRequestDTO);\r\n\r\n        assertNotNull(result);\r\n        assertEquals(\"testuser\", result.name());\r\n        assertEquals(\"test@example.com\", result.email());\r\n\r\n        verify(userMapper, times(1)).toCreateUser(any(UserCreateRequestDTO.class));\r\n        verify(userRepository, times(1)).save(any(User.class));\r\n        verify(userMapper, times(1)).toUserResponseDTO(any(User.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should throw exception when save email is already in the db\")\r\n    void shouldThrowExceptionWhenSavingWithDuplicateData() {\r\n\r\n        when(userMapper.toCreateUser(any(UserCreateRequestDTO.class))).thenReturn(user);\r\n        when(userRepository.save(any(User.class))).thenThrow(DataIntegrityViolationException.class);\r\n\r\n        assertThrows(DataIntegrityViolationException.class, () -> userService.save(userCreateRequestDTO));\r\n\r\n        verify(userRepository, times(1)).save(any(User.class));\r\n        verify(userMapper, never()).toUserResponseDTO(any(User.class));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should edit user successfully in the db\")\r\n    void shouldEditUserSuccessfully() {\r\n        Long userId = 1L;\r\n        when(userMapper.toUpdateUser(userUpdateRequestDTO, userId)).thenReturn(user);\r\n        when(userRepository.save(any(User.class))).thenReturn(user);\r\n        when(userMapper.toUserResponseDTO(any(User.class))).thenReturn(userResponseDTO);\r\n\r\n        UserResponseDTO result = userService.edit(userUpdateRequestDTO, userId);\r\n\r\n        assertNotNull(result);\r\n        assertEquals(userResponseDTO.name(), result.name());\r\n        assertEquals(userResponseDTO.email(), result.email());\r\n\r\n        verify(userMapper, times(1)).toUpdateUser(userUpdateRequestDTO, userId);\r\n        verify(userRepository, times(1)).save(user);\r\n        verify(userMapper, times(1)).toUserResponseDTO(user);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should throw exception when edit user that not exist in the db\")\r\n    void shouldThrowResourceExceptionWhenEditingNonExistentUser() {\r\n        Long userId = 99L;\r\n        when(userMapper.toUpdateUser(userUpdateRequestDTO, userId)).thenThrow(ResourceExceptionFactory.notFound(\"User\", userId));\r\n\r\n        ResourceException error = assertThrows(ResourceException.class, () -> userService.edit(userUpdateRequestDTO, userId));\r\n\r\n        assertEquals(\"User with id 99 not found.\", error.getMessage());\r\n\r\n        verify(userMapper, times(1)).toUpdateUser(userUpdateRequestDTO, userId);\r\n        verify(userRepository, never()).save(any(User.class));\r\n    }\r\n\r\n\r\n    @Test\r\n    @DisplayName(\"Should find all users from the db\")\r\n    void shouldFindAllUsers() {\r\n\r\n        List<User> userList = Collections.singletonList(user);\r\n        when(userRepository.findAll()).thenReturn(userList);\r\n\r\n        List<User> result = userService.findAll();\r\n\r\n        assertFalse(result.isEmpty());\r\n        assertEquals(1, result.size());\r\n        assertEquals(user, result.getFirst());\r\n\r\n        verify(userRepository, times(1)).findAll();\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should find the user from id when user exists in the db\")\r\n    void shouldFindUserByIdWhenExists() {\r\n        Long userId = 1L;\r\n        when(userRepository.findById(userId)).thenReturn(Optional.of(user));\r\n\r\n        Optional<User> result = userService.findById(userId);\r\n\r\n        assertTrue(result.isPresent());\r\n        assertEquals(user, result.get());\r\n\r\n        verify(userRepository, times(1)).findById(userId);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should return empty optional when user does not exist int the db\")\r\n    void shouldReturnEmptyOptionalWhenUserDoesNotExist() {\r\n        Long userId = 99L;\r\n        when(userRepository.findById(userId)).thenReturn(Optional.empty());\r\n\r\n        Optional<User> result = userService.findById(userId);\r\n\r\n        assertFalse(result.isPresent());\r\n\r\n        verify(userRepository, times(1)).findById(userId);\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should delete user successfully from db\")\r\n    void shouldDeleteUserSuccessfully() {\r\n\r\n        Long userId = 1L;\r\n        doNothing().when(userRepository).deleteById(userId);\r\n\r\n        userService.delete(userId);\r\n\r\n        verify(userRepository, times(1)).deleteById(userId);\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/pomostudy/service/UserServiceTest.java b/src/test/java/com/pomostudy/service/UserServiceTest.java
+--- a/src/test/java/com/pomostudy/service/UserServiceTest.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/test/java/com/pomostudy/service/UserServiceTest.java	(date 1759846338050)
+@@ -47,6 +47,7 @@
+         userUpdateRequestDTO = new UserUpdateRequestDTO("testuser", "password123");
+         userResponseDTO = new UserResponseDTO(1L,"testuser", "test@example.com");
+         user = new User();
++        user.setId(1L);
+         user.setName("testuser");
+         user.setEmail("test@example.com");
+     }
+Index: src/main/java/com/pomostudy/config/security/AuthenticatedUser.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/main/java/com/pomostudy/config/security/AuthenticatedUser.java b/src/main/java/com/pomostudy/config/security/AuthenticatedUser.java
+new file mode 100644
+--- /dev/null	(date 1759849169143)
++++ b/src/main/java/com/pomostudy/config/security/AuthenticatedUser.java	(date 1759849169143)
+@@ -0,0 +1,70 @@
++package com.pomostudy.config.security;
++
++import com.pomostudy.entity.User;
++import com.pomostudy.enums.UserRole;
++import org.springframework.security.core.GrantedAuthority;
++import org.springframework.security.core.authority.SimpleGrantedAuthority;
++import org.springframework.security.core.userdetails.UserDetails;
++
++import java.util.Collection;
++import java.util.List;
++
++public class AuthenticatedUser implements UserDetails {
++
++    private final User user;
++
++    public AuthenticatedUser(User user) {
++        this.user = user;
++    }
++
++    @Override
++    public String getUsername() {
++
++        return user.getEmail();
++    }
++
++    @Override
++    public String getPassword() {
++        return user.getPassword();
++    }
++
++    public User getUser() {
++        return user;
++    }
++
++    @Override
++    public boolean isAccountNonExpired() {
++        return UserDetails.super.isAccountNonExpired();
++    }
++
++    @Override
++    public boolean isAccountNonLocked() {
++        return UserDetails.super.isAccountNonLocked();
++    }
++
++    @Override
++    public boolean isCredentialsNonExpired() {
++        return UserDetails.super.isCredentialsNonExpired();
++    }
++
++    @Override
++    public boolean isEnabled() {
++        return UserDetails.super.isEnabled();
++    }
++
++    // Get Authority
++    @Override
++    public Collection<? extends GrantedAuthority> getAuthorities() {
++        if (user.getRole() == UserRole.ADMIN)
++            return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_USER"));
++        else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
++    }
++
++    // isAdmin ???
++    public boolean isAdmin() {
++        return getAuthorities()
++                .stream()
++                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
++    }
++
++}
+Index: src/test/java/com/pomostudy/controller/AuthenticationControllerTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.controller;\r\n\r\nimport com.fasterxml.jackson.databind.ObjectMapper;\r\nimport com.pomostudy.config.security.SecurityConfigurations;\r\nimport com.pomostudy.dto.auth.AuthenticationDTO;\r\nimport com.pomostudy.dto.user.UserCreateRequestDTO;\r\nimport com.pomostudy.dto.user.UserResponseDTO;\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.enums.UserRole;\r\nimport com.pomostudy.repository.UserRepository;\r\nimport com.pomostudy.service.AuthorizationService;\r\nimport com.pomostudy.service.TokenService;\r\nimport com.pomostudy.service.UserService;\r\nimport org.junit.jupiter.api.BeforeEach;\r\nimport org.junit.jupiter.api.DisplayName;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;\r\nimport org.springframework.boot.test.mock.mockito.MockBean;\r\nimport org.springframework.context.annotation.Import;\r\nimport org.springframework.dao.DataIntegrityViolationException;\r\nimport org.springframework.data.auditing.AuditingHandler;\r\nimport org.springframework.data.auditing.DateTimeProvider;\r\nimport org.springframework.http.MediaType;\r\nimport org.springframework.security.authentication.AuthenticationManager;\r\nimport org.springframework.security.authentication.BadCredentialsException;\r\nimport org.springframework.security.authentication.UsernamePasswordAuthenticationToken;\r\nimport org.springframework.security.core.Authentication;\r\nimport org.springframework.test.context.ActiveProfiles;\r\nimport org.springframework.test.web.servlet.MockMvc;\r\n\r\nimport static org.hamcrest.Matchers.is;\r\nimport static org.mockito.ArgumentMatchers.any;\r\nimport static org.mockito.Mockito.when;\r\nimport static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;\r\nimport static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;\r\n\r\n\r\n@WebMvcTest(controllers = AuthenticationController.class)\r\n@Import({SecurityConfigurations.class})\r\n@ActiveProfiles(\"test\")\r\nclass AuthenticationControllerTest {\r\n\r\n    @Autowired\r\n    private MockMvc mockMvc;\r\n\r\n    @Autowired\r\n    private ObjectMapper objectMapper;\r\n\r\n    @MockBean\r\n    private AuthenticationManager authenticationManager;\r\n\r\n    @MockBean\r\n    private AuthorizationService authorizationService;\r\n\r\n    @MockBean\r\n    private TokenService tokenService;\r\n\r\n    @MockBean\r\n    private UserRepository userRepository;\r\n\r\n    @MockBean\r\n    private UserService userService;\r\n\r\n\r\n    @MockBean\r\n    private AuditingHandler auditingHandler;\r\n\r\n    @MockBean\r\n    private DateTimeProvider auditingDateTimeProvider;\r\n\r\n    private User user;\r\n    private AuthenticationDTO authenticationDTO;\r\n\r\n    private UserCreateRequestDTO userCreateRequestDTO;\r\n    private UserResponseDTO userResponseDTO;\r\n\r\n\r\n    @BeforeEach\r\n    void setUp() {\r\n        authenticationDTO = new AuthenticationDTO(\"test@test.com\", \"Password@123\" );\r\n\r\n        userCreateRequestDTO = new UserCreateRequestDTO(\"testuser\", \"test@example.com\", \"Password@123\");\r\n        userResponseDTO = new UserResponseDTO(1L, \"testuser\", \"test@example.com\");\r\n\r\n        user = new User();\r\n        Long userId = 1L;\r\n        user.setId(userId);\r\n        user.setName(\"testuser\");\r\n        user.setEmail(\"test@example.com\");\r\n        user.setRole(UserRole.ADMIN);\r\n\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should do login with success and return status 200 with JWT token\")\r\n    void shouldLoginSuccessReturnStatus200WithJWTToken() throws Exception {\r\n        Authentication auth = new UsernamePasswordAuthenticationToken(user, null);\r\n        String expectedToken = \"sample.jwt.token\";\r\n\r\n        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);\r\n        when(tokenService.generateToken(any(User.class))).thenReturn(expectedToken);\r\n\r\n        mockMvc.perform(post(\"/api/auth/login\")\r\n                .contentType(MediaType.APPLICATION_JSON)\r\n                .content(objectMapper.writeValueAsString(authenticationDTO)))\r\n                .andExpect(status().isOk())\r\n                .andExpect(content().contentType(MediaType.APPLICATION_JSON))\r\n                .andExpect(jsonPath(\"$.token\", is(expectedToken)));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should return 401 Unauthorized when credentials are invalid\")\r\n    void loginWithInvalidCredentialsShouldReturnUnauthorized() throws Exception {\r\n        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))\r\n                .thenThrow(new BadCredentialsException(\"Invalid credentials\"));\r\n\r\n        mockMvc.perform(post(\"/api/auth/login\")\r\n                        .contentType(MediaType.APPLICATION_JSON)\r\n                        .content(objectMapper.writeValueAsString(authenticationDTO)))\r\n                .andExpect(status().isUnauthorized());\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should return 201 Created on successful user registration\")\r\n    void registerWithValidDataShouldCreateUserAndReturnResponse() throws Exception {\r\n\r\n        when(userService.save(any(UserCreateRequestDTO.class))).thenReturn(userResponseDTO);\r\n\r\n        mockMvc.perform(post(\"/api/auth/register\")\r\n                        .contentType(MediaType.APPLICATION_JSON)\r\n                        .content(objectMapper.writeValueAsString(userCreateRequestDTO)))\r\n                .andExpect(status().isCreated())\r\n                .andExpect(header().string(\"Location\", \"http://localhost/api/user/1\"))\r\n                .andExpect(jsonPath(\"$.id\", is(1)))\r\n                .andExpect(jsonPath(\"$.name\", is(\"testuser\")))\r\n                .andExpect(jsonPath(\"$.email\", is(\"test@example.com\")));\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should return 400 Bad Request when registration data is invalid\")\r\n    void registerWithInvalidDataShouldReturnBadRequest() throws Exception {\r\n        UserCreateRequestDTO invalidRequestDTO = new UserCreateRequestDTO(\"\", \"not-an-email\", \"123\");\r\n\r\n        mockMvc.perform(post(\"/api/auth/register\")\r\n                        .contentType(MediaType.APPLICATION_JSON)\r\n                        .content(objectMapper.writeValueAsString(invalidRequestDTO)))\r\n                .andExpect(status().isBadRequest());\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should return 500 Internal Server Error when email is already in use\")\r\n    void registerWithDuplicateEmailShouldReturnInternalServerError() throws Exception {\r\n\r\n        when(userService.save(any(UserCreateRequestDTO.class)))\r\n                .thenThrow(new DataIntegrityViolationException(\"Email already exists.\"));\r\n\r\n        mockMvc.perform(post(\"/api/auth/register\")\r\n                        .contentType(MediaType.APPLICATION_JSON)\r\n                        .content(objectMapper.writeValueAsString(userCreateRequestDTO)))\r\n                .andExpect(status().isBadRequest());\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/pomostudy/controller/AuthenticationControllerTest.java b/src/test/java/com/pomostudy/controller/AuthenticationControllerTest.java
+--- a/src/test/java/com/pomostudy/controller/AuthenticationControllerTest.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/test/java/com/pomostudy/controller/AuthenticationControllerTest.java	(date 1759754830785)
+@@ -1,6 +1,7 @@
+ package com.pomostudy.controller;
+ 
+ import com.fasterxml.jackson.databind.ObjectMapper;
++import com.pomostudy.config.security.AuthenticatedUser;
+ import com.pomostudy.config.security.SecurityConfigurations;
+ import com.pomostudy.dto.auth.AuthenticationDTO;
+ import com.pomostudy.dto.user.UserCreateRequestDTO;
+@@ -99,7 +100,7 @@
+         String expectedToken = "sample.jwt.token";
+ 
+         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).thenReturn(auth);
+-        when(tokenService.generateToken(any(User.class))).thenReturn(expectedToken);
++        when(tokenService.generateToken(any(AuthenticatedUser.class))).thenReturn(expectedToken);
+ 
+         mockMvc.perform(post("/api/auth/login")
+                 .contentType(MediaType.APPLICATION_JSON)
+Index: src/test/java/com/pomostudy/repository/UserRepositoryTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.pomostudy.repository;\r\n\r\nimport com.pomostudy.config.auditing.Config;\r\nimport com.pomostudy.dto.user.UserCreateRequestDTO;\r\nimport com.pomostudy.entity.User;\r\nimport com.pomostudy.enums.UserRole;\r\nimport jakarta.persistence.EntityManager;\r\nimport org.junit.jupiter.api.DisplayName;\r\nimport org.junit.jupiter.api.Test;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;\r\nimport org.springframework.context.annotation.Import;\r\nimport org.springframework.security.core.userdetails.UserDetails;\r\nimport org.springframework.test.context.ActiveProfiles;\r\n\r\nimport java.util.Optional;\r\n\r\nimport static org.assertj.core.api.Assertions.assertThat;\r\nimport static org.junit.jupiter.api.Assertions.*;\r\n\r\n@DataJpaTest\r\n@ActiveProfiles(\"test\")\r\n@Import(Config.class)\r\nclass UserRepositoryTest {\r\n\r\n    @Autowired\r\n    UserRepository userRepository;\r\n\r\n    @Autowired\r\n    EntityManager entityManager;\r\n\r\n\r\n    @Test\r\n    @DisplayName(\"Should get User sucessfully from db for the email\")\r\n    void findUserByEmailCaseSuccess() {\r\n         // 1 - Arrange\r\n        String email = \"jromualdo3@hotmail.com\";\r\n\r\n        // Persist memory db\r\n        UserCreateRequestDTO data =  new UserCreateRequestDTO(\"junior\", email, \"A2314@fdaf\");\r\n        this.createUser(data);\r\n\r\n        // 2 - Act\r\n        Optional<UserDetails> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));\r\n\r\n        // 3 - Assert\r\n        assertNotNull(result);\r\n        assertThat(result).isPresent();\r\n    }\r\n\r\n    @Test\r\n    @DisplayName(\"Should NOT get User from DB when user not exists\")\r\n    void findUserByEmailCaseEmpty() {\r\n\r\n        String email = \"jromualdo3@hotmail.com\";\r\n\r\n        Optional<UserDetails> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));\r\n\r\n        assertThat(result).isEmpty();\r\n    }\r\n\r\n    private User createUser(UserCreateRequestDTO userCreateRequestDTO) {\r\n        User newUser = new User(\r\n                userCreateRequestDTO.getName(),\r\n                userCreateRequestDTO.getEmail(),\r\n                userCreateRequestDTO.getPassword(),\r\n                UserRole.ADMIN\r\n        );\r\n        this.entityManager.persist(newUser);\r\n        return newUser;\r\n    }\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/test/java/com/pomostudy/repository/UserRepositoryTest.java b/src/test/java/com/pomostudy/repository/UserRepositoryTest.java
+--- a/src/test/java/com/pomostudy/repository/UserRepositoryTest.java	(revision 5839165bfaf6fca7c48fd535a43ffb4abe026000)
++++ b/src/test/java/com/pomostudy/repository/UserRepositoryTest.java	(date 1759850426837)
+@@ -41,7 +41,7 @@
+         this.createUser(data);
+ 
+         // 2 - Act
+-        Optional<UserDetails> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));
++        Optional<User> result = this.userRepository.findUserByEmail(email);
+ 
+         // 3 - Assert
+         assertNotNull(result);
+@@ -54,7 +54,7 @@
+ 
+         String email = "jromualdo3@hotmail.com";
+ 
+-        Optional<UserDetails> result = Optional.ofNullable(this.userRepository.findUserByEmail(email));
++        Optional<User> result = this.userRepository.findUserByEmail(email);
+ 
+         assertThat(result).isEmpty();
+     }
