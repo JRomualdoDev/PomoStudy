@@ -4,16 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1e6e7e8f-eb2a-436f-b632-716e3fe19f0b" name="Changes" comment="fix(UserMapper): email duplicated fixed">
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/config/security/AuthenticatedUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/config/security/AuthenticatedUser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/controller/BaseController.java" beforeDir="false" />
+    <list default="true" id="1e6e7e8f-eb2a-436f-b632-716e3fe19f0b" name="Changes" comment="Merge branch 'Dev'">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/mapper/UserMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/repository/AuthorizationRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/repository/AuthorizationRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/AuthorizationService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/AuthorizationService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/pomostudy/controller/UserControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/pomostudy/controller/UserControllerTest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/java/com/pomostudy/service/UserServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/pomostudy/service/UserServiceTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -140,10 +135,19 @@
     "JUnit.UserControllerTest.shouldCreateUser_andReturn201.executor": "Run",
     "JUnit.UserControllerTest.shouldDeleteUser_andReturn204.executor": "Run",
     "JUnit.UserControllerTest.shouldEditUser_andReturn200.executor": "Run",
+    "JUnit.UserControllerTest.shouldFindAllUsersDBWithStatus200.executor": "Run",
+    "JUnit.UserControllerTest.shouldFindAllUsersForAdmin.executor": "Run",
+    "JUnit.UserControllerTest.shouldReturn404_whenEditNonExistentUser.executor": "Run",
+    "JUnit.UserControllerTest.shouldReturn404_whenUserNotFoundById.executor": "Run",
     "JUnit.UserRepositoryTest.executor": "Run",
     "JUnit.UserRepositoryTest.findUserByEmailCaseEmpty.executor": "Run",
     "JUnit.UserRepositoryTest.findUserByEmailCaseSuccess.executor": "Run",
     "JUnit.UserServiceTest.executor": "Run",
+    "JUnit.UserServiceTest.shouldDeleteUserSuccessfully.executor": "Run",
+    "JUnit.UserServiceTest.shouldEditUserSuccessfully.executor": "Run",
+    "JUnit.UserServiceTest.shouldReturnEmptyOptionalWhenUserDoesNotExist.executor": "Run",
+    "JUnit.UserServiceTest.shouldReturnExceptionWhenUserDoesNotExist.executor": "Run",
+    "JUnit.UserServiceTest.shouldSaveUserSuccessfully.executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
@@ -151,7 +155,7 @@
     "SONARLINT_PRECOMMIT_ANALYSIS": "true",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
     "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "git-widget-placeholder": "Dev",
+    "git-widget-placeholder": "master",
     "ignore.preview.features.used": "true",
     "last_opened_file_path": "G:/Bkp G 2/Itens Ultima Formatação/Projetos/Java/PomoStudy/Backend/src/test/java/com/pomostudy/service",
     "project.structure.last.edited": "Project",
@@ -175,7 +179,7 @@
       <recent name="com.pomostudy.dto.user" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.TaskControllerTest.shouldEditTaskAndReturnStatus200OK">
+  <component name="RunManager" selected="JUnit.UserControllerTest">
     <configuration name="PomoStudy" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.pomostudy.MyApplication" />
       <module name="PomoStudy" />
@@ -190,7 +194,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="GoalControllerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="UserControllerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="PomoStudy" />
       <extension name="coverage">
         <pattern>
@@ -199,13 +203,13 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.pomostudy.controller" />
-      <option name="MAIN_CLASS_NAME" value="com.pomostudy.controller.GoalControllerTest" />
+      <option name="MAIN_CLASS_NAME" value="com.pomostudy.controller.UserControllerTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="GoalControllerTest.shouldBeReturn400BadRequestWhenCreateNewGoalWithInvalidData" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="UserControllerTest.shouldReturn404_whenUserNotFoundById" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="PomoStudy" />
       <extension name="coverage">
         <pattern>
@@ -214,14 +218,14 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.pomostudy.controller" />
-      <option name="MAIN_CLASS_NAME" value="com.pomostudy.controller.GoalControllerTest" />
-      <option name="METHOD_NAME" value="shouldBeReturn400BadRequestWhenCreateNewGoalWithInvalidData" />
+      <option name="MAIN_CLASS_NAME" value="com.pomostudy.controller.UserControllerTest" />
+      <option name="METHOD_NAME" value="shouldReturn404_whenUserNotFoundById" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="GoalServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="UserServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="PomoStudy" />
       <extension name="coverage">
         <pattern>
@@ -230,13 +234,13 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.pomostudy.service" />
-      <option name="MAIN_CLASS_NAME" value="com.pomostudy.service.GoalServiceTest" />
+      <option name="MAIN_CLASS_NAME" value="com.pomostudy.service.UserServiceTest" />
       <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="GoalServiceTest.shouldEditGoalSuccessfully" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="UserServiceTest.shouldDeleteUserSuccessfully" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="PomoStudy" />
       <extension name="coverage">
         <pattern>
@@ -245,24 +249,24 @@
         </pattern>
       </extension>
       <option name="PACKAGE_NAME" value="com.pomostudy.service" />
-      <option name="MAIN_CLASS_NAME" value="com.pomostudy.service.GoalServiceTest" />
-      <option name="METHOD_NAME" value="shouldEditGoalSuccessfully" />
+      <option name="MAIN_CLASS_NAME" value="com.pomostudy.service.UserServiceTest" />
+      <option name="METHOD_NAME" value="shouldDeleteUserSuccessfully" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TaskControllerTest.shouldEditTaskAndReturnStatus200OK" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="UserServiceTest.shouldReturnExceptionWhenUserDoesNotExist" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="PomoStudy" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="com.pomostudy.controller.*" />
+          <option name="PATTERN" value="com.pomostudy.service.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
-      <option name="PACKAGE_NAME" value="com.pomostudy.controller" />
-      <option name="MAIN_CLASS_NAME" value="com.pomostudy.controller.TaskControllerTest" />
-      <option name="METHOD_NAME" value="shouldEditTaskAndReturnStatus200OK" />
+      <option name="PACKAGE_NAME" value="com.pomostudy.service" />
+      <option name="MAIN_CLASS_NAME" value="com.pomostudy.service.UserServiceTest" />
+      <option name="METHOD_NAME" value="shouldReturnExceptionWhenUserDoesNotExist" />
       <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
@@ -270,19 +274,19 @@
     </configuration>
     <list>
       <item itemvalue="Application.PomoStudy" />
-      <item itemvalue="JUnit.TaskControllerTest.shouldEditTaskAndReturnStatus200OK" />
-      <item itemvalue="JUnit.GoalControllerTest" />
-      <item itemvalue="JUnit.GoalControllerTest.shouldBeReturn400BadRequestWhenCreateNewGoalWithInvalidData" />
-      <item itemvalue="JUnit.GoalServiceTest" />
-      <item itemvalue="JUnit.GoalServiceTest.shouldEditGoalSuccessfully" />
+      <item itemvalue="JUnit.UserControllerTest.shouldReturn404_whenUserNotFoundById" />
+      <item itemvalue="JUnit.UserControllerTest" />
+      <item itemvalue="JUnit.UserServiceTest.shouldDeleteUserSuccessfully" />
+      <item itemvalue="JUnit.UserServiceTest.shouldReturnExceptionWhenUserDoesNotExist" />
+      <item itemvalue="JUnit.UserServiceTest" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="JUnit.TaskControllerTest.shouldEditTaskAndReturnStatus200OK" />
-        <item itemvalue="JUnit.GoalServiceTest" />
-        <item itemvalue="JUnit.GoalServiceTest.shouldEditGoalSuccessfully" />
-        <item itemvalue="JUnit.GoalControllerTest" />
-        <item itemvalue="JUnit.GoalControllerTest.shouldBeReturn400BadRequestWhenCreateNewGoalWithInvalidData" />
+        <item itemvalue="JUnit.UserControllerTest" />
+        <item itemvalue="JUnit.UserControllerTest.shouldReturn404_whenUserNotFoundById" />
+        <item itemvalue="JUnit.UserServiceTest" />
+        <item itemvalue="JUnit.UserServiceTest.shouldDeleteUserSuccessfully" />
+        <item itemvalue="JUnit.UserServiceTest.shouldReturnExceptionWhenUserDoesNotExist" />
       </list>
     </recent_temporary>
   </component>
@@ -293,14 +297,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1757877900059</updated>
-    </task>
-    <task id="LOCAL-00103" summary="Merge remote-tracking branch 'origin/master'">
-      <option name="closed" value="true" />
-      <created>1760011690042</created>
-      <option name="number" value="00103" />
-      <option name="presentableId" value="LOCAL-00103" />
-      <option name="project" value="LOCAL" />
-      <updated>1760011690042</updated>
     </task>
     <task id="LOCAL-00104" summary="refactor(CategoryController): improvement">
       <option name="closed" value="true" />
@@ -686,7 +682,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760212438948</updated>
     </task>
-    <option name="localTasksCounter" value="152" />
+    <task id="LOCAL-00152" summary="Merge branch 'Dev'">
+      <option name="closed" value="true" />
+      <created>1760315143196</created>
+      <option name="number" value="00152" />
+      <option name="presentableId" value="LOCAL-00152" />
+      <option name="project" value="LOCAL" />
+      <updated>1760315143196</updated>
+    </task>
+    <option name="localTasksCounter" value="153" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -701,7 +705,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="test(TaskServiceTest): change userTask to user" />
     <MESSAGE value="test(UserRepositoryTest): remove optional" />
     <MESSAGE value="test(CategoryControllerTest): errors fixed" />
     <MESSAGE value="test(TaskControllerTest): change userTask to user" />
@@ -726,6 +729,7 @@
     <MESSAGE value="test(GoalServiceTest): add authenticated user" />
     <MESSAGE value="test(GoalControllerTest): add authenticated user" />
     <MESSAGE value="fix(UserMapper): email duplicated fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix(UserMapper): email duplicated fixed" />
+    <MESSAGE value="Merge branch 'Dev'" />
+    <option name="LAST_COMMIT_MESSAGE" value="Merge branch 'Dev'" />
   </component>
 </project>
