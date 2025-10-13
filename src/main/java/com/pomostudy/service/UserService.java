@@ -1,6 +1,7 @@
 package com.pomostudy.service;
 
 import com.pomostudy.config.security.AuthenticatedUser;
+import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.dto.user.UserCreateRequestDTO;
 import com.pomostudy.entity.Task;
 import com.pomostudy.exception.ResourceExceptionFactory;
@@ -26,6 +27,8 @@ public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+
+    private final String USER = "User";
 
     public UserService(
             UserRepository userRepository,
@@ -54,25 +57,50 @@ public class UserService {
 
     public Page<UserResponseDTO> findAll(Pageable pageable, AuthenticatedUser authenticatedUser) {
         Page<User> userPage;
+
         if (authenticatedUser.isAdmin()) {
             userPage = userRepository.findAll(pageable);
         } else {
-            Optional<User> user = userRepository.findById(authenticatedUser.getUser().getId());
+            Optional<User> userOptional = userRepository.findById(authenticatedUser.getUser().getId());
 
-            if (user.isPresent()) {
-                userPage = new PageImpl<User>(Collections.singletonList((user)), pageable, 1);
+            if (userOptional.isPresent()) {
+                List<User> userList = Collections.singletonList(userOptional.get());
+
+                userPage = new PageImpl<>(userList, pageable, 1);
+            } else {
+                userPage = Page.empty(pageable);
             }
-
         }
 
         return userPage.map(userMapper::toUserResponseDTO);
     }
 
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
+    public UserResponseDTO findById(Long id, AuthenticatedUser authenticatedUser) {
+
+        Long userId = authenticatedUser.getUser().getId();
+
+        UserResponseDTO user = userRepository.findById(id)
+                .map(UserResponseDTO::new)
+                .orElseThrow(() -> ResourceExceptionFactory.notFound(USER, id));
+
+        if (!authenticatedUser.getUser().getEmail().equals(user.email()) && !authenticatedUser.isAdmin()) {
+            throw ResourceExceptionFactory.notFound(USER, userId);
+        }
+
+        return user;
     }
 
-    public void delete(Long id) {
+    public void delete(Long id, AuthenticatedUser authenticatedUser) {
+
+        Long userId = authenticatedUser.getUser().getId();
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> ResourceExceptionFactory.notFound(USER, id));
+
+        if (!authenticatedUser.getUser().getEmail().equals(user.getEmail()) && !authenticatedUser.isAdmin()) {
+            throw ResourceExceptionFactory.notFound(USER, userId);
+        }
+
         userRepository.deleteById(id);
     }
 }
