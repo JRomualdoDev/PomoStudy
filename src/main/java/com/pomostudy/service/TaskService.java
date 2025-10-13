@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class TaskService {
 
@@ -59,14 +61,22 @@ public class TaskService {
         return taskMapper.toTaskResponseDTO(taskUpdate);
     }
 
-    public Page<TaskResponseDTO> findAll(Pageable pageable, AuthenticatedUser authenticatedUser) {
+    public Page<TaskResponseDTO> findAll(Pageable pageable, AuthenticatedUser authenticatedUser, Long categoryId) {
 
         Page<Task> taskPage;
 
         if (authenticatedUser.isAdmin()) {
-            taskPage = taskRepository.findAll(pageable);
+            if (categoryId != null) {
+                taskPage = taskRepository.findByCategoryId(categoryId, pageable);
+            } else {
+                taskPage = taskRepository.findAll(pageable);
+            }
         } else {
-            taskPage = taskRepository.findByUser(authenticatedUser.getUser(), pageable);
+            if (categoryId != null) {
+                taskPage = taskRepository.findByCategoryId(categoryId, pageable);
+            } else {
+                taskPage = taskRepository.findByUser(authenticatedUser.getUser(), pageable);
+            }
         }
 
         return taskPage.map(taskMapper::toTaskResponseDTO);

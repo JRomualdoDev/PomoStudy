@@ -40,7 +40,7 @@ public class Task implements UserOwned {
     private TaskPriority priority;
 
     @Column(nullable = false)
-    private Integer timeTotalLearning;
+    private Integer timeTotalLearning = 0;
 
     @Column(nullable = false, updatable = false)
     @CreatedDate

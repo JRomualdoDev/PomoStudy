@@ -4,12 +4,25 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1e6e7e8f-eb2a-436f-b632-716e3fe19f0b" name="Changes" comment="Merge branch 'Dev'">
+    <list default="true" id="1e6e7e8f-eb2a-436f-b632-716e3fe19f0b" name="Changes" comment="config(workspace): improvements.">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/config/security/WebConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_08_10_2025_14_44_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_08_10_2025_14_44__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_05_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_05__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_06_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_06__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_08_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_08__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_21_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_21__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_42_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_42__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/UserService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/pomostudy/controller/UserControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/pomostudy/controller/UserControllerTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/pomostudy/service/UserServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/pomostudy/service/UserServiceTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/controller/TaskController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/controller/TaskController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/entity/Task.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/entity/Task.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/repository/TaskRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/repository/TaskRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/TaskService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/TaskService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,110 +73,110 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.MyApplication.executor": "Run",
-    "Application.PomoStudy.executor": "Run",
-    "Application.User.executor": "Debug",
-    "Application.main.executor": "Run",
-    "JUnit.AuthenticationControllerSimpleTest.contextLoads.executor": "Run",
-    "JUnit.AuthenticationControllerSimpleTest.executor": "Run",
-    "JUnit.AuthenticationControllerTest.contextLoads.executor": "Run",
-    "JUnit.AuthenticationControllerTest.executor": "Run",
-    "JUnit.AuthenticationControllerTest.loginWithInvalidCredentialsShouldReturnUnauthorized.executor": "Run",
-    "JUnit.AuthenticationControllerTest.login_WithInvalidCredentials_ShouldReturnUnauthorized.executor": "Run",
-    "JUnit.AuthenticationControllerTest.registerWithDuplicateEmailShouldReturnInternalServerError.executor": "Run",
-    "JUnit.AuthenticationControllerTest.registerWithValidDataShouldCreateUserAndReturnResponse.executor": "Run",
-    "JUnit.AuthenticationControllerTest.register_WithInvalidData_ShouldReturnBadRequest.executor": "Run",
-    "JUnit.AuthenticationControllerTest.shouldLoginSuccessReturnStatus200WithJWTToken.executor": "Run",
-    "JUnit.AuthenticationServiceTest.executor": "Run",
-    "JUnit.AuthenticationServiceTest.shouldThrowUsernameNotFoundExceptionWhenUserIsNotFound.executor": "Run",
-    "JUnit.AuthorizationServiceTest.executor": "Run",
-    "JUnit.AuthorizationServiceTest.shouldReturnUserDetailsWhenUserIsFoundForEmail.executor": "Run",
-    "JUnit.AuthorizationServiceTest.shouldThrowUsernameNotFoundExceptionWhenUserIsNotFound.executor": "Run",
-    "JUnit.CategoryControllerTest.executor": "Run",
-    "JUnit.CategoryControllerTest.shouldBeDeleteWithSuccessReturnStatus204.executor": "Run",
-    "JUnit.CategoryControllerTest.shouldBeReturn400BadRequestWhenCreateNewCategoryWithInvalidData.executor": "Run",
-    "JUnit.CategoryControllerTest.shouldCreateCategoryReturnStatus201.executor": "Run",
-    "JUnit.CategoryControllerTest.shouldEditCategoryAndReturnStatus200OK.executor": "Run",
-    "JUnit.CategoryControllerTest.shouldFoundCategoryForTheIdReturn200.executor": "Run",
-    "JUnit.CategoryControllerTest.shouldReturn404TryEditNonExistentCategory.executor": "Run",
-    "JUnit.CategoryControllerTest.shouldReturnAllCategoryWithStatus200.executor": "Run",
-    "JUnit.CategoryServiceTest.executor": "Run",
-    "JUnit.CategoryServiceTest.shouldDeleteTaskSuccessfullyDB.executor": "Run",
-    "JUnit.CategoryServiceTest.shouldEditCategorySuccessfully.executor": "Run",
-    "JUnit.CategoryServiceTest.shouldFindAllCategoriesDBWithStatus200.executor": "Run",
-    "JUnit.CategoryServiceTest.shouldFindAllCategoriesForAdmin.executor": "Run",
-    "JUnit.CategoryServiceTest.shouldFindCategoryFromIdWhenCategoryExistDB.executor": "Run",
-    "JUnit.CategoryServiceTest.shouldGetExceptionWhenNotFindCategoryFromId.executor": "Run",
-    "JUnit.CategoryServiceTest.shouldSaveCategorySuccessfully.executor": "Run",
-    "JUnit.CategoryServiceTest.shouldThrowExceptionWhenCategoryNotFound.executor": "Run",
-    "JUnit.CategoryServiceTest.shouldThrowExceptionWhenUserNotBelongToCategory.executor": "Run",
-    "JUnit.CategoryServiceTest.shouldThrowExceptionWhenUserNotFound.executor": "Run",
-    "JUnit.GoalControllerTest.executor": "Run",
-    "JUnit.GoalControllerTest.shouldBeDeleteWithSuccessReturnStatus204.executor": "Run",
-    "JUnit.GoalControllerTest.shouldBeReturn400BadRequestWhenCreateNewGoalWithInvalidData.executor": "Run",
-    "JUnit.GoalControllerTest.shouldCreateGoalReturnStatus201.executor": "Run",
-    "JUnit.GoalControllerTest.shouldEditGoalAndReturnStatus200OK.executor": "Run",
-    "JUnit.GoalControllerTest.shouldFoundGoalForTheIdReturn200.executor": "Run",
-    "JUnit.GoalControllerTest.shouldReturn404TryEditNonExistentGoal.executor": "Run",
-    "JUnit.GoalControllerTest.shouldReturnAllGoalWithStatus200.executor": "Run",
-    "JUnit.GoalServiceTest.executor": "Run",
-    "JUnit.GoalServiceTest.shouldDeleteGoalSuccessfullyDB.executor": "Run",
-    "JUnit.GoalServiceTest.shouldEditGoalSuccessfully.executor": "Run",
-    "JUnit.GoalServiceTest.shouldFindAllGoalDBWithStatus200.executor": "Run",
-    "JUnit.GoalServiceTest.shouldFindGoalFromIdWhenGoalExistDB.executor": "Run",
-    "JUnit.GoalServiceTest.shouldGetExceptionWhenNotFindGoalFromId.executor": "Run",
-    "JUnit.GoalServiceTest.shouldSaveGoalSuccessfully.executor": "Run",
-    "JUnit.GoalServiceTest.shouldThrowExceptionWhenGoalNotFound.executor": "Run",
-    "JUnit.GoalServiceTest.shouldThrowExceptionWhenUserNotBelongToGoal.executor": "Run",
-    "JUnit.GoalServiceTest.shouldThrowExceptionWhenUserNotFound.executor": "Run",
-    "JUnit.TaskControllerTest.executor": "Run",
-    "JUnit.TaskControllerTest.shouldCreateTaskReturnStatus201.executor": "Run",
-    "JUnit.TaskControllerTest.shouldEditTaskAndReturnStatus200OK.executor": "Run",
-    "JUnit.TaskControllerTest.shouldReturnAllTasksWithStatus200.executor": "Run",
-    "JUnit.TaskServiceTest.executor": "Run",
-    "JUnit.TaskServiceTest.shouldDeleteTaskSuccessfullyDB.executor": "Run",
-    "JUnit.TaskServiceTest.shouldEditTaskSuccessfully.executor": "Run",
-    "JUnit.TaskServiceTest.shouldFindAllTasksDBWithStatus200.executor": "Run",
-    "JUnit.TaskServiceTest.shouldFindAllTasksForAdmin.executor": "Run",
-    "JUnit.TaskServiceTest.shouldFindUserFromIdWhenUserExistDB.executor": "Run",
-    "JUnit.TaskServiceTest.shouldSaveTaskSuccessfully.executor": "Run",
-    "JUnit.TaskServiceTest.shouldThrowExceptionWhenCategoryNotFound.executor": "Run",
-    "JUnit.TaskServiceTest.shouldThrowExceptionWhenUserNotFound.executor": "Run",
-    "JUnit.UserControllerTest.executor": "Run",
-    "JUnit.UserControllerTest.shouldCreateUser_andReturn201.executor": "Run",
-    "JUnit.UserControllerTest.shouldDeleteUser_andReturn204.executor": "Run",
-    "JUnit.UserControllerTest.shouldEditUser_andReturn200.executor": "Run",
-    "JUnit.UserControllerTest.shouldFindAllUsersDBWithStatus200.executor": "Run",
-    "JUnit.UserControllerTest.shouldFindAllUsersForAdmin.executor": "Run",
-    "JUnit.UserControllerTest.shouldReturn404_whenEditNonExistentUser.executor": "Run",
-    "JUnit.UserControllerTest.shouldReturn404_whenUserNotFoundById.executor": "Run",
-    "JUnit.UserRepositoryTest.executor": "Run",
-    "JUnit.UserRepositoryTest.findUserByEmailCaseEmpty.executor": "Run",
-    "JUnit.UserRepositoryTest.findUserByEmailCaseSuccess.executor": "Run",
-    "JUnit.UserServiceTest.executor": "Run",
-    "JUnit.UserServiceTest.shouldDeleteUserSuccessfully.executor": "Run",
-    "JUnit.UserServiceTest.shouldEditUserSuccessfully.executor": "Run",
-    "JUnit.UserServiceTest.shouldReturnEmptyOptionalWhenUserDoesNotExist.executor": "Run",
-    "JUnit.UserServiceTest.shouldReturnExceptionWhenUserDoesNotExist.executor": "Run",
-    "JUnit.UserServiceTest.shouldSaveUserSuccessfully.executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SONARLINT_PRECOMMIT_ANALYSIS": "true",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary": "JUnit5",
-    "com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5": "",
-    "git-widget-placeholder": "master",
-    "ignore.preview.features.used": "true",
-    "last_opened_file_path": "G:/Bkp G 2/Itens Ultima Formatação/Projetos/Java/PomoStudy/Backend/src/test/java/com/pomostudy/service",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "editing.templates"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.MyApplication.executor&quot;: &quot;Run&quot;,
+    &quot;Application.PomoStudy.executor&quot;: &quot;Run&quot;,
+    &quot;Application.User.executor&quot;: &quot;Debug&quot;,
+    &quot;Application.main.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationControllerSimpleTest.contextLoads.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationControllerSimpleTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationControllerTest.contextLoads.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationControllerTest.loginWithInvalidCredentialsShouldReturnUnauthorized.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationControllerTest.login_WithInvalidCredentials_ShouldReturnUnauthorized.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationControllerTest.registerWithDuplicateEmailShouldReturnInternalServerError.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationControllerTest.registerWithValidDataShouldCreateUserAndReturnResponse.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationControllerTest.register_WithInvalidData_ShouldReturnBadRequest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationControllerTest.shouldLoginSuccessReturnStatus200WithJWTToken.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthenticationServiceTest.shouldThrowUsernameNotFoundExceptionWhenUserIsNotFound.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthorizationServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthorizationServiceTest.shouldReturnUserDetailsWhenUserIsFoundForEmail.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.AuthorizationServiceTest.shouldThrowUsernameNotFoundExceptionWhenUserIsNotFound.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryControllerTest.shouldBeDeleteWithSuccessReturnStatus204.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryControllerTest.shouldBeReturn400BadRequestWhenCreateNewCategoryWithInvalidData.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryControllerTest.shouldCreateCategoryReturnStatus201.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryControllerTest.shouldEditCategoryAndReturnStatus200OK.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryControllerTest.shouldFoundCategoryForTheIdReturn200.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryControllerTest.shouldReturn404TryEditNonExistentCategory.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryControllerTest.shouldReturnAllCategoryWithStatus200.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryServiceTest.shouldDeleteTaskSuccessfullyDB.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryServiceTest.shouldEditCategorySuccessfully.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryServiceTest.shouldFindAllCategoriesDBWithStatus200.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryServiceTest.shouldFindAllCategoriesForAdmin.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryServiceTest.shouldFindCategoryFromIdWhenCategoryExistDB.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryServiceTest.shouldGetExceptionWhenNotFindCategoryFromId.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryServiceTest.shouldSaveCategorySuccessfully.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryServiceTest.shouldThrowExceptionWhenCategoryNotFound.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryServiceTest.shouldThrowExceptionWhenUserNotBelongToCategory.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.CategoryServiceTest.shouldThrowExceptionWhenUserNotFound.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalControllerTest.shouldBeDeleteWithSuccessReturnStatus204.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalControllerTest.shouldBeReturn400BadRequestWhenCreateNewGoalWithInvalidData.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalControllerTest.shouldCreateGoalReturnStatus201.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalControllerTest.shouldEditGoalAndReturnStatus200OK.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalControllerTest.shouldFoundGoalForTheIdReturn200.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalControllerTest.shouldReturn404TryEditNonExistentGoal.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalControllerTest.shouldReturnAllGoalWithStatus200.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalServiceTest.shouldDeleteGoalSuccessfullyDB.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalServiceTest.shouldEditGoalSuccessfully.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalServiceTest.shouldFindAllGoalDBWithStatus200.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalServiceTest.shouldFindGoalFromIdWhenGoalExistDB.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalServiceTest.shouldGetExceptionWhenNotFindGoalFromId.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalServiceTest.shouldSaveGoalSuccessfully.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalServiceTest.shouldThrowExceptionWhenGoalNotFound.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalServiceTest.shouldThrowExceptionWhenUserNotBelongToGoal.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.GoalServiceTest.shouldThrowExceptionWhenUserNotFound.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskControllerTest.shouldCreateTaskReturnStatus201.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskControllerTest.shouldEditTaskAndReturnStatus200OK.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskControllerTest.shouldReturnAllTasksWithStatus200.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskServiceTest.shouldDeleteTaskSuccessfullyDB.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskServiceTest.shouldEditTaskSuccessfully.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskServiceTest.shouldFindAllTasksDBWithStatus200.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskServiceTest.shouldFindAllTasksForAdmin.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskServiceTest.shouldFindUserFromIdWhenUserExistDB.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskServiceTest.shouldSaveTaskSuccessfully.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskServiceTest.shouldThrowExceptionWhenCategoryNotFound.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.TaskServiceTest.shouldThrowExceptionWhenUserNotFound.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserControllerTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserControllerTest.shouldCreateUser_andReturn201.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserControllerTest.shouldDeleteUser_andReturn204.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserControllerTest.shouldEditUser_andReturn200.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserControllerTest.shouldFindAllUsersDBWithStatus200.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserControllerTest.shouldFindAllUsersForAdmin.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserControllerTest.shouldReturn404_whenEditNonExistentUser.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserControllerTest.shouldReturn404_whenUserNotFoundById.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserRepositoryTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserRepositoryTest.findUserByEmailCaseEmpty.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserRepositoryTest.findUserByEmailCaseSuccess.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceTest.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceTest.shouldDeleteUserSuccessfully.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceTest.shouldEditUserSuccessfully.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceTest.shouldReturnEmptyOptionalWhenUserDoesNotExist.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceTest.shouldReturnExceptionWhenUserDoesNotExist.executor&quot;: &quot;Run&quot;,
+    &quot;JUnit.UserServiceTest.shouldSaveUserSuccessfully.executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SONARLINT_PRECOMMIT_ANALYSIS&quot;: &quot;true&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary&quot;: &quot;JUnit5&quot;,
+    &quot;com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5&quot;: &quot;&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.preview.features.used&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;G:/Bkp G 2/Itens Ultima Formatação/Projetos/Java/PomoStudy/Backend/src/test/java/com/pomostudy/service&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;editing.templates&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="G:\Bkp G 2\Itens Ultima Formatação\Projetos\Java\PomoStudy\Backend\src\test\java\com\pomostudy\service" />
@@ -179,7 +192,7 @@
       <recent name="com.pomostudy.dto.user" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.UserControllerTest">
+  <component name="RunManager" selected="Application.PomoStudy">
     <configuration name="PomoStudy" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.pomostudy.MyApplication" />
       <module name="PomoStudy" />
@@ -274,11 +287,11 @@
     </configuration>
     <list>
       <item itemvalue="Application.PomoStudy" />
-      <item itemvalue="JUnit.UserControllerTest.shouldReturn404_whenUserNotFoundById" />
       <item itemvalue="JUnit.UserControllerTest" />
+      <item itemvalue="JUnit.UserControllerTest.shouldReturn404_whenUserNotFoundById" />
+      <item itemvalue="JUnit.UserServiceTest" />
       <item itemvalue="JUnit.UserServiceTest.shouldDeleteUserSuccessfully" />
       <item itemvalue="JUnit.UserServiceTest.shouldReturnExceptionWhenUserDoesNotExist" />
-      <item itemvalue="JUnit.UserServiceTest" />
     </list>
     <recent_temporary>
       <list>
@@ -297,46 +310,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1757877900059</updated>
-    </task>
-    <task id="LOCAL-00104" summary="refactor(CategoryController): improvement">
-      <option name="closed" value="true" />
-      <created>1760011776548</created>
-      <option name="number" value="00104" />
-      <option name="presentableId" value="LOCAL-00104" />
-      <option name="project" value="LOCAL" />
-      <updated>1760011776548</updated>
-    </task>
-    <task id="LOCAL-00105" summary="refactor(CategoryMapper): change userCategory to user">
-      <option name="closed" value="true" />
-      <created>1760011814330</created>
-      <option name="number" value="00105" />
-      <option name="presentableId" value="LOCAL-00105" />
-      <option name="project" value="LOCAL" />
-      <updated>1760011814330</updated>
-    </task>
-    <task id="LOCAL-00106" summary="refactor(CategoryRequestDTO): remove UserId">
-      <option name="closed" value="true" />
-      <created>1760012445572</created>
-      <option name="number" value="00106" />
-      <option name="presentableId" value="LOCAL-00106" />
-      <option name="project" value="LOCAL" />
-      <updated>1760012445572</updated>
-    </task>
-    <task id="LOCAL-00107" summary="refactor(CategoryRequestDTO): remove UserId">
-      <option name="closed" value="true" />
-      <created>1760012458225</created>
-      <option name="number" value="00107" />
-      <option name="presentableId" value="LOCAL-00107" />
-      <option name="project" value="LOCAL" />
-      <updated>1760012458225</updated>
-    </task>
-    <task id="LOCAL-00108" summary="refactor(Goal): implements UserOwned">
-      <option name="closed" value="true" />
-      <created>1760012507745</created>
-      <option name="number" value="00108" />
-      <option name="presentableId" value="LOCAL-00108" />
-      <option name="project" value="LOCAL" />
-      <updated>1760012507745</updated>
     </task>
     <task id="LOCAL-00109" summary="refactor(Task): implements UserOwned">
       <option name="closed" value="true" />
@@ -690,7 +663,47 @@
       <option name="project" value="LOCAL" />
       <updated>1760315143196</updated>
     </task>
-    <option name="localTasksCounter" value="153" />
+    <task id="LOCAL-00153" summary="refactor(UserController): add authenticatedUser">
+      <option name="closed" value="true" />
+      <created>1760373691703</created>
+      <option name="number" value="00153" />
+      <option name="presentableId" value="LOCAL-00153" />
+      <option name="project" value="LOCAL" />
+      <updated>1760373691704</updated>
+    </task>
+    <task id="LOCAL-00154" summary="refactor(UserService): add authenticatedUser">
+      <option name="closed" value="true" />
+      <created>1760373726315</created>
+      <option name="number" value="00154" />
+      <option name="presentableId" value="LOCAL-00154" />
+      <option name="project" value="LOCAL" />
+      <updated>1760373726315</updated>
+    </task>
+    <task id="LOCAL-00155" summary="refactor(UserService): new file">
+      <option name="closed" value="true" />
+      <created>1760373758159</created>
+      <option name="number" value="00155" />
+      <option name="presentableId" value="LOCAL-00155" />
+      <option name="project" value="LOCAL" />
+      <updated>1760373758159</updated>
+    </task>
+    <task id="LOCAL-00156" summary="test(UserControllerTest): new file">
+      <option name="closed" value="true" />
+      <created>1760373784462</created>
+      <option name="number" value="00156" />
+      <option name="presentableId" value="LOCAL-00156" />
+      <option name="project" value="LOCAL" />
+      <updated>1760373784462</updated>
+    </task>
+    <task id="LOCAL-00157" summary="config(workspace): improvements.">
+      <option name="closed" value="true" />
+      <created>1760373841341</created>
+      <option name="number" value="00157" />
+      <option name="presentableId" value="LOCAL-00157" />
+      <option name="project" value="LOCAL" />
+      <updated>1760373841341</updated>
+    </task>
+    <option name="localTasksCounter" value="158" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -705,12 +718,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="test(UserRepositoryTest): remove optional" />
-    <MESSAGE value="test(CategoryControllerTest): errors fixed" />
-    <MESSAGE value="test(TaskControllerTest): change userTask to user" />
-    <MESSAGE value="test(AuthorizationServiceTest): comment for test" />
-    <MESSAGE value="refactor(CategoryController): remove sout" />
-    <MESSAGE value="refactor(CategoryRepository): add findByIdAndUser" />
     <MESSAGE value="refactor(CategoryService): remove unnecessary code" />
     <MESSAGE value="refactor(TaskController): add authentication principal." />
     <MESSAGE value="refactor(TaskMapper): add authenticate user." />
@@ -730,6 +737,12 @@
     <MESSAGE value="test(GoalControllerTest): add authenticated user" />
     <MESSAGE value="fix(UserMapper): email duplicated fixed" />
     <MESSAGE value="Merge branch 'Dev'" />
-    <option name="LAST_COMMIT_MESSAGE" value="Merge branch 'Dev'" />
+    <MESSAGE value="refactor(UserController): add authenticatedUser" />
+    <MESSAGE value="refactor(UserService): add authenticatedUser" />
+    <MESSAGE value="refactor(UserService): new file" />
+    <MESSAGE value="config(workspace): improvement" />
+    <MESSAGE value="test(UserControllerTest): new file" />
+    <MESSAGE value="config(workspace): improvements." />
+    <option name="LAST_COMMIT_MESSAGE" value="config(workspace): improvements." />
   </component>
 </project>

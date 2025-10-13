@@ -28,6 +28,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("api/task")
@@ -110,12 +111,13 @@ public class TaskController {
                     },
                     schema = @Schema(type = "object")
             )
+            @RequestParam(value = "categoryId", required = false) Long categoryId,
             @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
             Pageable pageable,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser
             ) {
 
-        Page<TaskResponseDTO> listTasks = taskService.findAll(pageable, authenticatedUser);
+        Page<TaskResponseDTO> listTasks = taskService.findAll(pageable, authenticatedUser, categoryId);
 
         return ResponseEntity.ok(new PaginationDTO<>(listTasks));
     }
