@@ -69,39 +69,39 @@ public class UserController {
         return ResponseEntity.ok(userResponseDTO);
     }
 
-//    @GetMapping
-//    @Operation(summary = "List all data user", description = "Method for list data user")
-//    @ApiResponse(responseCode = "200", description = "User listed successfully")
-//    @ApiResponse(responseCode = "500", description = "Internal server error",
-//            content = @Content(mediaType = "application/json",
-//                    schema = @Schema(implementation = ErrorResponseDTO.class)))
-//    public ResponseEntity<PaginationDTO<UserResponseDTO>> findAllUsers(
-//            @Parameter(
-//                    name = "pageable",
-//                    in = ParameterIn.QUERY,
-//                    description = "Pagination and sorting object. **To use default values, send an empty object: `{}`**.",
-//                    examples = {
-//                            @ExampleObject(
-//                                    name = "Default Pagination",
-//                                    summary = "Fetch with default values",
-//                                    value = "{}"
-//                            ),
-//                            @ExampleObject(
-//                                    name = "Custom Pagination",
-//                                    summary = "Fetching the first page with 10 items",
-//                                    value = "{\"page\": 0, \"size\": 10, \"sort\": \"name,asc\"}"
-//                            )
-//                    },
-//                    schema = @Schema(type = "object")
-//            )
-//            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
-//            Pageable pageable,
-//            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
-//    ) {
-//        Page<UserResponseDTO> listUsers = userService.findAll(pageable, authenticatedUser);
-//
-//        return ResponseEntity.ok(new PaginationDTO<>(listUsers));
-//    }
+    @GetMapping
+    @Operation(summary = "List all data user", description = "Method for list data user")
+    @ApiResponse(responseCode = "200", description = "User listed successfully")
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    public ResponseEntity<PaginationDTO<UserResponseDTO>> findAllUsers(
+            @Parameter(
+                    name = "pageable",
+                    in = ParameterIn.QUERY,
+                    description = "Pagination and sorting object. **To use default values, send an empty object: `{}`**.",
+                    examples = {
+                            @ExampleObject(
+                                    name = "Default Pagination",
+                                    summary = "Fetch with default values",
+                                    value = "{}"
+                            ),
+                            @ExampleObject(
+                                    name = "Custom Pagination",
+                                    summary = "Fetching the first page with 10 items",
+                                    value = "{\"page\": 0, \"size\": 10, \"sort\": \"name,asc\"}"
+                            )
+                    },
+                    schema = @Schema(type = "object")
+            )
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
+            Pageable pageable,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
+        Page<UserResponseDTO> listUsers = userService.findAll(pageable, authenticatedUser);
+
+        return ResponseEntity.ok(new PaginationDTO<>(listUsers));
+    }
 
     @GetMapping("{id}")
     @Operation(summary = "Find data user for id", description = "Method for search data user for the id")
@@ -112,12 +112,12 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<Object> findById(@PathVariable("id") Long id) {
-        UserResponseDTO userResponseDTO = userService.findById(id)
-                .map(UserResponseDTO::new)
-                .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
+    public ResponseEntity<Object> findById(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
 
-        return ResponseEntity.ok(userResponseDTO);
+        return ResponseEntity.ok(userService.findById(id, authenticatedUser));
     }
 
     @DeleteMapping("{id}")
@@ -129,10 +129,12 @@ public class UserController {
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
-    public ResponseEntity<String> delete(@PathVariable("id") Long id) {
-        userService.findById(id)
-                .orElseThrow(() -> ResourceExceptionFactory.notFound("User", id));
-        userService.delete(id);
+    public ResponseEntity<String> delete(
+            @PathVariable("id") Long id,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser
+    ) {
+
+        userService.delete(id, authenticatedUser);
         return ResponseEntity.noContent().build();
     }
 }
