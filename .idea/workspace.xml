@@ -4,25 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1e6e7e8f-eb2a-436f-b632-716e3fe19f0b" name="Changes" comment="config(workspace): improvements.">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/config/security/WebConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_08_10_2025_14_44_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_08_10_2025_14_44__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_05_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_05__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_06_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_06__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_08_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_08__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_21_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_21__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_42_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_09_10_2025_09_42__Changes_.xml" beforeDir="false" />
+    <list default="true" id="1e6e7e8f-eb2a-436f-b632-716e3fe19f0b" name="Changes" comment="Merge remote-tracking branch 'origin/master'">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/controller/TaskController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/controller/TaskController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/entity/Task.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/entity/Task.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/repository/TaskRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/repository/TaskRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/TaskService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/TaskService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/pomostudy/service/TaskServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/pomostudy/service/TaskServiceTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -192,7 +176,7 @@
       <recent name="com.pomostudy.dto.user" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.PomoStudy">
+  <component name="RunManager" selected="JUnit.TaskControllerTest">
     <configuration name="PomoStudy" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.pomostudy.MyApplication" />
       <module name="PomoStudy" />
@@ -203,6 +187,36 @@
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TaskControllerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="PomoStudy" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.pomostudy.controller.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.pomostudy.controller" />
+      <option name="MAIN_CLASS_NAME" value="com.pomostudy.controller.TaskControllerTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TaskServiceTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="PomoStudy" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.pomostudy.service.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="com.pomostudy.service" />
+      <option name="MAIN_CLASS_NAME" value="com.pomostudy.service.TaskServiceTest" />
+      <option name="TEST_OBJECT" value="class" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -253,53 +267,21 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="UserServiceTest.shouldDeleteUserSuccessfully" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="PomoStudy" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.pomostudy.service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.pomostudy.service" />
-      <option name="MAIN_CLASS_NAME" value="com.pomostudy.service.UserServiceTest" />
-      <option name="METHOD_NAME" value="shouldDeleteUserSuccessfully" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="UserServiceTest.shouldReturnExceptionWhenUserDoesNotExist" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
-      <module name="PomoStudy" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="com.pomostudy.service.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <option name="PACKAGE_NAME" value="com.pomostudy.service" />
-      <option name="MAIN_CLASS_NAME" value="com.pomostudy.service.UserServiceTest" />
-      <option name="METHOD_NAME" value="shouldReturnExceptionWhenUserDoesNotExist" />
-      <option name="TEST_OBJECT" value="method" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <list>
       <item itemvalue="Application.PomoStudy" />
+      <item itemvalue="JUnit.TaskControllerTest" />
+      <item itemvalue="JUnit.TaskServiceTest" />
       <item itemvalue="JUnit.UserControllerTest" />
       <item itemvalue="JUnit.UserControllerTest.shouldReturn404_whenUserNotFoundById" />
       <item itemvalue="JUnit.UserServiceTest" />
-      <item itemvalue="JUnit.UserServiceTest.shouldDeleteUserSuccessfully" />
-      <item itemvalue="JUnit.UserServiceTest.shouldReturnExceptionWhenUserDoesNotExist" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.TaskControllerTest" />
+        <item itemvalue="JUnit.TaskServiceTest" />
         <item itemvalue="JUnit.UserControllerTest" />
         <item itemvalue="JUnit.UserControllerTest.shouldReturn404_whenUserNotFoundById" />
         <item itemvalue="JUnit.UserServiceTest" />
-        <item itemvalue="JUnit.UserServiceTest.shouldDeleteUserSuccessfully" />
-        <item itemvalue="JUnit.UserServiceTest.shouldReturnExceptionWhenUserDoesNotExist" />
       </list>
     </recent_temporary>
   </component>
@@ -310,14 +292,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1757877900059</updated>
-    </task>
-    <task id="LOCAL-00109" summary="refactor(Task): implements UserOwned">
-      <option name="closed" value="true" />
-      <created>1760012527139</created>
-      <option name="number" value="00109" />
-      <option name="presentableId" value="LOCAL-00109" />
-      <option name="project" value="LOCAL" />
-      <updated>1760012527139</updated>
     </task>
     <task id="LOCAL-00110" summary="refactor(UserMapper): remove optional">
       <option name="closed" value="true" />
@@ -703,7 +677,15 @@
       <option name="project" value="LOCAL" />
       <updated>1760373841341</updated>
     </task>
-    <option name="localTasksCounter" value="158" />
+    <task id="LOCAL-00158" summary="Merge remote-tracking branch 'origin/master'">
+      <option name="closed" value="true" />
+      <created>1760706659159</created>
+      <option name="number" value="00158" />
+      <option name="presentableId" value="LOCAL-00158" />
+      <option name="project" value="LOCAL" />
+      <updated>1760706659159</updated>
+    </task>
+    <option name="localTasksCounter" value="159" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -718,7 +700,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactor(CategoryService): remove unnecessary code" />
     <MESSAGE value="refactor(TaskController): add authentication principal." />
     <MESSAGE value="refactor(TaskMapper): add authenticate user." />
     <MESSAGE value="refactor(TaskRepository): add findByUser." />
@@ -743,6 +724,7 @@
     <MESSAGE value="config(workspace): improvement" />
     <MESSAGE value="test(UserControllerTest): new file" />
     <MESSAGE value="config(workspace): improvements." />
-    <option name="LAST_COMMIT_MESSAGE" value="config(workspace): improvements." />
+    <MESSAGE value="Merge remote-tracking branch 'origin/master'" />
+    <option name="LAST_COMMIT_MESSAGE" value="Merge remote-tracking branch 'origin/master'" />
   </component>
 </project>

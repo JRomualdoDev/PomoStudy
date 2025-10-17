@@ -217,7 +217,7 @@ class TaskServiceTest {
         when(taskMapper.toTaskResponseDTO(task)).thenReturn(taskResponseDTO);
 
 
-        Page<TaskResponseDTO> result = taskService.findAll(pageable, authenticatedUser);
+        Page<TaskResponseDTO> result = taskService.findAll(pageable, authenticatedUser, null);
 
 
         assertFalse(result.isEmpty());
@@ -239,7 +239,7 @@ class TaskServiceTest {
         when(taskRepository.findByUser(user, pageable)).thenReturn(new PageImpl<>(taskResponse));
         when(taskMapper.toTaskResponseDTO(task)).thenReturn(taskResponseDTO);
 
-        Page<TaskResponseDTO> result = taskService.findAll(pageable, authenticatedUser);
+        Page<TaskResponseDTO> result = taskService.findAll(pageable, authenticatedUser, null);
 
         assertFalse(result.isEmpty());
         assertEquals(1, result.getContent().size());

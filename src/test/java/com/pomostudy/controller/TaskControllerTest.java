@@ -196,7 +196,7 @@ class TaskControllerTest {
         Pageable pageable = PageRequest.of(0,10);
         Page<TaskResponseDTO> taskPage = new PageImpl<>(List.of(taskResponseDTO), pageable, 1);
 
-        when(taskService.findAll(any(Pageable.class), any(AuthenticatedUser.class))).thenReturn(taskPage);
+        when(taskService.findAll(any(Pageable.class), any(AuthenticatedUser.class), any())).thenReturn(taskPage);
 
         mockMvc.perform(get("/api/task?page=0&size=10&sort=id,asc"))
                 .andExpect(status().isOk())
