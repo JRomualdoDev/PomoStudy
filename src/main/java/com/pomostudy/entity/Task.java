@@ -1,7 +1,7 @@
 package com.pomostudy.entity;
 
 import com.pomostudy.entity.base.UserOwned;
-import com.pomostudy.enums.StatusUser;
+import com.pomostudy.enums.StatusTask;
 import com.pomostudy.enums.TaskPriority;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -26,14 +26,13 @@ public class Task implements UserOwned {
     private String description;
 
     @Column(nullable = false, updatable = false)
-    @CreatedDate
     private OffsetDateTime startDate;
 
     private OffsetDateTime endDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private StatusUser status;
+    private StatusTask status;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -57,18 +56,11 @@ public class Task implements UserOwned {
     @OneToMany(mappedBy = "task")
     private Set<PomodoroSession> sessions;
 
+    /*** Constructors ***/
 
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
-        Task task = (Task) o;
-        return Objects.equals(id, task.id) && Objects.equals(name, task.name) && Objects.equals(description, task.description);
-    }
+    public Task() {}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, description);
-    }
+    /*** GETTERS AND SETTERS ***/
 
     public Long getId() {
         return id;
@@ -110,11 +102,11 @@ public class Task implements UserOwned {
         this.endDate = endDate;
     }
 
-    public StatusUser getStatus() {
+    public StatusTask getStatus() {
         return status;
     }
 
-    public void setStatus(StatusUser status) {
+    public void setStatus(StatusTask status) {
         this.status = status;
     }
 
@@ -152,6 +144,20 @@ public class Task implements UserOwned {
 
     public void setCategory(Category category) {
         this.category = category;
+    }
+
+    /*** Methods ***/
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Task task = (Task) o;
+        return Objects.equals(id, task.id) && Objects.equals(name, task.name) && Objects.equals(description, task.description);
     }
 
     @Override
