@@ -31,6 +31,15 @@ public class Category  implements UserOwned {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+     /*** Constructors ***/
+     public Category() {}
+
+     public Category(String name, String color, String icon, User user) {
+        this.name = name;
+        this.color = color;
+        this.icon = icon;
+        this.user = user;
+     }
 
     /*** GETTERS AND SETTERS **/
 
