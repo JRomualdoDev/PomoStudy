@@ -1,7 +1,7 @@
 package com.pomostudy.service;
 
 import com.pomostudy.config.security.AuthenticatedUser;
-import com.pomostudy.entity.Category;
+import com.pomostudy.dto.task.TaskResponseMonthDTO;
 import com.pomostudy.mapper.TaskMapper;
 import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
@@ -14,7 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.time.*;
 
 @Service
 public class TaskService {
@@ -80,6 +80,22 @@ public class TaskService {
         }
 
         return taskPage.map(taskMapper::toTaskResponseDTO);
+    }
+
+    public Page<TaskResponseMonthDTO> findAllTaskByMonth(Pageable pageable, AuthenticatedUser authenticatedUser, String month) {
+
+        Long userId = authenticatedUser.getUser().getId();
+
+        YearMonth currentMonth = YearMonth.parse(month);
+
+        ZoneOffset offset = ZoneOffset.UTC;
+
+        OffsetDateTime startOfMonth = currentMonth.atDay(1).atStartOfDay().atOffset(offset);
+        OffsetDateTime startOfNextMonth = currentMonth.plusMonths(1).atDay(1).atStartOfDay().atOffset(offset);
+
+        Page<Task> taskPage = taskRepository.findAllTaskByMonth(userId, startOfMonth, startOfNextMonth, pageable);
+
+        return taskPage.map(taskMapper::toTaskResponseMonthDTO);
     }
 
     public TaskResponseDTO findById(Long id, AuthenticatedUser authenticatedUser) {
