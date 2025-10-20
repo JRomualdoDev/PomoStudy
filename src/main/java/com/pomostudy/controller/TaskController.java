@@ -6,6 +6,7 @@ import com.pomostudy.dto.ErrorResponseDTO;
 import com.pomostudy.dto.PaginationDTO;
 import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
+import com.pomostudy.dto.task.TaskResponseMonthDTO;
 import com.pomostudy.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -118,6 +119,42 @@ public class TaskController {
             ) {
 
         Page<TaskResponseDTO> listTasks = taskService.findAll(pageable, authenticatedUser, categoryId);
+
+        return ResponseEntity.ok(new PaginationDTO<>(listTasks));
+    }
+
+    @GetMapping("month/{month}")
+    @Operation(summary = "List all data task per month", description = "Method for list data task per month")
+    @ApiResponse(responseCode = "200", description = "Task listed successfully")
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json",
+                    schema = @Schema(implementation = ErrorResponseDTO.class)))
+    public ResponseEntity<PaginationDTO<TaskResponseMonthDTO>> findAllTaskByMonth(
+            @Parameter(
+                    name = "pageable",
+                    in = ParameterIn.QUERY,
+                    description = "Pagination and sorting object. **To use default values, send an empty object: `{}`**.",
+                    examples = {
+                            @ExampleObject(
+                                    name = "Default Pagination",
+                                    summary = "Fetch with default values",
+                                    value = "{}"
+                            ),
+                            @ExampleObject(
+                                    name = "Custom Pagination",
+                                    summary = "Fetching the first page with 10 items",
+                                    value = "{\"page\": 0, \"size\": 10, \"sort\": \"name,asc\"}"
+                            )
+                    },
+                    schema = @Schema(type = "object")
+            )
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC)
+            Pageable pageable,
+            @AuthenticationPrincipal AuthenticatedUser authenticatedUser,
+            @PathVariable("month") String month
+            ) {
+
+        Page<TaskResponseMonthDTO> listTasks = taskService.findAllTaskByMonth(pageable, authenticatedUser, month);
 
         return ResponseEntity.ok(new PaginationDTO<>(listTasks));
     }
