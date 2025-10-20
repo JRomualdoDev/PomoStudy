@@ -3,6 +3,7 @@ package com.pomostudy.mapper;
 import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
+import com.pomostudy.dto.task.TaskResponseMonthDTO;
 import com.pomostudy.entity.Category;
 import com.pomostudy.entity.Task;
 import com.pomostudy.entity.User;
@@ -39,6 +40,14 @@ public class TaskMapper {
                 task.getPriority(),
                 task.getTimeTotalLearning(),
                 task.getCategory().getId()
+        );
+    }
+
+    public TaskResponseMonthDTO toTaskResponseMonthDTO(Task task) {
+       return new TaskResponseMonthDTO(
+                task.getId(),
+                task.getName(),
+                task.getStartDate()
         );
     }
 
