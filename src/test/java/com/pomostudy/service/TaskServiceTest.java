@@ -1,13 +1,14 @@
 package com.pomostudy.service;
 
 import com.pomostudy.config.security.AuthenticatedUser;
+import com.pomostudy.dto.task.TaskResponseMonthDTO;
+import com.pomostudy.enums.StatusTask;
 import com.pomostudy.mapper.TaskMapper;
 import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.entity.Category;
 import com.pomostudy.entity.Task;
 import com.pomostudy.entity.User;
-import com.pomostudy.enums.StatusUser;
 import com.pomostudy.enums.TaskPriority;
 import com.pomostudy.exception.ResourceException;
 import com.pomostudy.exception.ResourceExceptionFactory;
@@ -26,6 +27,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.OffsetDateTime;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -85,7 +88,7 @@ class TaskServiceTest {
         task.setDescription("loremipsumloremipsumloremipsum");
         task.setStartDate(startDate);
         task.setEndDate(endDate);
-        task.setStatus(StatusUser.IN_PROGRESS);
+        task.setStatus(StatusTask.IN_PROGRESS);
         task.setPriority(TaskPriority.MEDIUM);
         task.setTimeTotalLearning(30);
         task.setUser(user);
@@ -96,12 +99,12 @@ class TaskServiceTest {
                 "loremipsumloremipsumloremipsum",
                 startDate,
                 endDate,
-                StatusUser.IN_PROGRESS,
+                StatusTask.IN_PROGRESS,
                 TaskPriority.MEDIUM,
                 30,
                 1L
                 );
-        taskResponseDTO = new TaskResponseDTO(1L, "testTask", "loremipsumloremipsumloremipsum", startDate, endDate, StatusUser.IN_PROGRESS, TaskPriority.MEDIUM, 30, 1L);
+        taskResponseDTO = new TaskResponseDTO(1L, "testTask", "loremipsumloremipsumloremipsum", startDate, endDate, StatusTask.IN_PROGRESS, TaskPriority.MEDIUM, 30, 1L);
     }
 
     @Test
@@ -119,7 +122,7 @@ class TaskServiceTest {
         assertEquals("loremipsumloremipsumloremipsum", result.description());
         assertEquals(startDate, result.startDate());
         assertEquals(endDate, result.endDate());
-        assertEquals(StatusUser.IN_PROGRESS, result.status());
+        assertEquals(StatusTask.IN_PROGRESS, result.status());
         assertEquals(TaskPriority.MEDIUM, result.priority());
         assertEquals(30, result.timeTotalLearning());
         assertEquals(1L, result.categoryId());
@@ -159,7 +162,7 @@ class TaskServiceTest {
         assertEquals("loremipsumloremipsumloremipsum", result.description());
         assertEquals(startDate, result.startDate());
         assertEquals(endDate, result.endDate());
-        assertEquals(StatusUser.IN_PROGRESS, result.status());
+        assertEquals(StatusTask.IN_PROGRESS, result.status());
         assertEquals(TaskPriority.MEDIUM, result.priority());
         assertEquals(30, result.timeTotalLearning());
         assertEquals(1L, result.categoryId());
@@ -248,6 +251,63 @@ class TaskServiceTest {
 
         verify(taskRepository, never()).findAll(pageable);
         verify(taskRepository, times(1)).findByUser(user, pageable);
+    }
+
+    @Test
+    @DisplayName("Should find all tasks Per Month")
+    void shouldFindAllTasksPerMonth() {
+
+        String month = "2025-10";
+        Pageable pageable = PageRequest.of(0, 10);
+        Long userId = 1L;
+        YearMonth currentMonth = YearMonth.parse(month);
+        ZoneOffset offset = ZoneOffset.UTC;
+        OffsetDateTime expectedStartOfMonth = currentMonth.atDay(1).atStartOfDay().atOffset(offset);
+        OffsetDateTime expectedStartOfNextMonth = currentMonth.plusMonths(1).atDay(1).atStartOfDay().atOffset(offset);
+
+
+        when(authenticatedUser.getUser()).thenReturn(user);
+
+        Task task1 = new Task();
+        task1.setId(100L);
+        Task task2 = new Task();
+        task2.setId(101L);
+        List<Task> taskList = List.of(task1, task2);
+
+        Page<Task> taskPage = new PageImpl<>(taskList, pageable, taskList.size());
+
+        TaskResponseMonthDTO dto1 = new TaskResponseMonthDTO(task1);
+        TaskResponseMonthDTO dto2 = new TaskResponseMonthDTO(task2);
+
+        when(taskRepository.findAllTaskByMonth(
+                user.getId(),
+                expectedStartOfMonth,
+                expectedStartOfNextMonth,
+                pageable
+        )).thenReturn(taskPage);
+
+        when(taskMapper.toTaskResponseMonthDTO(task1)).thenReturn(dto1);
+        when(taskMapper.toTaskResponseMonthDTO(task2)).thenReturn(dto2);
+
+        Page<TaskResponseMonthDTO> result = taskService.findAllTaskByMonth(pageable, authenticatedUser, month);
+
+        assertNotNull(result);
+        assertEquals(2, result.getTotalElements());
+        assertEquals(1, result.getTotalPages());
+        assertEquals(2, result.getContent().size());
+        assertEquals(dto1.id(), result.getContent().get(0).id());
+        assertEquals(dto2.id(), result.getContent().get(1).id());
+
+        verify(taskRepository, times(1)).findAllTaskByMonth(
+                user.getId(),
+                expectedStartOfMonth,
+                expectedStartOfNextMonth,
+                pageable
+        );
+
+        verify(taskMapper, times(1)).toTaskResponseMonthDTO(task1);
+        verify(taskMapper, times(1)).toTaskResponseMonthDTO(task2);
+
     }
 
     @Test
