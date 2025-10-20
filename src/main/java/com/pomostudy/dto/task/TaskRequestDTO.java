@@ -1,8 +1,8 @@
 package com.pomostudy.dto.task;
 
 import com.pomostudy.dto.task.validators.priority.ValidPriority;
-import com.pomostudy.dto.task.validators.status_user.ValidStatusUser;
-import com.pomostudy.enums.StatusUser;
+import com.pomostudy.dto.task.validators.status_task.ValidStatusTask;
+import com.pomostudy.enums.StatusTask;
 import com.pomostudy.enums.TaskPriority;
 import jakarta.validation.constraints.*;
 
@@ -25,8 +25,8 @@ public record TaskRequestDTO(
         OffsetDateTime endDate,
 
         @NotNull(message = "Status is required")
-        @ValidStatusUser
-        StatusUser status,
+        @ValidStatusTask
+        StatusTask status,
 
         @NotNull(message = "Priority is required")
         @ValidPriority

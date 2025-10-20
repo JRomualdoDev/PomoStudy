@@ -1,7 +1,8 @@
 package com.pomostudy.dto.task;
 
 import com.pomostudy.entity.Task;
-import com.pomostudy.enums.StatusUser;
+import com.pomostudy.enums.StatusTask;
+import com.pomostudy.enums.StatusTask;
 import com.pomostudy.enums.TaskPriority;
 
 import java.time.OffsetDateTime;
@@ -12,7 +13,7 @@ public record TaskResponseDTO(
         String description,
         OffsetDateTime startDate,
         OffsetDateTime endDate,
-        StatusUser status,
+        StatusTask status,
         TaskPriority priority,
         Integer timeTotalLearning,
         Long categoryId) {
@@ -27,6 +28,7 @@ public record TaskResponseDTO(
                 task.getStatus(),
                 task.getPriority(),
                 task.getTimeTotalLearning(),
-                task.getCategory().getId());
+                task.getCategory().getId()
+        );
     }
 }
