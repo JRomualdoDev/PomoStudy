@@ -1,6 +1,6 @@
 package com.pomostudy.enums;
 
-public enum StatusUser {
+public enum StatusTask {
     PENDING,
     IN_PROGRESS,
     COMPLETED,
