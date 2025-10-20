@@ -8,7 +8,7 @@ import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.entity.Category;
 import com.pomostudy.entity.Task;
 import com.pomostudy.entity.User;
-import com.pomostudy.enums.StatusUser;
+import com.pomostudy.enums.StatusTask;
 import com.pomostudy.enums.TaskPriority;
 import com.pomostudy.enums.UserRole;
 import com.pomostudy.exception.ResourceExceptionFactory;
@@ -85,7 +85,7 @@ class TaskControllerTest {
                 "loremipsumloremipsumloremipsum",
                 startDate,
                 endDate,
-                StatusUser.IN_PROGRESS,
+                StatusTask.IN_PROGRESS,
                 TaskPriority.MEDIUM,
                 30,
                 1L);
@@ -95,7 +95,7 @@ class TaskControllerTest {
                 "loremipsumloremipsumloremipsum",
                 startDate,
                 endDate,
-                StatusUser.IN_PROGRESS,
+                StatusTask.IN_PROGRESS,
                 TaskPriority.MEDIUM,
                 30,
                 1L);
@@ -118,7 +118,7 @@ class TaskControllerTest {
         task.setDescription("loremipsumloremipsumloremipsum");
         task.setStartDate(startDate);
         task.setEndDate(endDate);
-        task.setStatus(StatusUser.IN_PROGRESS);
+        task.setStatus(StatusTask.IN_PROGRESS);
         task.setPriority(TaskPriority.MEDIUM);
         task.setTimeTotalLearning(30);
         task.setUser(user);
@@ -149,7 +149,7 @@ class TaskControllerTest {
                 "loremipsumloremipsumloremipsum",
                 startDate,
                 endDate,
-                StatusUser.IN_PROGRESS,
+                StatusTask.IN_PROGRESS,
                 TaskPriority.MEDIUM,
                 30,
                 1L);
