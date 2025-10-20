@@ -4,17 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1e6e7e8f-eb2a-436f-b632-716e3fe19f0b" name="Changes" comment="refactor(TaskRepository): new query findAllTaskByMonth.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/dto/task/TaskRequestDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/dto/task/TaskRequestDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/dto/task/TaskResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/dto/task/TaskResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/dto/task/validators/status_user/StatusUserValidator.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/dto/task/validators/status_user/ValidStatusUser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/enums/StatusUser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/TaskService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/pomostudy/service/TaskService.java" afterDir="false" />
+    <list default="true" id="1e6e7e8f-eb2a-436f-b632-716e3fe19f0b" name="Changes" comment="change name files">
       <change beforePath="$PROJECT_DIR$/src/test/java/com/pomostudy/controller/TaskControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/pomostudy/controller/TaskControllerTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/pomostudy/service/TaskServiceTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/pomostudy/service/TaskServiceTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -306,54 +297,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1757877900059</updated>
-    </task>
-    <task id="LOCAL-00116" summary="refactor(TaskMapper): change userTask to user">
-      <option name="closed" value="true" />
-      <created>1760013001658</created>
-      <option name="number" value="00116" />
-      <option name="presentableId" value="LOCAL-00116" />
-      <option name="project" value="LOCAL" />
-      <updated>1760013001658</updated>
-    </task>
-    <task id="LOCAL-00117" summary="refactor(TokenService): change user to authenticatedUser">
-      <option name="closed" value="true" />
-      <created>1760013083493</created>
-      <option name="number" value="00117" />
-      <option name="presentableId" value="LOCAL-00117" />
-      <option name="project" value="LOCAL" />
-      <updated>1760013083493</updated>
-    </task>
-    <task id="LOCAL-00118" summary="refactor(AuthorizationService): implements UserDetailsService">
-      <option name="closed" value="true" />
-      <created>1760013134275</created>
-      <option name="number" value="00118" />
-      <option name="presentableId" value="LOCAL-00118" />
-      <option name="project" value="LOCAL" />
-      <updated>1760013134275</updated>
-    </task>
-    <task id="LOCAL-00119" summary="refactor(TaskResponseDTO): change userTask to user">
-      <option name="closed" value="true" />
-      <created>1760013180429</created>
-      <option name="number" value="00119" />
-      <option name="presentableId" value="LOCAL-00119" />
-      <option name="project" value="LOCAL" />
-      <updated>1760013180429</updated>
-    </task>
-    <task id="LOCAL-00120" summary="refactor(SecurityFilter): autheticatedUser">
-      <option name="closed" value="true" />
-      <created>1760013286359</created>
-      <option name="number" value="00120" />
-      <option name="presentableId" value="LOCAL-00120" />
-      <option name="project" value="LOCAL" />
-      <updated>1760013286359</updated>
-    </task>
-    <task id="LOCAL-00121" summary="refactor(CategoryService): authorization owner">
-      <option name="closed" value="true" />
-      <created>1760013362939</created>
-      <option name="number" value="00121" />
-      <option name="presentableId" value="LOCAL-00121" />
-      <option name="project" value="LOCAL" />
-      <updated>1760013362939</updated>
     </task>
     <task id="LOCAL-00122" summary="refactor(CategoryRepository): findByUser">
       <option name="closed" value="true" />
@@ -699,7 +642,55 @@
       <option name="project" value="LOCAL" />
       <updated>1760919733108</updated>
     </task>
-    <option name="localTasksCounter" value="165" />
+    <task id="LOCAL-00165" summary="refactor(TaskRequestDTO, TaskResponseDTO): change name for StatusUser to StatusTask.">
+      <option name="closed" value="true" />
+      <created>1760919816932</created>
+      <option name="number" value="00165" />
+      <option name="presentableId" value="LOCAL-00165" />
+      <option name="project" value="LOCAL" />
+      <updated>1760919816932</updated>
+    </task>
+    <task id="LOCAL-00166" summary="refactor(TaskService): new method findAllTaskByMonth.">
+      <option name="closed" value="true" />
+      <created>1760919879977</created>
+      <option name="number" value="00166" />
+      <option name="presentableId" value="LOCAL-00166" />
+      <option name="project" value="LOCAL" />
+      <updated>1760919879977</updated>
+    </task>
+    <task id="LOCAL-00167" summary="refactor(User): add Equals and hashcode.">
+      <option name="closed" value="true" />
+      <created>1760919933376</created>
+      <option name="number" value="00167" />
+      <option name="presentableId" value="LOCAL-00167" />
+      <option name="project" value="LOCAL" />
+      <updated>1760919933376</updated>
+    </task>
+    <task id="LOCAL-00168" summary="test(TaskServiceTest): new test shouldFindAllTasksPerMonth.">
+      <option name="closed" value="true" />
+      <created>1760919990202</created>
+      <option name="number" value="00168" />
+      <option name="presentableId" value="LOCAL-00168" />
+      <option name="project" value="LOCAL" />
+      <updated>1760919990202</updated>
+    </task>
+    <task id="LOCAL-00169" summary="change name files">
+      <option name="closed" value="true" />
+      <created>1760920106827</created>
+      <option name="number" value="00169" />
+      <option name="presentableId" value="LOCAL-00169" />
+      <option name="project" value="LOCAL" />
+      <updated>1760920106827</updated>
+    </task>
+    <task id="LOCAL-00170" summary="change name files">
+      <option name="closed" value="true" />
+      <created>1760920127245</created>
+      <option name="number" value="00170" />
+      <option name="presentableId" value="LOCAL-00170" />
+      <option name="project" value="LOCAL" />
+      <updated>1760920127245</updated>
+    </task>
+    <option name="localTasksCounter" value="171" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -714,11 +705,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="test(TaskService): add authenticated user and improve code." />
-    <MESSAGE value="test(TaskControllerTest): add authenticated user and improve code." />
-    <MESSAGE value="test(TaskServiceTest): improvement." />
-    <MESSAGE value="refactor(GoalRepository): add findByUser" />
-    <MESSAGE value="refactor(GoalController): add authenticated user" />
     <MESSAGE value="refactor(GoalMapper): add authenticated user" />
     <MESSAGE value="refactor(GoalService): add authenticated user" />
     <MESSAGE value="refactor(GoalRequestDTO): remove user_goal" />
@@ -739,6 +725,11 @@
     <MESSAGE value="feat(TaskController): new endpoint findAllTaskPerMonth." />
     <MESSAGE value="refactor(TaskMapper): new method toTaskResponseMonthDTO." />
     <MESSAGE value="refactor(TaskRepository): new query findAllTaskByMonth." />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor(TaskRepository): new query findAllTaskByMonth." />
+    <MESSAGE value="refactor(TaskRequestDTO, TaskResponseDTO): change name for StatusUser to StatusTask." />
+    <MESSAGE value="refactor(TaskService): new method findAllTaskByMonth." />
+    <MESSAGE value="refactor(User): add Equals and hashcode." />
+    <MESSAGE value="test(TaskServiceTest): new test shouldFindAllTasksPerMonth." />
+    <MESSAGE value="change name files" />
+    <option name="LAST_COMMIT_MESSAGE" value="change name files" />
   </component>
 </project>
