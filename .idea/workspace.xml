@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="1e6e7e8f-eb2a-436f-b632-716e3fe19f0b" name="Changes" comment="test(TaskControllerTest): change statusUser to statusTask.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/com/pomostudy/controller/TaskControllerTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/pomostudy/controller/TaskControllerTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -115,6 +116,7 @@
     "JUnit.GoalServiceTest.shouldThrowExceptionWhenUserNotBelongToGoal.executor": "Run",
     "JUnit.GoalServiceTest.shouldThrowExceptionWhenUserNotFound.executor": "Run",
     "JUnit.TaskControllerTest.executor": "Run",
+    "JUnit.TaskControllerTest.shouldBeReturnAllTaskPerMonth.executor": "Run",
     "JUnit.TaskControllerTest.shouldCreateTaskReturnStatus201.executor": "Run",
     "JUnit.TaskControllerTest.shouldEditTaskAndReturnStatus200OK.executor": "Run",
     "JUnit.TaskControllerTest.shouldReturnAllTasksWithStatus200.executor": "Run",
@@ -179,7 +181,7 @@
       <recent name="com.pomostudy.dto.user" />
     </key>
   </component>
-  <component name="RunManager" selected="JUnit.TaskServiceTest.shouldFindAllTasksPerMonth">
+  <component name="RunManager" selected="JUnit.TaskControllerTest.shouldBeReturnAllTaskPerMonth">
     <configuration name="PomoStudy" type="Application" factoryName="Application">
       <option name="MAIN_CLASS_NAME" value="com.pomostudy.MyApplication" />
       <module name="PomoStudy" />
@@ -194,7 +196,7 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="TaskControllerTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+    <configuration name="TaskControllerTest.shouldBeReturnAllTaskPerMonth" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
       <module name="PomoStudy" />
       <extension name="coverage">
         <pattern>
@@ -204,7 +206,8 @@
       </extension>
       <option name="PACKAGE_NAME" value="com.pomostudy.controller" />
       <option name="MAIN_CLASS_NAME" value="com.pomostudy.controller.TaskControllerTest" />
-      <option name="TEST_OBJECT" value="class" />
+      <option name="METHOD_NAME" value="shouldBeReturnAllTaskPerMonth" />
+      <option name="TEST_OBJECT" value="method" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -274,19 +277,19 @@
     </configuration>
     <list>
       <item itemvalue="Application.PomoStudy" />
+      <item itemvalue="JUnit.TaskControllerTest.shouldBeReturnAllTaskPerMonth" />
       <item itemvalue="JUnit.TaskRepositoryTest" />
       <item itemvalue="JUnit.TaskRepositoryTest.shouldFindTasksPerMonth" />
       <item itemvalue="JUnit.TaskServiceTest.shouldFindAllTasksDBWithStatus200" />
       <item itemvalue="JUnit.TaskServiceTest.shouldFindAllTasksPerMonth" />
-      <item itemvalue="JUnit.TaskControllerTest" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="JUnit.TaskControllerTest.shouldBeReturnAllTaskPerMonth" />
         <item itemvalue="JUnit.TaskServiceTest.shouldFindAllTasksPerMonth" />
         <item itemvalue="JUnit.TaskServiceTest.shouldFindAllTasksDBWithStatus200" />
         <item itemvalue="JUnit.TaskRepositoryTest.shouldFindTasksPerMonth" />
         <item itemvalue="JUnit.TaskRepositoryTest" />
-        <item itemvalue="JUnit.TaskControllerTest" />
       </list>
     </recent_temporary>
   </component>
@@ -297,22 +300,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1757877900059</updated>
-    </task>
-    <task id="LOCAL-00123" summary="test(AuthenticationControllerTest): authenticated user">
-      <option name="closed" value="true" />
-      <created>1760013488921</created>
-      <option name="number" value="00123" />
-      <option name="presentableId" value="LOCAL-00123" />
-      <option name="project" value="LOCAL" />
-      <updated>1760013488921</updated>
-    </task>
-    <task id="LOCAL-00124" summary="test(AuthenticationServiceTest): new file">
-      <option name="closed" value="true" />
-      <created>1760013518425</created>
-      <option name="number" value="00124" />
-      <option name="presentableId" value="LOCAL-00124" />
-      <option name="project" value="LOCAL" />
-      <updated>1760013518425</updated>
     </task>
     <task id="LOCAL-00125" summary="test(CategoryServiceTest): authenticatedUser">
       <option name="closed" value="true" />
@@ -690,7 +677,23 @@
       <option name="project" value="LOCAL" />
       <updated>1760920719725</updated>
     </task>
-    <option name="localTasksCounter" value="172" />
+    <task id="LOCAL-00172" summary="test(TaskControllerTest): change statusUser to statusTask.">
+      <option name="closed" value="true" />
+      <created>1760964582113</created>
+      <option name="number" value="00172" />
+      <option name="presentableId" value="LOCAL-00172" />
+      <option name="project" value="LOCAL" />
+      <updated>1760964582113</updated>
+    </task>
+    <task id="LOCAL-00173" summary="test(TaskControllerTest): change statusUser to statusTask.">
+      <option name="closed" value="true" />
+      <created>1760964652039</created>
+      <option name="number" value="00173" />
+      <option name="presentableId" value="LOCAL-00173" />
+      <option name="project" value="LOCAL" />
+      <updated>1760964652039</updated>
+    </task>
+    <option name="localTasksCounter" value="174" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -731,5 +734,16 @@
     <MESSAGE value="change name files" />
     <MESSAGE value="test(TaskControllerTest): change statusUser to statusTask." />
     <option name="LAST_COMMIT_MESSAGE" value="test(TaskControllerTest): change statusUser to statusTask." />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/com/pomostudy/service/TaskService.java</url>
+          <line>86</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

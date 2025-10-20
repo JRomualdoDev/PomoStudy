@@ -5,6 +5,7 @@ import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.task.TaskRequestDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
+import com.pomostudy.dto.task.TaskResponseMonthDTO;
 import com.pomostudy.entity.Category;
 import com.pomostudy.entity.Task;
 import com.pomostudy.entity.User;
@@ -23,10 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -205,6 +203,43 @@ class TaskControllerTest {
                 .andExpect(jsonPath("$.totalPages", is(1)))
                 .andExpect(jsonPath("$.totalElements", is(1)));
 
+    }
+
+    @Test
+    @DisplayName("Should be return all Task per month")
+    void shouldBeReturnAllTaskPerMonth() throws Exception {
+
+        String month = "2025-10";
+
+        Task task1 = new Task();
+        task1.setId(100L);
+        Task task2 = new Task();
+        task2.setId(101L);
+
+        TaskResponseMonthDTO dto1 = new TaskResponseMonthDTO(task1);
+        TaskResponseMonthDTO dto2 = new TaskResponseMonthDTO(task2);
+
+        List<TaskResponseMonthDTO> taskList = List.of(dto1, dto2);
+
+        Pageable defaultPageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "id"));
+        Page<TaskResponseMonthDTO> taskPage = new PageImpl<>(taskList, defaultPageable, 2);
+
+        when(taskService.findAllTaskByMonth(
+                eq(defaultPageable),
+                any(AuthenticatedUser.class),
+                eq(month)
+        )).thenReturn(taskPage);
+
+
+            mockMvc.perform(get("/api/task/month/{month}", month)
+                    .contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.content").isArray())
+                    .andExpect(jsonPath("$.content.length()", is(2)))
+                    .andExpect(jsonPath("$.totalElements", is(2)))
+                    .andExpect(jsonPath("$.totalPages", is(1)))
+                    .andExpect(jsonPath("$.pageNumber", is(0)))
+                    .andExpect(jsonPath("$.pageSize", is(10)));
     }
 
     @Test
