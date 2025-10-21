@@ -25,7 +25,6 @@ public class Task implements UserOwned {
 
     private String description;
 
-    @Column(nullable = false, updatable = false)
     private OffsetDateTime startDate;
 
     private OffsetDateTime endDate;
@@ -39,7 +38,7 @@ public class Task implements UserOwned {
     private TaskPriority priority;
 
     @Column(nullable = false)
-    private Integer timeTotalLearning = 0;
+    private Integer timeTotalLearning;
 
     @Column(nullable = false, updatable = false)
     @CreatedDate
@@ -181,5 +180,28 @@ public class Task implements UserOwned {
     @Override
     public User getUser() {
         return user;
+    }
+
+    /**
+     *
+     * Default values when create without the field
+     */
+    @PrePersist
+    protected void onCreate() {
+        if (this.startDate == null) {
+            this.startDate = OffsetDateTime.now();
+        }
+
+        if (this.status == null) {
+            this.status = StatusTask.IN_PROGRESS;
+        }
+
+        if (this.priority == null) {
+            this.priority = TaskPriority.LOW;
+        }
+
+        if (this.timeTotalLearning == null) {
+            this.timeTotalLearning = 0;
+        }
     }
 }
