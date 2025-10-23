@@ -16,24 +16,17 @@ public record TaskRequestDTO(
         @Size(max = 500, message = "Description cannot exceed 500 characters")
         String description,
 
-//        @NotNull(message = "Start date is required")
-        @Future(message = "Start date must be in the future")
         OffsetDateTime startDate,
 
-//        @NotNull(message = "End date is required")
-        @Future(message = "Start date must be in the future")
         OffsetDateTime endDate,
 
-//        @NotNull(message = "Status is required")
         @ValidStatusTask
         StatusTask status,
 
-//        @NotNull(message = "Priority is required")
         @ValidPriority
         TaskPriority priority,
 
         Integer timeTotalLearning,
 
-        @NotNull(message = "Category ID is required")
         Long categoryId ) {
 }
