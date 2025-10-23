@@ -104,7 +104,7 @@ class TaskServiceTest {
                 30,
                 1L
                 );
-        taskResponseDTO = new TaskResponseDTO(1L, "testTask", "loremipsumloremipsumloremipsum", startDate, endDate, StatusTask.IN_PROGRESS, TaskPriority.MEDIUM, 30, 1L);
+        taskResponseDTO = new TaskResponseDTO(1L, "testTask", "loremipsumloremipsumloremipsum", startDate, endDate, StatusTask.IN_PROGRESS, TaskPriority.MEDIUM, 30);
     }
 
     @Test
@@ -125,7 +125,6 @@ class TaskServiceTest {
         assertEquals(StatusTask.IN_PROGRESS, result.status());
         assertEquals(TaskPriority.MEDIUM, result.priority());
         assertEquals(30, result.timeTotalLearning());
-        assertEquals(1L, result.categoryId());
 
         verify(taskMapper, times(1)).toCreateTask(any(TaskRequestDTO.class), any(AuthenticatedUser.class));
         verify(taskRepository, times(1)).save(any(Task.class));
@@ -165,7 +164,6 @@ class TaskServiceTest {
         assertEquals(StatusTask.IN_PROGRESS, result.status());
         assertEquals(TaskPriority.MEDIUM, result.priority());
         assertEquals(30, result.timeTotalLearning());
-        assertEquals(1L, result.categoryId());
 
         verify(taskMapper, times(1)).toUpdateTask(taskRequestDTO, authenticatedUser, taskId);
         verify(taskRepository, times(1)).save(task);
