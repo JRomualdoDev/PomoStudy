@@ -38,8 +38,7 @@ public class TaskMapper {
                 task.getEndDate(),
                 task.getStatus(),
                 task.getPriority(),
-                task.getTimeTotalLearning(),
-                task.getCategory().getId()
+                task.getTimeTotalLearning()
         );
     }
 
@@ -59,9 +58,15 @@ public class TaskMapper {
         if (user.isEmpty())
             throw ResourceExceptionFactory.notFound("User", authenticatedUser.getUser().getId());
 
-        Optional<Category> category = categoryRepository.findByIdAndUser(taskRequestDTO.categoryId(), authenticatedUser.getUser());
-        if (category.isEmpty())
-            throw ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId());
+        if ( taskRequestDTO.categoryId() != null) {
+            Optional<Category> category = categoryRepository.findByIdAndUser(taskRequestDTO.categoryId(), authenticatedUser.getUser());
+
+            if (category.isEmpty())
+                throw ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId());
+
+            task.setCategory(category.get());
+
+        }
 
         task.setName(taskRequestDTO.name());
         task.setDescription(taskRequestDTO.description());
@@ -71,7 +76,6 @@ public class TaskMapper {
         task.setPriority(taskRequestDTO.priority());
         task.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
         task.setUser(user.get());
-        task.setCategory(category.get());
 
         return task;
     }
