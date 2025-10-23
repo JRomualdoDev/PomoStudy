@@ -15,8 +15,8 @@ public record TaskResponseDTO(
         OffsetDateTime endDate,
         StatusTask status,
         TaskPriority priority,
-        Integer timeTotalLearning,
-        Long categoryId) {
+        Integer timeTotalLearning
+) {
 
     public TaskResponseDTO(Task task) {
         this(
@@ -27,8 +27,7 @@ public record TaskResponseDTO(
                 task.getEndDate(),
                 task.getStatus(),
                 task.getPriority(),
-                task.getTimeTotalLearning(),
-                task.getCategory().getId()
+                task.getTimeTotalLearning()
         );
     }
 }
