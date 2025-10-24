@@ -4,7 +4,8 @@ import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.config.security.SecurityConfigurations;
 import com.pomostudy.dto.ErrorResponseDTO;
 import com.pomostudy.dto.PaginationDTO;
-import com.pomostudy.dto.task.TaskRequestDTO;
+import com.pomostudy.dto.task.TaskRequestCreateDTO;
+import com.pomostudy.dto.task.TaskRequestUpdateDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.dto.task.TaskResponseMonthDTO;
 import com.pomostudy.service.TaskService;
@@ -28,8 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/task")
@@ -51,7 +50,7 @@ public class TaskController {
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<TaskResponseDTO> createTask(
             @Valid
-            @RequestBody TaskRequestDTO taskRequestDTO,
+            @RequestBody TaskRequestCreateDTO taskRequestDTO,
             UriComponentsBuilder ucb,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser
     ) {
@@ -77,7 +76,7 @@ public class TaskController {
                     schema = @Schema(implementation = ErrorResponseDTO.class)))
     public ResponseEntity<TaskResponseDTO> editTask(
             @Valid
-            @RequestBody TaskRequestDTO taskRequestDTO,
+            @RequestBody TaskRequestUpdateDTO taskRequestDTO,
             @PathVariable("id") Long id,
             @AuthenticationPrincipal AuthenticatedUser authenticatedUser
     ) {
