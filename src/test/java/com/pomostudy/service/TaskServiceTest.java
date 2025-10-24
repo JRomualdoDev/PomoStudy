@@ -1,10 +1,11 @@
 package com.pomostudy.service;
 
 import com.pomostudy.config.security.AuthenticatedUser;
+import com.pomostudy.dto.task.TaskRequestUpdateDTO;
 import com.pomostudy.dto.task.TaskResponseMonthDTO;
 import com.pomostudy.enums.StatusTask;
 import com.pomostudy.mapper.TaskMapper;
-import com.pomostudy.dto.task.TaskRequestDTO;
+import com.pomostudy.dto.task.TaskRequestCreateDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.entity.Category;
 import com.pomostudy.entity.Task;
@@ -60,7 +61,8 @@ class TaskServiceTest {
 
     private User user;
 
-    private TaskRequestDTO taskRequestDTO;
+    private TaskRequestCreateDTO taskRequestCreateDTO;
+    private TaskRequestUpdateDTO taskRequestUpdateDTO;
     private TaskResponseDTO taskResponseDTO;
     private Task task;
 
@@ -94,7 +96,18 @@ class TaskServiceTest {
         task.setUser(user);
         task.setCategory(category);
 
-        taskRequestDTO = new TaskRequestDTO(
+        taskRequestCreateDTO = new TaskRequestCreateDTO(
+                "testTask",
+                "loremipsumloremipsumloremipsum",
+                startDate,
+                endDate,
+                StatusTask.IN_PROGRESS,
+                TaskPriority.MEDIUM,
+                30,
+                1L
+                );
+
+        taskRequestUpdateDTO = new TaskRequestUpdateDTO(
                 "testTask",
                 "loremipsumloremipsumloremipsum",
                 startDate,
@@ -111,11 +124,11 @@ class TaskServiceTest {
     @DisplayName("Should save Task with success in the db")
     void shouldSaveTaskSuccessfully() {
 
-        when(taskMapper.toCreateTask(any(TaskRequestDTO.class), any(AuthenticatedUser.class))).thenReturn(task);
+        when(taskMapper.toCreateTask(any(TaskRequestCreateDTO.class), any(AuthenticatedUser.class))).thenReturn(task);
         when(taskRepository.save(any(Task.class))).thenReturn(task);
         when(taskMapper.toTaskResponseDTO(any(Task.class))).thenReturn(taskResponseDTO);
 
-        TaskResponseDTO result = taskService.save(taskRequestDTO, authenticatedUser);
+        TaskResponseDTO result = taskService.save(taskRequestCreateDTO, authenticatedUser);
 
         assertNotNull(result);
         assertEquals("testTask", result.name());
@@ -126,7 +139,7 @@ class TaskServiceTest {
         assertEquals(TaskPriority.MEDIUM, result.priority());
         assertEquals(30, result.timeTotalLearning());
 
-        verify(taskMapper, times(1)).toCreateTask(any(TaskRequestDTO.class), any(AuthenticatedUser.class));
+        verify(taskMapper, times(1)).toCreateTask(any(TaskRequestCreateDTO.class), any(AuthenticatedUser.class));
         verify(taskRepository, times(1)).save(any(Task.class));
         verify(taskMapper, times(1)).toTaskResponseDTO(any(Task.class));
     }
@@ -135,12 +148,12 @@ class TaskServiceTest {
     @DisplayName("Should throw exception when user is not found")
     void shouldThrowExceptionWhenUserNotFound() {
 
-        when(taskMapper.toCreateTask(any(TaskRequestDTO.class), any(AuthenticatedUser.class))).thenThrow(ResourceExceptionFactory.notFound("User", user.getId()));
+        when(taskMapper.toCreateTask(any(TaskRequestCreateDTO.class), any(AuthenticatedUser.class))).thenThrow(ResourceExceptionFactory.notFound("User", user.getId()));
 
-        ResourceException error = assertThrows(ResourceException.class, () -> taskService.save(taskRequestDTO, authenticatedUser));
+        ResourceException error = assertThrows(ResourceException.class, () -> taskService.save(taskRequestCreateDTO, authenticatedUser));
         assertEquals("User with id 1 not found.", error.getMessage());
 
-        verify(taskMapper, times(1)).toCreateTask(taskRequestDTO, authenticatedUser);
+        verify(taskMapper, times(1)).toCreateTask(taskRequestCreateDTO, authenticatedUser);
         verify(taskRepository, never()).save(any(Task.class));
     }
 
@@ -150,11 +163,11 @@ class TaskServiceTest {
         Long taskId = 1L;
         when(authenticatedUser.getUser()).thenReturn(user);
         when(authorizationService.isOwner(Task.class, taskId, user.getId())).thenReturn(true);
-        when(taskMapper.toUpdateTask(taskRequestDTO, authenticatedUser, taskId)).thenReturn(task);
+        when(taskMapper.toUpdateTask(taskRequestUpdateDTO, authenticatedUser, taskId)).thenReturn(task);
         when(taskRepository.save(any(Task.class))).thenReturn(task);
         when(taskMapper.toTaskResponseDTO(any(Task.class))).thenReturn(taskResponseDTO);
 
-        TaskResponseDTO result = taskService.edit(taskRequestDTO, authenticatedUser, taskId);
+        TaskResponseDTO result = taskService.edit(taskRequestUpdateDTO, authenticatedUser, taskId);
 
         assertNotNull(result);
         assertEquals("testTask", result.name());
@@ -165,7 +178,7 @@ class TaskServiceTest {
         assertEquals(TaskPriority.MEDIUM, result.priority());
         assertEquals(30, result.timeTotalLearning());
 
-        verify(taskMapper, times(1)).toUpdateTask(taskRequestDTO, authenticatedUser, taskId);
+        verify(taskMapper, times(1)).toUpdateTask(taskRequestUpdateDTO, authenticatedUser, taskId);
         verify(taskRepository, times(1)).save(task);
         verify(taskMapper, times(1)).toTaskResponseDTO(task);
     }
@@ -177,13 +190,13 @@ class TaskServiceTest {
         Long taskId = 1L;
         when(authenticatedUser.getUser()).thenReturn(user);
         when(authorizationService.isOwner(Task.class, taskId, user.getId())).thenReturn(true);
-        when(taskMapper.toUpdateTask(taskRequestDTO, authenticatedUser, taskId)).thenThrow(ResourceExceptionFactory.notFound("Task", user.getId()));
+        when(taskMapper.toUpdateTask(taskRequestUpdateDTO, authenticatedUser, taskId)).thenThrow(ResourceExceptionFactory.notFound("Task", user.getId()));
 
-        ResourceException error = assertThrows(ResourceException.class, () -> taskService.edit(taskRequestDTO, authenticatedUser, taskId));
+        ResourceException error = assertThrows(ResourceException.class, () -> taskService.edit(taskRequestUpdateDTO, authenticatedUser, taskId));
 
         assertEquals("Task with id 1 not found.", error.getMessage());
 
-        verify(taskMapper, times(1)).toUpdateTask(taskRequestDTO, authenticatedUser, taskId);
+        verify(taskMapper, times(1)).toUpdateTask(taskRequestUpdateDTO, authenticatedUser, taskId);
         verify(taskRepository, never()).save(any(Task.class));
     }
 
@@ -194,13 +207,13 @@ class TaskServiceTest {
         Long taskId = 1L;
         when(authenticatedUser.getUser()).thenReturn(user);
         when(authorizationService.isOwner(Task.class, taskId, user.getId())).thenReturn(true);
-        when(taskMapper.toUpdateTask(taskRequestDTO, authenticatedUser, taskId)).thenThrow(ResourceExceptionFactory.notFound("Category", taskRequestDTO.categoryId()));
+        when(taskMapper.toUpdateTask(taskRequestUpdateDTO, authenticatedUser, taskId)).thenThrow(ResourceExceptionFactory.notFound("Category", taskRequestUpdateDTO.categoryId()));
 
-        ResourceException error = assertThrows(ResourceException.class, () -> taskService.edit(taskRequestDTO, authenticatedUser, taskId));
+        ResourceException error = assertThrows(ResourceException.class, () -> taskService.edit(taskRequestUpdateDTO, authenticatedUser, taskId));
 
         assertEquals("Category with id 1 not found.", error.getMessage());
 
-        verify(taskMapper, times(1)).toUpdateTask(taskRequestDTO, authenticatedUser, taskId);
+        verify(taskMapper, times(1)).toUpdateTask(taskRequestUpdateDTO, authenticatedUser, taskId);
         verify(taskRepository, never()).save(any(Task.class));
     }
 
@@ -245,7 +258,7 @@ class TaskServiceTest {
         assertFalse(result.isEmpty());
         assertEquals(1, result.getContent().size());
         assertEquals(taskResponseDTO,result.getContent().getFirst());
-        assertEquals(taskRequestDTO.name(), result.getContent().getFirst().name());
+        assertEquals(taskRequestCreateDTO.name(), result.getContent().getFirst().name());
 
         verify(taskRepository, never()).findAll(pageable);
         verify(taskRepository, times(1)).findByUser(user, pageable);
