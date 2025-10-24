@@ -1,9 +1,10 @@
 package com.pomostudy.service;
 
 import com.pomostudy.config.security.AuthenticatedUser;
+import com.pomostudy.dto.task.TaskRequestUpdateDTO;
 import com.pomostudy.dto.task.TaskResponseMonthDTO;
 import com.pomostudy.mapper.TaskMapper;
-import com.pomostudy.dto.task.TaskRequestDTO;
+import com.pomostudy.dto.task.TaskRequestCreateDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.entity.Task;
 import com.pomostudy.exception.ResourceExceptionFactory;
@@ -41,14 +42,14 @@ public class TaskService {
         this.authorizationService = authorizationService;
     }
 
-    public TaskResponseDTO save(TaskRequestDTO taskRequestDTO, AuthenticatedUser authenticatedUser) {
+    public TaskResponseDTO save(TaskRequestCreateDTO taskRequestDTO, AuthenticatedUser authenticatedUser) {
 
         Task taskSave = taskRepository.save(taskMapper.toCreateTask(taskRequestDTO, authenticatedUser));
 
         return taskMapper.toTaskResponseDTO(taskSave);
     }
 
-    public TaskResponseDTO edit(TaskRequestDTO taskRequestDTO, AuthenticatedUser authenticatedUser,Long id) {
+    public TaskResponseDTO edit(TaskRequestUpdateDTO taskRequestDTO, AuthenticatedUser authenticatedUser, Long id) {
 
         Long userId = authenticatedUser.getUser().getId();
 
