@@ -3,7 +3,8 @@ package com.pomostudy.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pomostudy.config.security.AuthenticatedUser;
 import com.pomostudy.config.security.SecurityConfigurations;
-import com.pomostudy.dto.task.TaskRequestDTO;
+import com.pomostudy.dto.task.TaskRequestCreateDTO;
+import com.pomostudy.dto.task.TaskRequestUpdateDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.dto.task.TaskResponseMonthDTO;
 import com.pomostudy.entity.Category;
@@ -66,7 +67,7 @@ class TaskControllerTest {
     @MockBean
     private TokenService tokenService;
 
-    private TaskRequestDTO taskRequestDTO;
+    private TaskRequestCreateDTO taskRequestDTO;
     private TaskResponseDTO taskResponseDTO;
     private Task task;
     private User user;
@@ -78,7 +79,7 @@ class TaskControllerTest {
 
     @BeforeEach
     void setUp() {
-        taskRequestDTO = new TaskRequestDTO(
+        taskRequestDTO = new TaskRequestCreateDTO(
                 "testTask",
                 "loremipsumloremipsumloremipsum",
                 startDate,
@@ -127,7 +128,7 @@ class TaskControllerTest {
     @DisplayName("Should be create task and return status 201 created")
     void shouldCreateTaskReturnStatus201() throws Exception {
 
-        when(taskService.save(any(TaskRequestDTO.class), any(AuthenticatedUser.class))).thenReturn(taskResponseDTO);
+        when(taskService.save(any(TaskRequestCreateDTO.class), any(AuthenticatedUser.class))).thenReturn(taskResponseDTO);
 
         mockMvc.perform(post("/api/task")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -142,7 +143,7 @@ class TaskControllerTest {
     @DisplayName("Should be return 400 Bad request when create a new task with invalid data")
     void shouldBeReturn400BadRequestWhenCreateNewTaskWithInvalidData() throws Exception {
 
-        TaskRequestDTO invalidTaskRequestDTO = new TaskRequestDTO(
+        TaskRequestCreateDTO invalidTaskRequestDTO = new TaskRequestCreateDTO(
                 null,
                 "loremipsumloremipsumloremipsum",
                 startDate,
@@ -163,7 +164,7 @@ class TaskControllerTest {
     @DisplayName("Should be edit task and return status 200 ok")
     void shouldEditTaskAndReturnStatus200OK() throws Exception {
 
-        when(taskService.edit(any(TaskRequestDTO.class), any(AuthenticatedUser.class), anyLong())).thenReturn(taskResponseDTO);
+        when(taskService.edit(any(TaskRequestUpdateDTO.class), any(AuthenticatedUser.class), anyLong())).thenReturn(taskResponseDTO);
 
         mockMvc.perform(put("/api/task/{id}", taskID)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -178,7 +179,7 @@ class TaskControllerTest {
     @DisplayName("Should be return 404 Not Found for try edit non-existent task")
     void shouldReturn404TryEditNonExistentTask() throws Exception {
 
-        when(taskService.edit(any(TaskRequestDTO.class), any(AuthenticatedUser.class), anyLong()))
+        when(taskService.edit(any(TaskRequestUpdateDTO.class), any(AuthenticatedUser.class), anyLong()))
                 .thenThrow(ResourceExceptionFactory.notFound("Task", taskID));
 
         mockMvc.perform(put("/api/task/{id}", taskID)
