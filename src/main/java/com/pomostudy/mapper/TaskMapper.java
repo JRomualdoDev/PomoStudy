@@ -1,7 +1,8 @@
 package com.pomostudy.mapper;
 
 import com.pomostudy.config.security.AuthenticatedUser;
-import com.pomostudy.dto.task.TaskRequestDTO;
+import com.pomostudy.dto.task.TaskRequestCreateDTO;
+import com.pomostudy.dto.task.TaskRequestUpdateDTO;
 import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.dto.task.TaskResponseMonthDTO;
 import com.pomostudy.entity.Category;
@@ -50,7 +51,7 @@ public class TaskMapper {
         );
     }
 
-    public Task toCreateTask(TaskRequestDTO taskRequestDTO, AuthenticatedUser authenticatedUser) {
+    public Task toCreateTask(TaskRequestCreateDTO taskRequestDTO, AuthenticatedUser authenticatedUser) {
 
         Task task = new Task();
 
@@ -80,7 +81,7 @@ public class TaskMapper {
         return task;
     }
 
-    public Task toUpdateTask(TaskRequestDTO taskRequestDTO, AuthenticatedUser authenticatedUser,Long id) {
+    public Task toUpdateTask(TaskRequestUpdateDTO taskRequestDTO, AuthenticatedUser authenticatedUser, Long id) {
 
         Task task = taskRepository.findById(id)
                     .filter(t -> t.getUser().getId().equals(authenticatedUser.getUser().getId()))
