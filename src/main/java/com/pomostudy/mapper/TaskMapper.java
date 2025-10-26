@@ -97,13 +97,13 @@ public class TaskMapper {
 
         }
 
-        task.setName(taskRequestDTO.name());
-        task.setDescription(taskRequestDTO.description());
-        task.setStartDate(taskRequestDTO.startDate());
-        task.setEndDate(taskRequestDTO.endDate());
-        task.setStatus(taskRequestDTO.status());
-        task.setPriority(taskRequestDTO.priority());
-        task.setTimeTotalLearning(taskRequestDTO.timeTotalLearning());
+        Optional.ofNullable(taskRequestDTO.name()).ifPresent(task::setName);
+        Optional.ofNullable(taskRequestDTO.description()).ifPresent(task::setDescription);
+        Optional.ofNullable(taskRequestDTO.startDate()).ifPresent(task::setStartDate);
+        Optional.ofNullable(taskRequestDTO.endDate()).ifPresent(task::setEndDate);
+        Optional.ofNullable(taskRequestDTO.status()).ifPresent(task::setStatus);
+        Optional.ofNullable(taskRequestDTO.priority()).ifPresent(task::setPriority);
+        Optional.ofNullable(taskRequestDTO.timeTotalLearning()).ifPresent(task::setTimeTotalLearning);
 
         return task;
     }
