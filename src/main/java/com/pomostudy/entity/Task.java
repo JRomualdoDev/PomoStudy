@@ -20,7 +20,6 @@ public class Task implements UserOwned {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private String name;
 
     private String description;
