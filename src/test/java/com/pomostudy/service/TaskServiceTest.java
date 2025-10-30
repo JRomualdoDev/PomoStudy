@@ -117,7 +117,7 @@ class TaskServiceTest {
                 30,
                 1L
                 );
-        taskResponseDTO = new TaskResponseDTO(1L, "testTask", "loremipsumloremipsumloremipsum", startDate, endDate, StatusTask.IN_PROGRESS, TaskPriority.MEDIUM, 30);
+        taskResponseDTO = new TaskResponseDTO(1L, "testTask", "loremipsumloremipsumloremipsum", startDate, endDate, StatusTask.IN_PROGRESS, TaskPriority.MEDIUM, 30, 1L);
     }
 
     @Test
