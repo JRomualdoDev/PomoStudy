@@ -96,7 +96,8 @@ class TaskControllerTest {
                 endDate,
                 StatusTask.IN_PROGRESS,
                 TaskPriority.MEDIUM,
-                30
+                30,
+                1L
         );
 
         user = new User();
