@@ -39,7 +39,10 @@ public class TaskMapper {
                 task.getEndDate(),
                 task.getStatus(),
                 task.getPriority(),
-                task.getTimeTotalLearning()
+                task.getTimeTotalLearning(),
+                Optional.ofNullable(task.getCategory())
+                       .map(Category::getId)
+                       .orElse(null)
         );
     }
 
