@@ -9,7 +9,7 @@ COPY src ./src
 
 RUN mvn package -DskipTests
 
-FROM eclipse-temurin:21-jre-slim
+FROM eclipse-temurin:21-jre-alpine
 
 EXPOSE 8080
 
