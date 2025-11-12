@@ -1,16 +1,20 @@
-FROM ubuntu:latest AS build
+FROM maven:3.9-eclipse-temurin-21 AS build
 
-RUN apt-get update
-RUN apt-get install openjdk-21-jdk -y
-COPY . .
+WORKDIR /app
 
-RUN apt-get install maven -y
-RUN mvn clean install
+COPY pom.xml .
+RUN mvn dependency:resolve
 
-FROM openjdk:21-jdk-slim
+COPY src ./src
+
+RUN mvn package -DskipTests
+
+FROM eclipse-temurin:21-jre-slim
 
 EXPOSE 8080
 
-COPY --from=build /target/PomoStudy-1.0-SNAPSHOT.jar app.jar
+WORKDIR /app
+
+COPY --from=build /app/target/PomoStudy-1.0-SNAPSHOT.jar app.jar
 
 ENTRYPOINT [ "java", "-jar", "app.jar" ]
