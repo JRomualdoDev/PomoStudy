@@ -42,14 +42,6 @@ public class UserController {
         this.userService = userService;
     }
 
-//    @PostMapping
-//    public ResponseEntity<UserResponseDTO> createUser(@Validated(OnCreate.class) @RequestBody UserCreateRequestDTO userDto) {
-//
-//        UserResponseDTO userResponseDTO = userService.save(userDto);
-//
-//        return ResponseEntity.status(201).body(userResponseDTO);
-//    }
-
     @PutMapping("{id}")
     @Operation(summary = "Edit data user", description = "Method for editing data user")
     @ApiResponse(responseCode = "200", description = "User editing with success")
