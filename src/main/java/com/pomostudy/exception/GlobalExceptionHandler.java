@@ -20,10 +20,20 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ResourceException.class)
     public ResponseEntity<ErrorResponseDTO> handleResourceException(ResourceException ex) {
+
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+
+        if ("EMAIL_DUPLICATED".equals(ex.getCode()) || "RESOURCE_ALREADY_EXISTS".equals(ex.getCode())) {
+            status = HttpStatus.CONFLICT;
+        }
+        else if ("NOT_FOUND".equals(ex.getCode()) || "RESOURCE_NOT_FOUND".equals(ex.getCode())) {
+            status = HttpStatus.NOT_FOUND;
+        }
+
         ErrorResponseDTO error = new ErrorResponseDTO(
                 ex.getCode(),
                 ex.getMessage(),
-                getStatusFromException(ex)
+                status
         );
         return ResponseEntity.status(error.getStatus()).body(error);
     }
