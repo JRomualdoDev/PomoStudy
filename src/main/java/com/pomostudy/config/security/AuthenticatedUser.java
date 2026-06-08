@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
 
 public class AuthenticatedUser implements UserDetails {
 
@@ -53,7 +52,6 @@ public class AuthenticatedUser implements UserDetails {
         return UserDetails.super.isEnabled();
     }
 
-    // Get Authority
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (user.getRole() == UserRole.ADMIN)
@@ -61,7 +59,6 @@ public class AuthenticatedUser implements UserDetails {
         else return List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
-    // isAdmin ???
     public boolean isAdmin() {
         return getAuthorities()
                 .stream()
