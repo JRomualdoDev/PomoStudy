@@ -9,12 +9,9 @@ import com.pomostudy.enums.UserRole;
 import com.pomostudy.exception.ResourceException;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.UserRepository;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.time.OffsetDateTime;
-import java.util.Optional;
 
 @Component
 public class UserMapper {
