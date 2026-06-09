@@ -5,7 +5,7 @@ public class ResourceExceptionFactory {
     private ResourceExceptionFactory() {}
 
     public static ResourceException notFound(String resource, Object id) {
-        String code = (resource + " NOT_FOUND").toUpperCase().replace(' ', '_');
+        String code = ("RESOURCE_NOT_FOUND").toUpperCase().replace(' ', '_');
         String message = resource +  " with id " + id + " not found.";
         return new ResourceException(resource, "not_found", code , message);
     }
