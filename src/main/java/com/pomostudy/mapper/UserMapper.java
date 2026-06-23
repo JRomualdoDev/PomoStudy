@@ -18,8 +18,11 @@ public class UserMapper {
 
     private final UserRepository userRepository;
 
-    public UserMapper(UserRepository userRepository) {
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public UserMapper(UserRepository userRepository,  BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     public UserResponseDTO toUserResponseDTO(User user) {
@@ -60,7 +63,7 @@ public class UserMapper {
         }
 
         if (userUpdateRequestDTO.getPassword() != null) {
-            String encryptedPassword = new BCryptPasswordEncoder().encode(user.getPassword());
+            String encryptedPassword = bCryptPasswordEncoder.encode(userUpdateRequestDTO.getPassword());
             user.setPassword(encryptedPassword);
         }
 
