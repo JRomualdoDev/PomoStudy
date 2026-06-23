@@ -1,9 +1,7 @@
 package com.pomostudy.service;
 
 import com.pomostudy.config.security.AuthenticatedUser;
-import com.pomostudy.dto.task.TaskResponseDTO;
 import com.pomostudy.dto.user.UserCreateRequestDTO;
-import com.pomostudy.entity.Task;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.mapper.UserMapper;
 import com.pomostudy.dto.user.UserResponseDTO;
@@ -61,6 +59,7 @@ public class UserService {
         if (authenticatedUser.isAdmin()) {
             userPage = userRepository.findAll(pageable);
         } else {
+
             Optional<User> userOptional = userRepository.findById(authenticatedUser.getUser().getId());
 
             if (userOptional.isPresent()) {
