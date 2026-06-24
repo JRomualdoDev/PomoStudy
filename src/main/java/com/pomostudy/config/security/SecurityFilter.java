@@ -30,26 +30,28 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        var token = this.recoveryToken(request);
-        if (token != null) {
-            var email = tokenService.validateToken(token);
-            User user = userRepository.findUserByEmail(email).orElseThrow(() -> ResourceExceptionFactory.notFound("User", 1L));
 
-            AuthenticatedUser authenticatedUser = new AuthenticatedUser(user);
+        recoverToken(request)
+                .map(tokenService::validateToken)
+                .flatMap(userRepository::findUserByEmail)
+                .map(AuthenticatedUser::new)
+                .ifPresent(this::authenticateUser);
 
-            if (user != null) {
-                var authentication = new UsernamePasswordAuthenticationToken(authenticatedUser, null, authenticatedUser.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            }
-        }
         filterChain.doFilter(request, response);
     }
 
-    private String recoveryToken(HttpServletRequest request) {
-        var authHeader = request.getHeader("Authorization");
+   private void authenticateUser(AuthenticatedUser user) {
+        var auth = new UsernamePasswordAuthenticationToken(
+                user,
+                null,
+                user.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
+   }
 
-        if (authHeader == null) return null;
-
-        return authHeader.replace("Bearer ", "");
-    }
+   private Optional<String> recoverToken(HttpServletRequest request) {
+        return Optional.ofNullable(request.getHeader("Authorization"))
+                .filter(h -> h.startsWith("Bearer "))
+                .map(h -> h.substring(7));
+   }
 }
