@@ -23,14 +23,17 @@ public class SecurityConfigurations {
 
     SecurityFilter securityFilter;
 
+    private final SecurityEntryPoint securityEntryPoint;
+
     public static final String SECURITY = "bearerAuth";
 
-    public SecurityConfigurations(SecurityFilter securityFilter) {
+    public SecurityConfigurations(SecurityFilter securityFilter, SecurityEntryPoint securityEntryPoint) {
         this.securityFilter = securityFilter;
+        this.securityEntryPoint = securityEntryPoint;
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity, SecurityEntryPoint securityEntryPoint) throws Exception {
         return httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -41,6 +44,8 @@ public class SecurityConfigurations {
                         .requestMatchers(HttpMethod.POST, "/api/user").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(securityEntryPoint))
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
