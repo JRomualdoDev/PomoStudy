@@ -9,7 +9,7 @@ import com.pomostudy.enums.UserRole;
 import com.pomostudy.exception.ResourceException;
 import com.pomostudy.exception.ResourceExceptionFactory;
 import com.pomostudy.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 
@@ -18,11 +18,11 @@ public class UserMapper {
 
     private final UserRepository userRepository;
 
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserMapper(UserRepository userRepository,  BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserMapper(UserRepository userRepository,  PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
-        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public UserResponseDTO toUserResponseDTO(User user) {
@@ -39,7 +39,7 @@ public class UserMapper {
             throw new ResourceException("", "", "EMAIL_DUPLICATED", "Email Already in use");
         });
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(userCreateRequestDTO.password());
+        String encryptedPassword = passwordEncoder.encode(userCreateRequestDTO.password());
 
         return new User(
                 userCreateRequestDTO.name(),
@@ -63,7 +63,7 @@ public class UserMapper {
         }
 
         if (userUpdateRequestDTO.getPassword() != null) {
-            String encryptedPassword = bCryptPasswordEncoder.encode(userUpdateRequestDTO.getPassword());
+            String encryptedPassword = passwordEncoder.encode(userUpdateRequestDTO.getPassword());
             user.setPassword(encryptedPassword);
         }
 
